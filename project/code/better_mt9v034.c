@@ -49,7 +49,7 @@ void mt9v034_binaryzation_conduct(void)
             }
             else
             {
-                ex_mt9v03x_image_binaryzation[i][j]=RGB565_WHITE;
+                ex_mt9v03x_image_binaryzation[i][j]=255;
             }
         }
     }
@@ -84,7 +84,7 @@ void sobe_binaryzation_conduct(void)
 //--------------------------------------------------------------------------------------------------------------------
 void mt9v034_tft180_dajin_show(void)
 {
-    tft180_show_gray_image(0, 0, mt9v03x_image[0],MT9V03X_W, MT9V03X_H, MT9V03X_W/2, MT9V03X_H/2,(binaryzation_value+ex_binaryzation_conduct_adjustment));
+    tft180_show_gray_image(0, 0, mt9v03x_image[0],MT9V03X_W, MT9V03X_H, MT9V03X_W/2, MT9V03X_H/2,(binaryzation_value()+ex_binaryzation_conduct_adjustment));
 }
 //--------------------------------------------------------------------------------------------------------------------
 // 函数简介     计算赛道实际中心线（可优化删除，建议直接用寻线函数和中线储存数组ex_midline）
@@ -122,7 +122,7 @@ void find_track_center_line(void)
     }
 }
 //---------------------------------------------------------------------------------------------------------------------
-// 函数简介     计算当前赛道类型（待实际检验，不建议使用，可优化删除）
+// 函数简介     计算当前赛道类型（待实际检验，不建议使用，建议优化删除）
 // 备注信息     通过赛道实际中心线距离屏幕中心线的偏差值,计算当前智能车距离赛道中心的距离/当前赛道类型.ex_track_situation的值代表路况，0x01指当前为向左弯道，0x02代表当前为向右
 //        弯道，0x03为直路，0x04为十字路口
 //---------------------------------------------------------------------------------------------------------------------
@@ -653,8 +653,8 @@ int16 change_detection(uint8 select,uint8 location)
 int8 curve_detection(void)
 {
     int8 left=0,right=0;
-    left=lost_line_left;
-    right=lost_line_right;
+    left=lost_line_left();
+    right=lost_line_right();
     if(left!=-1 && right==-1 && straight_line_judgment!=1)return 1;
     if(left==-1 && right!=-1 && straight_line_judgment!=1)return 2;
     return -1;
@@ -695,7 +695,7 @@ int8 crossroad_detection(void)
         x2=change_detection(2,1);
         y2=change_detection(2,2);
         connect_line(x1,y1,x2,y2);
-        if(lost_line_left==-1 && lost_line_right==-1)crossroad_flag==0;
+        if(lost_line_left()==-1 && lost_line_right()==-1){crossroad_flag==0;}
     }
     return crossroad;
 }

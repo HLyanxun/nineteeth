@@ -42,8 +42,7 @@ int main (void)
     debug_init();                       // 务必保留，本函数用于初始化MPU 时钟 调试串口
 
     tft180_init();
-    pit_us_init(TIM2_PIT,20);
-   // steering_engine_init(TIM1_PWM_MAP0_CH1_A8,50,90);
+    pit_ms_init(TIM2_PIT,20);
     mt9v03x_init();
 
     gpio_init(C5, GPI, 1, GPI_PULL_UP);
@@ -51,20 +50,13 @@ int main (void)
     gpio_init(E3, GPI, 1, GPI_PULL_UP);
     gpio_init(E4, GPI, 1, GPI_PULL_UP);
      // 此处编写用户代码 例如外设初始化代码等
-    ex_binaryzation_conduct_adjustment=0;
 
      while(1)
      {
          tft180_show_uint(0,70, mode,1);
          mt9v034_binaryzation_conduct();
- //        switch(mode)
-  //       {
-  //       case 0:tft180_displayimage03x(mt9v03x_image[0],MT9V03X_W/2,MT9V03X_H/2);break;
          mt9v034_tft180_show();
-  //       case 2:mt9v034_tft180_dajin_show();break;
-   //      default:
-    //         break;
-    //     }
+
          // 此处编写需要循环执行的代码
      }
  }
@@ -72,12 +64,7 @@ int main (void)
  void pit_hander(void)
  {
      static uint8 a,b;
-     static uint c;
      ex_binaryzation_conduct_adjustment=MK021851_interrupt(E2,E4,ex_binaryzation_conduct_adjustment);
-     c++;
-     if(c>=2000)
-     {
-     c=0;
      b=a;
      a=gpio_get_level(C5);
      if(a==1 && b==0)
@@ -85,7 +72,7 @@ int main (void)
          mode++;
          if(mode>=3)mode=0;
      }
-     }
+
  }
 
 

@@ -65,6 +65,11 @@ void steering_engine_set_angle(pwm_channel_enum pin,int angle)
 }
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     旋转编码器的输出检测
+// 返回值         旋转编码器旋转量，正转增大，逆转减小
+// 参数说明     pin_a   旋转编码器a端
+// 参数说明     pin_b   旋转编码器b端
+// 参数说明     value   通过旋转编码器直接进行调节的值
+// 使用实例     MK021851_interrupt(E2,C3,a);
 //-------------------------------------------------------------------------------------------------------------------
 
 int MK021851_interrupt(gpio_pin_enum pin_a,gpio_pin_enum pin_b,int value)
@@ -80,7 +85,9 @@ int MK021851_interrupt(gpio_pin_enum pin_a,gpio_pin_enum pin_b,int value)
         if(flag==0)
         {if(La==1 && Lb==1){if(a==0 && b==1){turn=1;}if(a==1 && b==0){turn=2;}}}
         flag=1;                                                                     //判断正反转之后，让标志位置1，减少后续判断；
-    }else {
+    }
+    else
+    {
         flag=0;
         turn=0;
     }
