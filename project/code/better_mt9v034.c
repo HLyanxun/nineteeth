@@ -16,6 +16,8 @@ uint8 ex_roundabout_type;   //1左环岛2为右环岛
 uint8 ex_roundabout_state;
 uint8 ex_zebra_crossing_flag;
 uint8 ex_zebra_pass_count;
+uint8 ex_crossroad_flag;
+uint8 ex_crossroad_state;
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     通过三角函数计算角度
 //-------------------------------------------------------------------------------------------------------------------
@@ -519,12 +521,12 @@ int8 curve_detection(void)
 //--------------------------------------------------------------------------------------------------------------------------
 int8 crossroad_detection(void)
 {
-    int8 left_down=0,right_down=0,left_up=0,right_up=0;
+    int8 left_down=0,right_down=0,left_up=0;
     uint8 i,j,crossroad_flag=0,crossroad=0;
     uint temp=0;
     left_down=change_detection(1,2);
     right_down=change_detection(3,2);
-    if(left_down!=-1 && right_down!=-1)           //判断两边都丢线
+    if(left_down!=-1 && right_down!=-1 && ex_crossroad_flag!=1)           //判断两边都丢线
     {
         left_up=change_detection(2, 2);
         for(i=(left_down-5);i>(left_up+5);i--)    //检测中心是否存在大量白点
@@ -533,23 +535,54 @@ int8 crossroad_detection(void)
             {
                  if(ex_mt9v03x_image_binaryzation[i][j]==255)temp++;
                  if(temp>200)temp=100;
-
             }
         }
-        if(temp<50) crossroad_flag=1;            //如果存在大量白点,则标记为进入十字路口
+        if(temp<50) ex_crossroad_flag=1;            //如果存在大量白点,则标记为进入十字路口
     }
-    if(crossroad_flag==1){crossroad=1;}else{crossroad=-1;}
-    if(crossroad_flag==1)//如果进入十字路口
-    {
-        uint8 x1,y1,x2,y2;
-        x1=change_detection(1,1);
-        y1=change_detection(1,2);
-        x2=change_detection(2,1);
-        y2=change_detection(2,2);
-        connect_line(x1,y1,x2,y2);
-        if(lost_line_left()==-1 && lost_line_right()==-1){crossroad_flag==0;}
-    }
+    if(ex_crossroad_flag==1){crossroad=1;}else{crossroad=-1;}
     return crossroad;
+}
+//--------------------------------------------------------------------------------------------------------------------------
+// 函数简介     十字路口处理
+// 使用实例     crossroad_conduct();
+//--------------------------------------------------------------------------------------------------------------------------
+
+void crossroad_conduct(void)
+{
+    if(ex_crossroad_flag=1)//如果已经进入十字路口
+    {
+        switch(ex_crossroad_state)//十字路口状态判断
+        {
+        case 1:
+            if(lost_line_left()==-1 && lost_line_right==-1)ex_crossroad_state=2;//进入十字路口弯道
+            break;
+        case 2:
+            if(lost_line_left()!=-1 && lost_line_right!=-1)ex_crossroad_state=3;//出十字路口
+            break;
+        case 3:
+            if(lost_line_left()==-1 && lost_line_right==-1){ex_crossroad_state=0;ex_crossroad_flag=0;}//清除标志位
+            break;
+        }
+        if(ex_crossroad_state==1)//对十字路口补线
+        {
+            uint8 x1,y1,x2,y2;
+            x1=change_detection(1,1);
+            y1=change_detection(1,2);
+            x2=change_detection(2,1);
+            y2=change_detection(2,2);
+            connect_line(x1,y1,x2,y2);
+        }
+        if(ex_crossroad_state==3)//对十字路口补线
+        {
+            uint8 x1,y1,x2,y2;
+            x1=change_detection(1,1);
+            y1=change_detection(1,2);
+            x2=change_detection(2,1);
+            y2=change_detection(2,2);
+            connect_line(x1,y1,x2,y2);
+        }
+    }
+
 }
 //--------------------------------------------------------------------------------------------------------------------------
 // 函数简介     环岛判断
@@ -559,7 +592,7 @@ void roundabout_detection(void)
 {
     if(lost_line_left()!=-1 || lost_line_right()!=-1)//进入元素识别
     {
-        if(lost_line_left()!=-1 ||lost_line_right()==-1)//左环岛判断
+        if(lost_line_left()!=-1 && lost_line_right()==-1)//左环岛判断
         {
             if(straight_line_judgment(ex_rightline)==1)//排除弯道，检索右边线是否为直线
             {
@@ -567,7 +600,7 @@ void roundabout_detection(void)
                 ex_roundabout_type=1;
             }
         }
-        if(lost_line_left()==-1 ||lost_line_right()!=-1)//右环岛判断
+        if(lost_line_left()==-1 && lost_line_right()!=-1)//右环岛判断
         {
             if(straight_line_judgment(ex_leftline)==1)//排除弯道，检索左边线是否为直线
                         {

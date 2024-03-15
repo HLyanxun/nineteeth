@@ -29,6 +29,8 @@ extern uint8 ex_roundabout_state;                                   //环岛状态
 extern uint16 ex_midline[MT9V03X_H];                                //中线数据储存数组
 extern uint16 ex_leftline[MT9V03X_H];                               //左边线数据储存数组
 extern uint16 ex_rightline[MT9V03X_H];                              //右边线数据储存数组
+extern uint8 ex_crossroad_flag;                                     //十字路口标志位
+extern uint8 ex_crossroad_state;                                    //十字路口状态
 
 int8 smartcar_state_detection(void);
 float arctan(float x,float y);
@@ -48,5 +50,7 @@ int8 roundabout_annular_detection(void);
 int8 crossroad_detection(void);
 int16 change_detection(uint8 select,uint8 location);
 void horizontal_line(void);
+void crossroad_conduct(void);
+
 
 #endif /* BETTER_MT9V034_H_ */
