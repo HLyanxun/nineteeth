@@ -6,10 +6,8 @@
  */
 #include "zf_common_headfile.h"
 #include "math.h"
-unsigned char ex_track_situation;
 uint8 ex_mt9v03x_image_binaryzation[MT9V03X_H][MT9V03X_W];
 uint8 ex_mt9v03x_image_binaryzation_flag;
-int8 ex_central_deviation_value[number_of_detection_lines];
 int ex_binaryzation_conduct_adjustment=0;
 uint16 ex_midline[MT9V03X_H];
 uint16 ex_leftline[MT9V03X_H];
@@ -86,96 +84,7 @@ void mt9v034_tft180_dajin_show(void)
 {
     tft180_show_gray_image(0, 0, mt9v03x_image[0],MT9V03X_W, MT9V03X_H, MT9V03X_W/2, MT9V03X_H/2,(binaryzation_value()+ex_binaryzation_conduct_adjustment));
 }
-//--------------------------------------------------------------------------------------------------------------------
-// 函数简介     计算赛道实际中心线（可优化删除，建议直接用寻线函数和中线储存数组ex_midline）
-// 备注信息     通过二值化图像,从中间向两边分别寻找黑白交接线,计算两者距离中点差值,左负右正,求距离智能车中线的距离，最终计算结果以与屏幕中心的差值体现，减少运算量
-//--------------------------------------------------------------------------------------------------------------------
 
-void find_track_center_line(void)
-{
-    uint8 bit_value_frist=1,bit_value_second=1;          //二值化参数记录
-    int8 bit_left=0,bit_right=0;                        //黑白分界点参数
-    for(uint8 j=0;j<number_of_detection_lines;j++)       //检测行数
-    {
-         for(uint8 i=0;i<MT9V03X_W;i++)        //按行扫描的方法寻找赛道左边线-------（待优化）
-         {
-             bit_value_frist=bit_value_second;
-             bit_value_second=ex_mt9v03x_image_binaryzation[MT9V03X_H/2-j][i];
-             if(bit_value_frist==0 && bit_value_second==255)                                    //如果上一个像素点是黑色色而下一个像素点是白色，则记录分界点
-             {
-                 bit_left=(i-(MT9V03X_W/2));
-                 break;
-             }
-         }
-
-         for(uint8 i=0;i<MT9V03X_W/2;i++)        //按行扫描的方法寻找赛道右边线-----（待优化）
-         {
-             bit_value_frist=bit_value_second;
-             bit_value_second=ex_mt9v03x_image_binaryzation[MT9V03X_H/2-j][i];
-             if(bit_value_frist==255 && bit_value_second==0)
-             {
-                 bit_right=(i-(MT9V03X_W/2));
-                 break;
-             }
-         }
-         ex_central_deviation_value[j]=(bit_right+bit_left)/2;
-    }
-}
-//---------------------------------------------------------------------------------------------------------------------
-// 函数简介     计算当前赛道类型（待实际检验，不建议使用，建议优化删除）
-// 备注信息     通过赛道实际中心线距离屏幕中心线的偏差值,计算当前智能车距离赛道中心的距离/当前赛道类型.ex_track_situation的值代表路况，0x01指当前为向左弯道，0x02代表当前为向右
-//        弯道，0x03为直路，0x04为十字路口
-//---------------------------------------------------------------------------------------------------------------------
-
-void track_situation_analyse(void)
-    {
-        int k0[number_of_detection_lines/2],k1[number_of_detection_lines/4];
-        int Turn_factor;
-        uint8 baseline_value;
-        /*
-        for(uint8 i=0;i<number_of_detection_lines;i+=2)             //十字路口检测（未完成）
-        {
-            if(ex_central_deviation_value[i]==0)
-            {
-                baseline_value++;
-            }
-
-        }
-            if(baseline_value>=number_of_detection_lines/4)
-            {
-                ex_track_situation=0x04;
-            }
-            */
-       //     else
-       //     {
-                 for(uint8 i=0;i<(number_of_detection_lines-1);i+=2)//对数值进行第一次处理
-                 {
-                     k0[i]=ex_central_deviation_value[(i+1)]-ex_central_deviation_value[i];
-                     if(k0[i]>0)
-                     {
-                         Turn_factor++;
-
-                     }
-                     else if(k0[i]<0)
-                     {
-                         Turn_factor--;
-                     }
-                 }
-                 if(Turn_factor>(number_of_detection_lines/4))
-                 {
-                     ex_track_situation=0x01;
-                 }
-                 else if(Turn_factor<-(number_of_detection_lines/4))
-                 {
-
-                     ex_track_situation=0x02;
-                 }
-                 else
-                 {
-                     ex_track_situation=0x03;
-                 }
-         //   }
-    }
 //----------------------------------------------------------------------------------------------------------------------
 // 函数简介     通过大津法计算二值化阈值
 // 返回值         二值化阈值
@@ -254,62 +163,7 @@ uint8 binaryzation_value(void)
     }
         return threshold;
 }
-//-------------------------------------------------------------------------------------------------------------
-// 函数简介     在tft屏幕上显示当前路况（可优化删除）
-// 使用示例     road_condition_judgment(void)
-// 备注信息     （待路况判断算法优化）
-//-------------------------------------------------------------------------------------------------------------
-void road_condition_judgment(void)
-{
-    switch(ex_track_situation)
-    {
-    case 0x01:tft180_show_string(0, 100, "zuozhuan");break;
-    case 0x02:tft180_show_string(0, 100, "youzhuan");break;
-    case 0x03:tft180_show_string(0, 100, "zhixing");tft180_show_int(0, 102,deviate_angle(), 3);tft180_show_int(0,104,deviate_distance(),3); break;
 
-    }
-}
-//-------------------------------------------------------------------------------------------------------------
-// 函数简介     三角函数求道路中线与理论车辆中心距离及角度（可优化删除）
-// 备注信息     利用三角函数arctan求当前道路与车体（摄像头图像中线）的夹角（待完善）
-//-------------------------------------------------------------------------------------------------------------
-int deviate_angle(void)
-{
-    if(ex_track_situation==0x03)
-    {
-        int angle=0,angle_sum=0,angle_average=0,Number=0;
-        float rad;
-        for(uint8 i=0;i<number_of_detection_lines/4;i+=2)
-        {
-            rad=atan2(ex_central_deviation_value[i]-ex_central_deviation_value[(number_of_detection_lines-1-i)],number_of_detection_lines-(2*i));
-            angle=(rad*180)/pi;
-            angle_sum+=angle;
-            Number++;
-        }
-        angle_average=angle_sum/Number;
-
-
-            return angle_average;
-    }
-}
-//---------------------------------------------------------------------------------------------------------------
-// 函数简介     求距离道路中线的偏移距离
-// 备注信息     根据左右二值化图像灰度突变点的左边，计算距离摄像头绝对中线的平均距离
-//---------------------------------------------------------------------------------------------------------------
-int deviate_distance(void)
-{
-     if(ex_track_situation==0x03)
-     {
-            int sum=0,number=0,average=0;                               //如果当前是直行，则计算与道路中心的偏差
-            for(uint8 i=0;i<number_of_detection_lines;i+=2)
-            {
-                sum+=ex_central_deviation_value[i];
-                number++;
-            }
-            average=sum/number;
-            return average;
-    }
-}
 //---------------------------------------------------------------------------------------------------------------
 // 函数简介                 通过索贝尔算子进行二值化图像处理
 // 参数说明                 source          源图像（摄像头直接采集的图像）
@@ -388,7 +242,6 @@ void sobelAutoThreshold (u8 source[MT9V03X_H/2][MT9V03X_W],u8 target[MT9V03X_H/2
 // 参数说明     coeff 输出的系数
 // 备注信息    double占用8字节，float占用4字节，可以考虑优化
 //-------------------------------------------------------------------------------------------------------------------------------
-
 void polyfit(double *d_X, double *d_Y, int d_N, int rank, double *coeff)
 {
 //    int rank;
@@ -480,7 +333,6 @@ void polyfit(double *d_X, double *d_Y, int d_N, int rank, double *coeff)
 // 使用实例     Horizontal_line()
 // 备注信息     或许存在问题，建议多试一试调整Row和Col的数值
 //--------------------------------------------------------------------------------------------------------------------------
-
 void horizontal_line(void)
 {
   uint8 i,j;
@@ -923,18 +775,7 @@ void roundabout_dispose(void)
         }
     }
 }
-//--------------------------------------------------------------------------------------------------------------------------
-// 函数简介     将寻线所得边线可视化显示
-//--------------------------------------------------------------------------------------------------------------------------
-void line_visualization()
-{
-    for(uint8 i=find_end;i>find_start;i--)
-    {
-        tft180_draw_point(ex_leftline[i],i,RGB565_RED);//将左边线显示为红色
-        tft180_draw_point(ex_midline[i],i,RGB565_RED);//将中线边线显示为红色
-        tft180_draw_point(ex_rightline[i],i,RGB565_RED);//将右边线显示为红色
-    }
-}
+
 //--------------------------------------------------------------------------------------------------------------------------
 // 函数简介     车身摆正检测
 // 返回值         1代表车身摆正,大于smartcar_state_parament的角度将被返回，范围为-90到90
@@ -997,7 +838,7 @@ int8 roundabout_annular_detection(void)
 // 使用实例     Straight_line_judgment(left_arr);
 // 备注信息     只判断30-100
 //--------------------------------------------------------------------------------------------------------------------------
-uint8 straight_line_judgment(int arr[Row])
+uint8 straight_line_judgment(uint16 arr[Row])
 {
   short i,sum=0;
   float kk;
