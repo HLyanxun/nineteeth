@@ -51,6 +51,7 @@ int8 crossroad_detection(void);
 int16 change_detection(uint8 select,uint8 location);
 void horizontal_line(void);
 void crossroad_conduct(void);
+void mt9v034_tft180_dajin_show(void);
 
 
 #endif /* BETTER_MT9V034_H_ */

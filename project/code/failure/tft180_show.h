@@ -8,9 +8,11 @@
 #ifndef TFT180_SHOW_H_
 #define TFT180_SHOW_H_
 #include "zf_common_headfile.h"
-extern uint8 ex_smartcar_state_detection_flag;             //车身摆正标志位
 
-void smartcar_state_detection_show(uint8 x,uint8 y);
+
+void line_visualization(void);
+void tft180show_better(uint8 mode);
+extern int zxy;
 
 
 #endif /* TFT180_SHOW_H_ */

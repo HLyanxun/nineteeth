@@ -16,24 +16,18 @@
 // 备注信息     角度为参考值与实际角度具有一定误差
 //-------------------------------------------------------------------------------------------------------------------
 
-void steering_engine_init(pwm_channel_enum pin,uint32 freq, int32 angle)
+void steering_engine_init(pwm_channel_enum pin,uint32 freq, int angle)
 {
-    if(angle>=90)
-        {
-            angle=90;
-        }
-        if(angle<=-90)
-        {
-            angle=-90;
-        }
-        if(angle>=0)
-        {
-            angle=((angle*4.72)+675);
-        }
-        else
-        {
-            angle=((90+angle)*4.72+250);
-        }
+//        angle=(angle>180)?180:angle;
+//        angle=(angle<0)?0:angle;
+//        angle=250+angle*(1000/180);
+    if(angle>180)
+        angle=180;
+   if(angle<0)
+       angle=0;
+   angle=250+angle*(900/180);
+
+
         pwm_init(pin,freq,angle);
 }
 //-------------------------------------------------------------------------------------------------------------------
@@ -43,25 +37,15 @@ void steering_engine_init(pwm_channel_enum pin,uint32 freq, int32 angle)
 // 使用示例     steering_engine_init(TIM1_PWM_MAP0_CH1_A8,90);
 // 备注信息     角度为参考值与实际角度具有一定误差
 //-------------------------------------------------------------------------------------------------------------------
-void steering_engine_set_angle(pwm_channel_enum pin,int angle)
+void steering_engine_set_angle(pwm_channel_enum pin,float angle)
 {
-     if(angle>=90)
-    {
-        angle=90;
-    }
-    if(angle<=-90)
-    {
-        angle=-90;
-    }
-    if(angle>=0)
-    {
-        angle=((angle*4.72)+675);
-    }
-    else
-    {
-        angle=((90+angle)*4.72+250);
-    }
-    pwm_set_duty(pin,angle);
+
+    if(angle>180)
+           angle=180;
+      if(angle<0)
+          angle=0;
+      angle=250+angle*(900/180);
+    pwm_set_duty(pin,(int)angle);
 }
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     旋转编码器的输出检测
@@ -98,6 +82,20 @@ int MK021851_interrupt(gpio_pin_enum pin_a,gpio_pin_enum pin_b,int value)
     return value;
 }
 //--------------------------------------------------------------------------------------------------------------------
-//
+//  函数简介         pwm初始化再度封装，直接输入占空比
+//  使用示例        better_pwm_init(A8,50,5);//占空比为5%的pwm（定时器2用于主函数定时，建议引脚E9 E11 E13 E14 A8 A9 A10 A11）;
 //--------------------------------------------------------------------------------------------------------------------
-
+void better_pwm_init(pwm_channel_enum pin, uint32 freq, float duty)
+{
+    duty=(duty/100)*PWM_DUTY_MAX;
+    pwm_init(pin, freq, duty);
+}
+//--------------------------------------------------------------------------------------------------------------------
+// 函数简介     pwm设置再度封装，直接输入占空比
+// 使用实例
+//--------------------------------------------------------------------------------------------------------------------
+void better_pwm_set_duty(pwm_channel_enum pin,float duty)
+{
+    duty=(duty/100)*PWM_DUTY_MAX;
+    pwm_set_duty(pin, (uint32)duty);
+}
