@@ -6,25 +6,18 @@
  */
 #include "zf_common_headfile.h"
 uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];   //摄像头二值化数据存储数组
-int ex_leftCornerCount;                                     //左边线拐点计数
-int ex_rightCornerCount;                                    //右边线拐点计数
+
 int ImageScanInterval=6;                                    //扫边的范围
-uint8 ex_midline[MT9V03X_H/2]={0};                          //中线
-uint8 ex_leftline[MT9V03X_H/2]={0};                         //左边线
-uint8 ex_rightline[MT9V03X_H/2]={0};                        //右边线
+
 int ex_threshold;                                         //大津法二值化阈值
-uint8 ex_intersectionStatus = 0;                            //十字路口状态
+
 uint8 Ring_Help_Flag = 0;                                   //进环辅助标志
-uint8 ex_intersectionFlag = 0;                              //十字路口标志位
-uint8 ex_zebra_pass_count = 0 ;                             //斑马线通过计数
-uint8 ex_zebra_crossing_flag;                               //斑马线完结标志位
-uint8 ex_roundabout_state = 0;                              //环岛状态标志
+
 int Right_RingsFlag_Point1_Ysite, Right_RingsFlag_Point2_Ysite; //右圆环判断的两点纵坐标
 int Left_RingsFlag_Point1_Ysite, Left_RingsFlag_Point2_Ysite;   //左圆环判断的两点纵坐标
 int Point_Xsite,Point_Ysite;                                //拐点横纵坐标
 int Repair_Point_Xsite,Repair_Point_Ysite;                  //补线点横纵坐标
 
-uint8 ex_roundabout_type = 0;                               //环岛标志位/环岛类型标志位
 uint8 ExtenLFlag = 0;                                       //左边线是否需要补线的标志变量
 uint8 ExtenRFlag = 0;                                       //右边线是否需要补线的标志变量
 uint16 wide_sum;//////////////////
@@ -44,8 +37,7 @@ static int ytemp = 0;                                       //存放行的临时变量
 static uint8* Pixel;                                        //一个保存单行图像的指针
 
 Sideline_status Sideline_status_array[60];
-CornerPoint ex_leftCorners[IMAGE_HEIGHT];                   //左边线拐点坐标
-CornerPoint ex_rightCorners[IMAGE_HEIGHT];                  //右边线拐点坐标
+
 Image_Status imagestatus;
 Image_Flag imageflag;
 ChangePoint changepoint={0,0};
@@ -2318,50 +2310,50 @@ void Element_Handle_Bend()
         else if(imagestatus.WhiteLine >= 8) //十字处理
             auto_extension_line();
     }
-//--------------------------------------------------------------------------------------------------------------------------
-// 函数简介     横向巡线，将边线信息记录在ex_leftline,ex_midline,ex_rightline数组中
-// 使用实例     horizontal_line_fix(ex_mt9v03x_binarizeImage,ex_leftline,ex_rightline,ex_midline);
-//--------------------------------------------------------------------------------------------------------------------------
-void horizontal_line_fix(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH], uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT], uint8 midLine[IMAGE_HEIGHT])
-{
-    static int lastMid = IMAGE_WIDTH / 2; // 初始化上一行中线位置为图像中心列
-    for (int row = find_start; row < find_end; row++)
-    {
-        int left = -1;
-        int right = -1;
-
-        // 从上一行中线位置开始向两边寻找边线
-        for (int col = lastMid; col > 0; col--)
-        {
-            if(col<=5){left = 5;}
-            else if (binaryImage[row][col] == 0)
-            {
-                left = col;
-                break;
-            }
-
-        }
-        for (int col = lastMid; col < IMAGE_WIDTH-1; col++)
-        {
-            if (binaryImage[row][col] == 0)
-            {
-                right = col;
-                break;
-            }
-            if(col>=IMAGE_WIDTH-6)right = IMAGE_WIDTH-6;
-        }
-
-        // 更新上一行中线位置
-        lastMid = (left + right) / 2;
-
-        // 将结果存储到相应数组中
-        leftLine[row] = left;
-        rightLine[row] = right;
-        midLine[row] = lastMid;
-
-    }
-//    int i, j;
+////--------------------------------------------------------------------------------------------------------------------------
+//// 函数简介     横向巡线，将边线信息记录在ex_leftline,ex_midline,ex_rightline数组中
+//// 使用实例     horizontal_line_fix(ex_mt9v03x_binarizeImage,ex_leftline,ex_rightline,ex_midline);
+////--------------------------------------------------------------------------------------------------------------------------
+//void horizontal_line_fix(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH], uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT], uint8 midLine[IMAGE_HEIGHT])
+//{
+//    static int lastMid = IMAGE_WIDTH / 2; // 初始化上一行中线位置为图像中心列
+//    for (int row = find_start; row < find_end; row++)
+//    {
+//        int left = -1;
+//        int right = -1;
 //
+//        // 从上一行中线位置开始向两边寻找边线
+//        for (int col = lastMid; col > 0; col--)
+//        {
+//            if(col<=5){left = 5;}
+//            else if (binaryImage[row][col] == 0)
+//            {
+//                left = col;
+//                break;
+//            }
+//
+//        }
+//        for (int col = lastMid; col < IMAGE_WIDTH-1; col++)
+//        {
+//            if (binaryImage[row][col] == 0)
+//            {
+//                right = col;
+//                break;
+//            }
+//            if(col>=IMAGE_WIDTH-6)right = IMAGE_WIDTH-6;
+//        }
+//
+//        // 更新上一行中线位置
+//        lastMid = (left + right) / 2;
+//
+//        // 将结果存储到相应数组中
+//        leftLine[row] = left;
+//        rightLine[row] = right;
+//        midLine[row] = lastMid;
+//
+//    }
+////    int i, j;
+////
 //       for (i = 0; i < IMAGE_HEIGHT; i++) {
 //           int leftIndex = 0;
 //           int rightIndex = IMAGE_WIDTH - 1;
@@ -2380,70 +2372,70 @@ void horizontal_line_fix(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH], uint8 lef
 //               }
 //           }
 //       }
-}
+//}
 
-//------------------------------------------------------------------------------------------------------------------------------
-// 函数简介     寻找丢线起始行_左边线
-// 使用实例     findLaneStartRow_left(ex_leftline);
-//------------------------------------------------------------------------------------------------------------------------------
-int findLaneStartRow_left(uint8 leftLine[IMAGE_HEIGHT])
-{
-    int startRow = -1;  // 初始化为-1，表示未找到丢线开始行
+////------------------------------------------------------------------------------------------------------------------------------
+//// 函数简介     寻找丢线起始行_左边线
+//// 使用实例     findLaneStartRow_left(ex_leftline);
+////------------------------------------------------------------------------------------------------------------------------------
+//int findLaneStartRow_left(uint8 leftLine[IMAGE_HEIGHT])
+//{
+//    int startRow = -1;  // 初始化为-1，表示未找到丢线开始行
+//
+//    // 从图像底部向顶部搜索
+//    for (uint8 i = IMAGE_HEIGHT - 1; i >= 0; i--) {
+//        if (leftLine[i] == 0 )
+//        {
+//            startRow = i;
+//            break;  // 找到丢线开始行，退出循环
+//        }
+//    }
+//
+//    return startRow;
+//}
+////------------------------------------------------------------------------------------------------------------------------------
+//// 函数简介     寻找丢线起始行_右边线
+//// 使用实例     findLaneStartRow_left(ex_rightline);
+////------------------------------------------------------------------------------------------------------------------------------
+//int findLaneStartRow_right(uint8 rightLine[IMAGE_HEIGHT])
+//{
+//    int startRow = -1;
+//    for(uint8 i = IMAGE_HEIGHT - 1; i >= 0; i--)
+//    {
+//        if(rightLine[i] == IMAGE_HEIGHT - 1)
+//        {
+//            startRow = i;
+//            break;
+//        }
+//    }
+//    return startRow;
+//}
 
-    // 从图像底部向顶部搜索
-    for (uint8 i = IMAGE_HEIGHT - 1; i >= 0; i--) {
-        if (leftLine[i] == 0 )
-        {
-            startRow = i;
-            break;  // 找到丢线开始行，退出循环
-        }
-    }
-
-    return startRow;
-}
-//------------------------------------------------------------------------------------------------------------------------------
-// 函数简介     寻找丢线起始行_右边线
-// 使用实例     findLaneStartRow_left(ex_rightline);
-//------------------------------------------------------------------------------------------------------------------------------
-int findLaneStartRow_right(uint8 rightLine[IMAGE_HEIGHT])
-{
-    int startRow = -1;
-    for(uint8 i = IMAGE_HEIGHT - 1; i >= 0; i--)
-    {
-        if(rightLine[i] == IMAGE_HEIGHT - 1)
-        {
-            startRow = i;
-            break;
-        }
-    }
-    return startRow;
-}
-
-//-------------------------------------------------------------------------------------------------------------------------------
-// 函数简介     拐点检测
-// 使用示例     detectCornerBothLines(ex_leftline,ex_rightline,ex_leftCorners,ex_rightCorners,&ex_leftCornerCount,&ex_rightCornerCount)
-// 备注信息     无
-//-------------------------------------------------------------------------------------------------------------------------------
-void detectCornerBothLines(uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT], CornerPoint leftCorners[], CornerPoint rightCorners[], int* leftCornerCount, int* rightCornerCount) {
-    *leftCornerCount = 0; // 初始化左边线拐点计数为0
-    *rightCornerCount = 0; // 初始化右边线拐点计数为0
-
-    for (int i = 2; i < IMAGE_HEIGHT - 2; i += 2) { // 每两行检测一次
-        if ((leftLine[i] - leftLine[i-2]) * (leftLine[i+2] - leftLine[i]) < 0) {
-            // 当左边线在同一行出现凹陷时，认为是一个拐点
-            leftCorners[*leftCornerCount].x = leftLine[i]; // 记录左边线拐点的横坐标
-            leftCorners[*leftCornerCount].y = i; // 记录左边线拐点的纵坐标为行号
-            (*leftCornerCount)++; // 左边线拐点计数加1
-        }
-
-        if ((rightLine[i] - rightLine[i-2]) * (rightLine[i+2] - rightLine[i]) < 0) {
-            // 当右边线在同一行出现凹陷时，认为是一个拐点
-            rightCorners[*rightCornerCount].x = rightLine[i]; // 记录右边线拐点的横坐标
-            rightCorners[*rightCornerCount].y = i; // 记录右边线拐点的纵坐标为行号
-            (*rightCornerCount)++; // 右边线拐点计数加1
-        }
-    }
-}
+////-------------------------------------------------------------------------------------------------------------------------------
+//// 函数简介     拐点检测
+//// 使用示例     detectCornerBothLines(ex_leftline,ex_rightline,ex_leftCorners,ex_rightCorners,&ex_leftCornerCount,&ex_rightCornerCount)
+//// 备注信息     无
+////-------------------------------------------------------------------------------------------------------------------------------
+//void detectCornerBothLines(uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT], CornerPoint leftCorners[], CornerPoint rightCorners[], int* leftCornerCount, int* rightCornerCount) {
+//    *leftCornerCount = 0; // 初始化左边线拐点计数为0
+//    *rightCornerCount = 0; // 初始化右边线拐点计数为0
+//
+//    for (int i = 2; i < IMAGE_HEIGHT - 2; i += 2) { // 每两行检测一次
+//        if ((leftLine[i] - leftLine[i-2]) * (leftLine[i+2] - leftLine[i]) < 0) {
+//            // 当左边线在同一行出现凹陷时，认为是一个拐点
+//            leftCorners[*leftCornerCount].x = leftLine[i]; // 记录左边线拐点的横坐标
+//            leftCorners[*leftCornerCount].y = i; // 记录左边线拐点的纵坐标为行号
+//            (*leftCornerCount)++; // 左边线拐点计数加1
+//        }
+//
+//        if ((rightLine[i] - rightLine[i-2]) * (rightLine[i+2] - rightLine[i]) < 0) {
+//            // 当右边线在同一行出现凹陷时，认为是一个拐点
+//            rightCorners[*rightCornerCount].x = rightLine[i]; // 记录右边线拐点的横坐标
+//            rightCorners[*rightCornerCount].y = i; // 记录右边线拐点的纵坐标为行号
+//            (*rightCornerCount)++; // 右边线拐点计数加1
+//        }
+//    }
+//}
 //-----------------------------------------------------------------------------------------------------------------------------
 // 函数简介     补线函数
 // 参数说明 x1  中断点1的x坐标
@@ -2482,372 +2474,25 @@ void detectCornerBothLines(uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_H
 //        ex_mt9v03x_binarizeImage[i][(short)(x1+(i-y1)*k)]=0;
 //  }
 //}
-//---------------------------------------------------------------------------------------------------------------------------------
-// 函数简介     对四个点包围的区域进行检测是否存在大片白色区域（十字路口检测辅助函数）
-// 使用实例     hasLargeWhiteArea(ex_mt9v03x_binarizeImage,ex_leftCorners[1].x,ex_leftCorners[1].y,ex_rightCorners[2].x,ex_rightCorners[2].y);
-//---------------------------------------------------------------------------------------------------------------------------------
-uint8 hasLargeWhiteArea(uint8 image[IMAGE_HEIGHT][IMAGE_WIDTH], int x1, int y1,int x3, int y3)
-{
-    int row, col;
-    uint8_t blackPixelsCount = 0; // 区域内黑点数量计数器
 
-    // 对指定区域进行遍历
-    for (row = y1; row <= y3; row += 2) {
-        for (col = x1; col <= x3; col += 2) {
-            // 检查当前像素是否为黑色
-            if (image[row][col] < 10) {
-                // 如果是黑色，则增加黑点数量计数
-                blackPixelsCount++;
-
-                // 如果黑点数量超过了最大允许值，则返回不存在大片白色区域
-                if (blackPixelsCount > MAX_BLACK_PIXELS) {
-                    return 0; // 返回0表示不存在大片白色区域
-                }
-            }
-        }
-    }
-
-    // 如果遍历完成后，黑点数量没有超过最大允许值，则认为存在大片白色区域
-    return 1; // 返回1表示存在大片白色区域
-}
-//--------------------------------------------------------------------------------------------------------------------------
-// 函数简介     十字路口检测
-// 返回值          如果当前处于十字路口，则返回1，否则返回-1。
-// 使用实例     crossroad_detection();
-//--------------------------------------------------------------------------------------------------------------------------
-void crossroad_detection(void)
-{
-    if (ex_leftCornerCount > 1 && ex_rightCornerCount > 1)
-    {
-        uint8 temp=hasLargeWhiteArea(ex_mt9v03x_binarizeImage,ex_leftCorners[1].x,ex_leftCorners[1].y,ex_rightCorners[2].x,ex_rightCorners[2].y);
-        if(temp==1)
-        {
-            ex_intersectionStatus = 1; // 记录为十字路口状态1
-            ex_intersectionFlag = 1; // 将十字路口标志位置1
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-// 函数简介     对直线进行判定(辅助环岛判定)
-// 参数说明 arr     传入数组
-// 返回值       1为直线 0为非直线
-// 使用实例     Straight_line_judgment(left_arr);
-// 备注信息     只判断30-100
-//--------------------------------------------------------------------------------------------------------------------------
-uint8 straight_line_judgment(uint8 arr[Row])
-{
-  short i,sum=0;
-  float kk;
-  kk=((float)arr[90]-(float)arr[20])/70.0;//计算k值
-  sum = 0;
-  for(i=20;i<=90;i++)
-    if(((arr[20]+(float)(i-20)*kk)-arr[i])<=20) sum++;//如果理论值与实际值的差异小于等于35，则计数
-    else break;
-  if(sum>68 && kk>-1.1 && kk<1.1) return 1;
-  else return 0;
-}
-//--------------------------------------------------------------------------------------------------------------------------
-// 函数简介     环岛判断
-// 使用实例     roundabout_detection();
-//--------------------------------------------------------------------------------------------------------------------------
-void roundabout_detection(void)
-{
-    if(ex_leftCornerCount!=0 || ex_rightCornerCount!=0)//进入元素识别
-    {
-        if(findLaneStartRow_left(ex_leftline)!=-1 && ex_rightCornerCount==0)//左环岛判断
-        {
-            if(straight_line_judgment(ex_rightline)==1)//排除弯道，检索右边线是否为直线
-            {
-                ex_roundabout_state=1;
-                ex_roundabout_type=1;
-            }
-        }
-        if(ex_leftCornerCount==0 && findLaneStartRow_right(ex_rightline)!=-1)//右环岛判断
-        {
-            if(straight_line_judgment(ex_leftline)==1)//排除弯道，检索左边线是否为直线
-                        {
-                            ex_roundabout_state=1;
-                            ex_roundabout_type=2;
-                        }
-        }
-    }
-}
-//--------------------------------------------------------------------------------------------------------------------------
-// 函数简介     环岛处理
-// 使用实例     roundabout_dispose();
-//--------------------------------------------------------------------------------------------------------------------------
-
-//void roundabout_dispose(void)
+//
+////--------------------------------------------------------------------------------------------------------------------------
+//// 函数简介     对直线进行判定(辅助环岛判定)
+//// 参数说明 arr     传入数组
+//// 返回值       1为直线 0为非直线
+//// 使用实例     Straight_line_judgment(left_arr);
+//// 备注信息     只判断30-100
+////--------------------------------------------------------------------------------------------------------------------------
+//uint8 straight_line_judgment(uint8 arr[Row])
 //{
-//    if(ex_roundabout_type==1)//左环岛标志
-//    {
-//        switch(ex_roundabout_state)//左环岛状态分析
-//        {
-//        case 1:
-//            if(ex_leftCornerCount<2 && )//如果左边即将不丢线
-//            {
-//                ex_roundabout_state=2; //环岛状态更新
-//            }
-//            break;
-//        case 2:
-//            if(ex_leftCornerCount=0)//不再丢线
-//            {
-//                ex_roundabout_state=3;//环岛状态更新
-//            }
-//            break;
-//        case 3:
-//            if(lostleft!=-1)//如果左边第二次丢线，找拐点补线准备进入环岛
-//            {
-//                ex_roundabout_state=4;//环岛状态更新
-//            }
-//            break;
-//        case 4:
-//            if(lostleft==-1 && lostright==-1)//如果进入环岛，环岛内，两边都不丢线
-//            {
-//                ex_roundabout_state=5;//环岛状态更新
-//            }
-//            break;
-//        case 5:
-//            if(lostleft!=-1 && lostright!=-1)//即将出环岛，找拐点补线出环岛
-//            {
-//                ex_roundabout_state=6;//环岛状态更新
-//            }
-//            break;
-//        case 6:
-//            if((lostright-change_detection(4, 2))<=5 && smartcar_state_detection()==1)//右边即将不丢线，车身摆正
-//            {
-//                ex_roundabout_state=7;//环岛状态更新
-//            }
-//            break;
-//        case 7:
-//            if((lostleft-change_detection(2, 2))<=5 && (lostleft-change_detection(2, 2))!=0)//如果左边即将不丢线
-//            {
-//                ex_roundabout_state=8;//环岛状态更新
-//            }
-//            break;
-//        case 8:
-//            if(straight_line_judgment(ex_leftline)==1 && straight_line_judgment(ex_rightline)==1)//完全出环岛
-//            {
-//                ex_roundabout_state=0;//环岛状态更新
-//                ex_roundabout_type=0;//清楚进入环岛标志
-//            }
-//            break;
-//        }
-//        if(ex_roundabout_state==1 || ex_roundabout_state==2)//补线通过环岛第一次丢线，抵达环岛入口
-//        {
-//            uint8 x1,y1,x2,y2;
-//            x1=change_detection(1, 1);
-//            x2=change_detection(2, 1);
-//            y1=change_detection(1, 2);
-//            y2=change_detection(2, 2);
-//            connect_line(x1,y1,x2,y2);
-//        }
-//        if(ex_roundabout_state==4)//补线进入环岛
-//        {
-//            uint8 x1,y1;
-//            x1=change_detection(2, 1);
-//            y1=change_detection(2, 2);
-//            connect_line(x1,y1,(MT9V03X_W-5),(MT9V03X_H-5));
-//        }
-//        if(ex_roundabout_state==6)//补线出环岛
-//        {
-//            uint8 x1,y1,y2;
-//            x1=change_detection(3, 1);
-//            y1=change_detection(3, 2);
-//            y2=change_detection(2, 2);
-//            connect_line(x1,y1,10,y2);
-//        }
-//        if(ex_roundabout_state==7)
-//        {
-//            uint8 x1,y1,x2=0,y2;
-//            x1=change_detection(2, 1);
-//            y1=change_detection(2, 2);
-//            for(uint8 i=(y1+1);i<find_start;i++)
-//            {
-//                if(ex_leftline[i]>x2)
-//                    {
-//                        x2=ex_leftline[i];
-//                        y2=i;
-//                    }
-//            }
-//            connect_line(x1,y1,x2,y2);
-//            connect_line(x2,y2,(x2-1),find_end);
-//        }
-//    }
-//    if(ex_roundabout_type==2)//右环岛处理，在左环岛基础上编写，比赛应该只有左环岛
-//    {
-//        switch(ex_roundabout_state)
-//        {
-//        case 1:
-//            if(change_detection(4,1)>not_lose_line_parameter)
-//            {
-//                ex_roundabout_state=2;
-//            }
-//            break;
-//        case 2:
-//            if(roundabout_annular_detection()==2)
-//            {
-//                ex_roundabout_state=3;
-//            }
-//            break;
-//        case 3:
-//            if(lostright!=-1)
-//            {
-//                ex_roundabout_state=4;
-//            }
-//            break;
-//        case 4:
-//            if(lostleft==-1 && lostright==-1)
-//            {
-//                ex_roundabout_state=5;
-//            }
-//            break;
-//        case 5:
-//            if(lostleft!=-1 && lostright!=-1)
-//            {
-//                ex_roundabout_state=6;
-//            }
-//            break;
-//        case 6:
-//            if((lostleft-change_detection(2, 2))<=5 && smartcar_state_detection()==1)
-//            {
-//                ex_roundabout_state=7;
-//            }
-//            break;
-//        case 7:
-//            if((lostright-change_detection(4, 2))<=5 && (lostright-change_detection(4, 2))!=0)
-//            {
-//                ex_roundabout_state=8;
-//            }
-//            break;
-//        case 8:
-//            if(straight_line_judgment(ex_leftline)==1 && straight_line_judgment(ex_rightline)==1)//完全出环岛
-//            {
-//                ex_roundabout_state=0;
-//                ex_roundabout_type=0;
-//            }
-//            break;
-//        }
-//        if(ex_roundabout_state==1 || ex_roundabout_state==2)
-//        {
-//            uint8 x1,y1,x2,y2;
-//            x1=change_detection(3, 1);
-//            x2=change_detection(4, 1);
-//            y1=change_detection(3, 2);
-//            y2=change_detection(4, 2);
-//            connect_line(x1,y1,x2,y2);
-//        }
-//        if(ex_roundabout_state==4)
-//        {
-//            uint8 x1,y1;
-//            x1=change_detection(4, 1);
-//            y1=change_detection(4, 2);
-//            connect_line(x1,y1,5,(MT9V03X_H-5));
-//        }
-//        if(ex_roundabout_state==6)
-//        {
-//            uint8 x1,y1,y2;
-//            x1=change_detection(1, 1);
-//            y1=change_detection(1, 2);
-//            y2=change_detection(3, 2);
-//            connect_line(x1,y1,(MT9V03X_W-10),y2);
-//        }
-//        if(ex_roundabout_state==7)
-//        {
-//            uint8 x1,y1,x2=0,y2;
-//            x1=change_detection(4, 1);
-//            y1=change_detection(4, 2);
-//            for(uint8 i=(y1+1);i<find_start;i++)
-//            {
-//                if(ex_rightline[i]>x2)
-//                {
-//                    x2=ex_rightline[i];
-//                    y2=i;
-//                }
-//            }
-//            connect_line(x1,y1,x2,y2);
-//            connect_line(x2,y2,(x2+1),find_end);
-//        }
-//    }
+//  short i,sum=0;
+//  float kk;
+//  kk=((float)arr[90]-(float)arr[20])/70.0;//计算k值
+//  sum = 0;
+//  for(i=20;i<=90;i++)
+//    if(((arr[20]+(float)(i-20)*kk)-arr[i])<=20) sum++;//如果理论值与实际值的差异小于等于35，则计数
+//    else break;
+//  if(sum>68 && kk>-1.1 && kk<1.1) return 1;
+//  else return 0;
 //}
-//------------------------------------------------------------------------------------------------------------------------------
-// 函数简介     斑马线识别（后续需要根据实际情况修改）
-//------------------------------------------------------------------------------------------------------------------------------
-void zebra_crossing(void)
-{
-    for(uint8 hang = find_start;hang<find_end;hang++)
-    {
-        uint8 garage_count=0,white_black,black_white ;
-        for(uint8 lie = 10;lie<170;lie++)
-         {
-               if(ex_mt9v03x_binarizeImage[hang][lie]==255)//通过突变（拐点）判断斑马线
-               {
-                   white_black=1;
-               }
-               else
-               {
-                   white_black=0;
-               }
-
-               if(white_black!=black_white)//如果是拐点，则对斑马线进行计数
-               {
-                 black_white = white_black;
-                 garage_count++;
-               }
-               if(garage_count>11)//如果，拐点出现次数超过定值确定为斑马线，同时对斑马线通过次数加1
-               {
-                   ex_zebra_pass_count++;
-
-               }
-           }
-        if(ex_zebra_pass_count>2)
-           {
-                ex_zebra_crossing_flag=1;
-               break;
-           }
-       }
-}
-
-//-------------------------------------------------------------------------------------------------------------------------------
-// 函数简介     检测道路障碍物，计录数量以及位置信息（测试）
-// 使用实例
-// 假设有名为binaryImage的二维数组存储摄像头二值化后的数据
-//unsigned char binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH];
-// 定义存储障碍物位置的数组
-//Obstacle obstacles[100]; // 假设最多存储100个障碍物
-//int numObstacles; // 实际检测到的障碍物数量
-// 调用detectAndStoreObstacles函数检测障碍物位置并存储
-//detectAndStoreObstacles(binaryImage, obstacles, &numObstacles);
-//-------------------------------------------------------------------------------------------------------------------------------
-void detectAndStoreObstacles(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH], Obstacle obstacles[], int *numObstacles)
-{
-    // 初始化障碍物数量
-    *numObstacles = 0;
-
-    // 遍历二值化图像数组，查找障碍物位置
-    for (int row = 0; row < IMAGE_HEIGHT; row++)
-    {
-        for (int col = ex_leftline[row]; col < ex_rightline[row]; col++)
-        {
-            if (binaryImage[row][col] == 255)
-            {
-                // 如果像素值为255，表示障碍物
-                // 存储障碍物位置
-                obstacles[*numObstacles].row = row;
-                obstacles[*numObstacles].col = col;
-                (*numObstacles)++;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------------------------------------
-// 函数简介     统一进行定时运算（建议每50~100ms运行一次以减少占用）
-//--------------------------------------------------------------------------------------------------------------------------------
-void period_dispose_mt9v03x(void)
-{
-
-
-
-}
+//

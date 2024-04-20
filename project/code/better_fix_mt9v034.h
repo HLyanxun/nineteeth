@@ -29,11 +29,11 @@ typedef struct {
     int col;
 } Obstacle;
 // 检测障碍物位置并存储的函数
-typedef struct {
-    int x;
-    int y;
-} CornerPoint;
-//  记录拐点坐标的结构体
+//typedef struct {
+//    int x;
+//    int y;
+//} CornerPoint;
+////  记录拐点坐标的结构体
 typedef struct {
     uint8 leftline;////左边线 梯度扫线
     uint8 rightline;//右边线
@@ -94,26 +94,17 @@ typedef struct {
     int16 Out_Road;                               /*0 :无断路      1 :断路*/
     int16 stop_flag;                              /*停止标志位*/
 } Image_Flag;// 黑白跳变点记录
-extern int ex_leftCornerCount;
-extern int ex_rightCornerCount;
-extern uint8 ex_midline[MT9V03X_H/2];
-extern uint8 ex_leftline[MT9V03X_H/2];
-extern uint8 ex_rightline[MT9V03X_H/2];
+
+
 extern uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];
 extern int ex_threshold;
-extern uint8 ex_intersectionStatus;                               //十字路口状态
-extern uint8 ex_intersectionFlag;                                 //十字路口标志位
-extern uint8 ex_zebra_pass_count;
-extern uint8 ex_zebra_crossing_flag;
-extern uint8 ex_roundabout_state;                              //环岛状态标志
-extern uint8 ex_roundabout_type;                               //环岛标志位
+
 extern uint16 wide_sum;//////////////////
 
 extern Sideline_status Sideline_status_array[60];
 extern Image_Status imagestatus;
 extern Image_Flag imageflag;
-extern CornerPoint ex_leftCorners[IMAGE_HEIGHT];
-extern CornerPoint ex_rightCorners[IMAGE_HEIGHT];
+
 
 //extern uint8 Ring_Help_Flag;
 
@@ -131,8 +122,7 @@ void Scan_Element(void);
 void Element_Judgment_RoadBlock(void);
 void Element_Judgment_Left_Rings(void);
 void Element_Judgment_Right_Rings(void);
-//void Element_Judgment_Right_Rings(void);
-//void Element_Judgment_RoadBlock(void);
+
 void Element_Judgment_Zebra();//斑马线判断
 void Element_Judgment_Bend();
 void Straight_long_judge(void);     //返回结果小于1即为直线
@@ -140,9 +130,9 @@ void Straight_long_handle(void);     //返回结果小于1即为直线
 
 void auto_extension_line(void);
 //void medianFilter(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH]);
-void horizontal_line_fix(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH], uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT],  uint8 midLine[IMAGE_HEIGHT]);
-uint8 hasLargeWhiteArea(uint8 image[IMAGE_HEIGHT][IMAGE_WIDTH], int x1, int y1,int x3, int y3);
-void period_dispose(void);
+//void horizontal_line_fix(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH], uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT],  uint8 midLine[IMAGE_HEIGHT]);
+//uint8 hasLargeWhiteArea(uint8 image[IMAGE_HEIGHT][IMAGE_WIDTH], int x1, int y1,int x3, int y3);
+//void period_dispose(void);
 
 
 #endif /* BETTER_FIX_MT9V034_H_ */

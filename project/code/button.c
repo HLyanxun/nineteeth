@@ -85,18 +85,20 @@ const uint8 yu_zhi[8][16]=
 };
 void choose_(uint8 x,uint8 y)
 {
-    uint8 j=x;
-    for(uint8 i=y+4;i<y+8;i++)
-    {
-        tft180_draw_line(j, i, x+2, i, RGB565_BLUE);
-        j-=2;
-    }
-    for(uint8 i=y+8;i<y+12;i++)
-        {
-        j+=2;
-        tft180_draw_line(j, i, x+2, i, RGB565_BLUE);
-        }
-
+//    uint8 j=x;
+//    for(uint8 i=y+4;i<y+8;i++)
+//    {
+//        tft180_draw_line(j, i, x+2, i, RGB565_BLUE);
+//        j-=2;
+//    }
+//    for(uint8 i=y+8;i<y+12;i++)
+//        {
+//        j+=2;
+//        tft180_draw_line(j, i, x+2, i, RGB565_BLUE);
+//        }
+    if(y)tft180_draw_line(0, y, x, y, RGB565_BLACK);
+    tft180_draw_line(0, y+line_unit, x, y+line_unit, RGB565_BLACK);
+    tft180_draw_line(x, y, x, y+line_unit, RGB565_BLACK);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -157,19 +159,19 @@ void tft180show_better(uint8 mode)
     {
     case 1:
         tft180_show_string(0, kp_31, "kp:");
-        tft180_show_float(0,kp_31,kp,2,1);
+        tft180_show_float(column_unit*1.5,kp_31,kp,2,1);
 
         tft180_show_string(0,ki_31,"ki:");
-        tft180_show_float(0,ki_31,ki,2,1);
+        tft180_show_float(column_unit*1.5,ki_31,ki,2,1);
 
         tft180_show_string(0,kd_31,"kd:");
-        tft180_show_float(0,kd_31,kd,2,1);
+        tft180_show_float(column_unit*1.5,kd_31,kd,2,1);
 
         tft180_show_string(0,dt_31,"dt:");
-        tft180_show_float(0,dt_31,dt,2,1);
+        tft180_show_float(column_unit*1.5,dt_31,dt,2,1);
 
         tft180_show_string(0,target_31,"target:");
-        tft180_show_float(0,target_31,target,2,1);
+        tft180_show_float(column_unit*3.5,target_31,target,2,1);
 
         break;
     case 2://二值化图像以及扫线情况显示
@@ -177,26 +179,24 @@ void tft180show_better(uint8 mode)
         {
             timer_clear(TIM_3);
         }
-
-
         //图像显示控制
        if(!mt9v034_mode){tft180_show_gray_image(1, 1, ex_mt9v03x_binarizeImage[0], MT9V03X_W/2, MT9V03X_H/2, (MT9V03X_W/2), (MT9V03X_H/2), 0);
-       tft180_show_chinese(0, 6*16, 16, tu_xiang[0], 2, RGB565_BLACK);
-       tft180_show_string(2*16,6*16,":");
-       tft180_show_chinese(2*16+8, 6*16, 16, erzhihua[0], 3, RGB565_BLACK);}
+       tft180_show_chinese(0, 6*line_unit, 16, tu_xiang[0], 2, RGB565_BLACK);
+       tft180_show_string(2*column_unit,6*line_unit,":");
+       tft180_show_chinese(column_unit*2.5, 6*line_unit, 16, erzhihua[0], 3, RGB565_BLACK);}
        else {tft180_displayimage03x(mt9v03x_image[0],MT9V03X_W/2,MT9V03X_H/2);
-       tft180_show_chinese(0, 6*16, 16, tu_xiang[0], 2, RGB565_BLACK);
-       tft180_show_string(2*16,6*16,":");
-       tft180_show_chinese(2*16+8, 6*16, 16, hui_du[0], 2, RGB565_BLACK);}
+       tft180_show_chinese(0, 6*line_unit, 16, tu_xiang[0], 2, RGB565_BLACK);
+       tft180_show_string(2*column_unit,6*line_unit,":");
+       tft180_show_chinese(column_unit*2.5, 6*line_unit, 16, hui_du[0], 2, RGB565_BLACK);}
 
        //边线显示控制
        if(!line_show_mode){line_visualization();
-       tft180_show_chinese(0, 7*16, 16, bian_xian[0], 2, RGB565_BLACK);
-       tft180_show_string(2*16,7*16,":");
-       tft180_show_chinese(2*16+8, 7*16, 16, xian_shi[0], 2, RGB565_BLACK);}
-       else{tft180_show_chinese(0, 7*16, 16, bian_xian[0], 2, RGB565_BLACK);
-       tft180_show_string(2*16,7*16,":");
-       tft180_show_chinese(2*16+8, 7*16, 16, yin_cang[0], 3, RGB565_BLACK);}
+       tft180_show_chinese(0, 7*line_unit, 16, bian_xian[0], 2, RGB565_BLACK);
+       tft180_show_string(2*line_unit,7*line_unit,":");
+       tft180_show_chinese(2*line_unit+8, 7*line_unit, 16, xian_shi[0], 2, RGB565_BLACK);}
+       else{tft180_show_chinese(0, 7*line_unit, 16, bian_xian[0], 2, RGB565_BLACK);
+       tft180_show_string(2*line_unit,7*line_unit,":");
+       tft180_show_chinese(2*line_unit+8, 7*line_unit, 16, yin_cang[0], 3, RGB565_BLACK);}
 
 //        line_visualization();
         fps_count++;
@@ -210,30 +210,30 @@ void tft180show_better(uint8 mode)
 
             yu_zhi_show=ex_threshold;
 
-//            tft180_show_uint(7*16, 0, mode, 1);
+//            tft180_show_uint(7*line_unit, 0, mode, 1);
             //fps显示
-            tft180_show_float(32,4*16,fps_show,6,2);
+            tft180_show_float(column_unit*2,4*line_unit,fps_show,6,2);
         }
-            tft180_show_string(1, 4*16, "fps:");
+            tft180_show_string(0, 4*line_unit, "fps:");
 
             //二值化阈值显示
-            tft180_show_chinese(0, 5*16, 16, yu_zhi[0], 4, RGB565_BLACK);
-            tft180_show_string(32,5*16,":");
-            tft180_show_uint(16*3-8,5*16,yu_zhi_show,3);
+            tft180_show_chinese(0, 5*line_unit, 16, yu_zhi[0], 4, RGB565_BLACK);
+            tft180_show_string(column_unit*2,5*line_unit,":");
+            tft180_show_uint(column_unit*2.5,5*line_unit,yu_zhi_show,3);
             //底层边线坐标显示
-            tft180_show_uint(0,8*16,Sideline_status_array[59].leftline,2);
-            tft180_show_uint(2*16,8*16,Sideline_status_array[59].midline,2);
-            tft180_show_uint(4*16,8*16,Sideline_status_array[59].rightline,3);
+            tft180_show_uint(0,8*line_unit,Sideline_status_array[59].leftline,2);
+            tft180_show_uint(2*column_unit,8*line_unit,Sideline_status_array[59].midline,2);
+            tft180_show_uint(4*column_unit,8*line_unit,Sideline_status_array[59].rightline,3);
             //停止flag
-            tft180_show_string(0,9*16,"stop:");
-            tft180_show_uint(2*16+8,9*16,imageflag.stop_flag,1);
+            tft180_show_string(0,9*line_unit,"stop:");
+            tft180_show_uint(column_unit*2.5,9*line_unit,imageflag.stop_flag,1);
             //斑马线flag
-            tft180_show_string(4*16,9*16,"flag:");
-            tft180_show_uint(7*16-8,9*16,imageflag.Zebra_Flag,1);
+//            tft180_show_string(4*column_unit,9*line_unit,"flag:");
+//            tft180_show_uint(6.5*column_unit,9*line_unit,imageflag.Zebra_Flag,1);
 
 //            static uint8 temp;
 //            temp=!temp;
-//            tft180_show_uint(80,9*16,temp,5);
+//            tft180_show_uint(80,9*line_unit,temp,5);
 
             status_show();
             break;
@@ -401,11 +401,11 @@ void increase_reduce(void)
 }
 //----------------------------------------------------------------------------------------
 // 函数简介      菜单界面显示与操作
-// 备注信息     tft范围为横向最大128竖向最大160，单个中文字符大小为16*16，而英文字符则为8*16，也就是在竖向共有10行，每行能容纳8个字
+// 备注信息     tft范围为横向最大128竖向最大160，单个中文字符大小为16*line_unit，而英文字符则为8*line_unit，也就是在竖向共有10行，每行能容纳8个字
 //----------------------------------------------------------------------------------------
 void menu_page(void)
 {
-    tft180_show_uint(7*16, 0, Button_mode, 1);
+    tft180_show_uint(7*line_unit, 0, Button_mode, 1);
     if(Button[2].status=='D'&& Button[2].decetion_flag==0)
         {
             Button_mode=!Button_mode;
@@ -429,13 +429,13 @@ void menu_page(void)
         tft180_show_chinese(0,0,16,menu[0],2,RGB565_BLACK);
 
         tft180_show_string(0,mpu6050_0,"1.");
-        tft180_show_chinese(16,mpu6050_0,16,mpu6050_parament[0],3,RGB565_BLACK);
+        tft180_show_chinese(column_unit,mpu6050_0,16,mpu6050_parament[0],3,RGB565_BLACK);
 
         tft180_show_string(0,tuxiang_0,"2.");
-        tft180_show_chinese(16,tuxiang_0,16,tu_xiang[0],3,RGB565_BLACK);
+        tft180_show_chinese(column_unit,tuxiang_0,16,tu_xiang[0],3,RGB565_BLACK);
 
         tft180_show_string(0,pid_0,"3.");
-        tft180_show_string(16,pid_0,"pid");
+        tft180_show_string(column_unit,pid_0,"pid");
         if(line<page_0_min)line=3;
         if(line>page_0_max)line=1;
 
@@ -447,7 +447,7 @@ void menu_page(void)
             Button[3].decetion_flag=1;
         }
 
-        choose_(7*16,line*16);
+        choose_(5*column_unit,((line*line_unit)-1));
         break;
     case 11:
         tft180show_better(3);
