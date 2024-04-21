@@ -7,7 +7,8 @@
 #include "zf_common_headfile.h"
 int page=0,line=1;
 uint8 Button_mode=0;
-Button_Stash Button[KEY_Number];
+
+
 const uint8 bian_xian[8][16]=
 {
         {0x00,0x40,0x20,0x40,0x10,0x40,0x13,0xFC,0x00,0x44,0x00,0x44,0xF0,0x44,0x10,0x84},
@@ -96,7 +97,7 @@ void choose_(uint8 x,uint8 y)
 //        j+=2;
 //        tft180_draw_line(j, i, x+2, i, RGB565_BLUE);
 //        }
-    if(y)tft180_draw_line(0, y, x, y, RGB565_BLACK);
+    if(y!=0)tft180_draw_line(0, y, x, y, RGB565_BLACK);
     tft180_draw_line(0, y+line_unit, x, y+line_unit, RGB565_BLACK);
     tft180_draw_line(x, y, x, y+line_unit, RGB565_BLACK);
 }
@@ -158,6 +159,8 @@ void tft180show_better(uint8 mode)
     switch(mode)
     {
     case 1:
+        tft180_show_string(0,0,"pid");
+
         tft180_show_string(0, kp_31, "kp:");
         tft180_show_float(column_unit*1.5,kp_31,kp,2,1);
 
@@ -180,7 +183,7 @@ void tft180show_better(uint8 mode)
             timer_clear(TIM_3);
         }
         //图像显示控制
-       if(!mt9v034_mode){tft180_show_gray_image(1, 1, ex_mt9v03x_binarizeImage[0], MT9V03X_W/2, MT9V03X_H/2, (MT9V03X_W/2), (MT9V03X_H/2), 0);
+       if(!mt9v034_mode){tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], MT9V03X_W/2, MT9V03X_H/2, (MT9V03X_W/2), (MT9V03X_H/2), 0);
        tft180_show_chinese(0, 6*line_unit, 16, tu_xiang[0], 2, RGB565_BLACK);
        tft180_show_string(2*column_unit,6*line_unit,":");
        tft180_show_chinese(column_unit*2.5, 6*line_unit, 16, erzhihua[0], 3, RGB565_BLACK);}
@@ -225,8 +228,8 @@ void tft180show_better(uint8 mode)
             tft180_show_uint(2*column_unit,8*line_unit,Sideline_status_array[59].midline,2);
             tft180_show_uint(4*column_unit,8*line_unit,Sideline_status_array[59].rightline,3);
             //停止flag
-            tft180_show_string(0,9*line_unit,"stop:");
-            tft180_show_uint(column_unit*2.5,9*line_unit,imageflag.stop_flag,1);
+//            tft180_show_string(0,9*line_unit,"stop:");
+//            tft180_show_uint(column_unit*2.5,9*line_unit,imageflag.stop_flag,1);
             //斑马线flag
 //            tft180_show_string(4*column_unit,9*line_unit,"flag:");
 //            tft180_show_uint(6.5*column_unit,9*line_unit,imageflag.Zebra_Flag,1);
@@ -239,8 +242,6 @@ void tft180show_better(uint8 mode)
             break;
 
     case 3://陀螺仪数据显示，以及预设角度调整
-        tft180_clear();
-        tft180_show_uint(142, 0, mode, 1);
         mpu6050_parameter_tft180_show();
         break;
     }
@@ -248,66 +249,80 @@ void tft180show_better(uint8 mode)
 //---------------------------------------------------------------------------
 // 函数简介     实现菜单功能的按键的初始化
 //---------------------------------------------------------------------------
-void menu_button_init(void)
-{
-    gpio_init(E2, GPI, 0, GPI_PULL_UP);
-    for(uint8 i=0; i<KEY_Number;i++)
-    {
-        Button[i].decetion_flag=0;
-        Button[i].time=0;
-    }
-}
+//void menu_button_init(void)
+//{
+//    gpio_init(B0, GPI, 0, GPI_PULL_UP);          //KEY初始化，高电平，上拉输出
+//    gpio_init(B12, GPI, 0, GPI_PULL_UP);         //KEY初始化，高电平，上拉输出
+//    gpio_init(D8, GPI, 0, GPI_PULL_UP);          //KEY初始化，高电平，上拉输出
+//    gpio_init(A8, GPI, 0, GPI_PULL_UP);          //KEY初始化，高电平，上拉输出
+//
+//    for(uint8 i=0; i<KEY_Number;i++)
+//    {
+//        Button[i].level_last=0;
+//        Button[i].level=0;
+//        Button[i].decetion_flag=0;
+//        Button[i].time=0;
+//    }
+//}
 //---------------------------------------------------------------------------
 // 函数简介     按键扫描
+// 参数说明 interrupt_time      定时器扫描周期单位ms
 // 备注信息     Button数组共4个，分别对应line number Toggle enter
 //---------------------------------------------------------------------------
-void menu_button_scan(void)
-{
-    Button[2].level_last=Button[2].level;
-    Button[2].level=gpio_get_level(E2);
-}
+//void menu_button_scan(void)
+//{
+//    for(uint8 i=0; i<KEY_Number;i++)
+//           {
+//               Button[i].level_last=Button[i].level;
+//           }
+//    Button[0].level=gpio_get_level(B0);
+//    Button[1].level=gpio_get_level(B12);
+//    Button[2].level=gpio_get_level(D8);
+//    Button[3].level=gpio_get_level(A8);
+//}
 
 //---------------------------------------------------------------------------
 // 函数简介     按键状态获取
 // 参数说明 interrupt_time      定时器扫描周期单位ms
 // 备注信息     D按下，U未按下，L长按;     中断10ms扫描一次
 //---------------------------------------------------------------------------
-void button_status_get(uint8 interrupt_time)
-{
-    menu_button_scan();
-    for(uint8 i=0;i<KEY_Number;i++)
-    {
-        if(Button[i].level)
-        {
-             if(Button[i].level!=Button[i].level_last)
-             {
-                Button[i].status='D';
-             }else {
-                Button[i].time+=1;
-                if(Button[i].time>(500/interrupt_time))//0.5s没有松开按键
-                {
-                    if(Button[i].time>(600/interrupt_time))
-                        {
-                            Button[i].time=(500/interrupt_time);
-                            if(Button[i].status=='L')Button[i].status='S';//每隔10ms让’L‘信号变为’S‘信号，让数据+1后在变回’L‘
-                        }
-
-                }
-            }
-        }else
-        {
-            if(Button[i].level!=Button[i].level_last)
-            {
-                Button[i].status='U';
-            }
-            if(Button[i].time!=0)
-            {
-                Button[i].time=0;
-            }
-        }
-
-    }
-}
+//void button_status_get(uint8 interrupt_time)
+//{
+//    menu_button_scan();
+//    for(uint8 i=0;i<KEY_Number;i++)
+//    {
+//        if(Button[i].level)
+//        {
+//             if(Button[i].level!=Button[i].level_last)
+//             {
+//                Button[i].status='D';
+//             }else {
+//                Button[i].time+=1;
+//                if(Button[i].time>(500/interrupt_time))//0.5s没有松开按键
+//                {
+//                    if(Button[i].time>(600/interrupt_time))
+//                        {
+//                            Button[i].time=(500/interrupt_time);
+//                            if(Button[i].status=='L')Button[i].status='S';//每隔10ms让’L‘信号变为’S‘信号，让数据+1后在变回’L‘
+//                        }
+//
+//                }
+//            }
+//        }else
+//        {
+//            if(Button[i].level!=Button[i].level_last)
+//            {
+//                Button[i].status='U';
+//            }
+//            if(Button[i].time!=0)
+//            {
+//                Button[i].time=0;
+//            }
+//        }
+//
+//    }
+//
+//}
 //----------------------------------------------------------------------------------------
 // 函数简介     按钮increase reduce的功能实现
 //----------------------------------------------------------------------------------------
@@ -316,31 +331,31 @@ void increase_reduce(void)
     switch (page)
     {
         case 11:
-            if(Button[1].status=='D'&& Button[1].decetion_flag==0)
-            {
-
-                Button[1].decetion_flag=1;
-            }
+//            if(Button[1].status=='D'&& Button[1].decetion_flag==0)
+//            {
+//                Button[1].decetion_flag=1;
+//            }
 
             break;
         case 21:
-            if(Button[1].status=='D'&& Button[1].decetion_flag==0)
-            {
-                switch(line)
-                {
-
-                case 5:
-                    break;//对阈值的修改
-                default:
-                    break;
-                }
-                Button[1].decetion_flag=1;
-            }
+//            if(Button[1].status=='D'&& Button[1].decetion_flag==0)
+//            {
+//                switch(line)
+//                {
+//
+//                case 5:
+//                    break;//对阈值的修改
+//                default:
+//                    break;
+//                }
+//                Button[1].decetion_flag=1;
+//            }
             break;
         case 31:
             if(!Button_mode)
             {
-                if(Button[1].status=='D'&& Button[1].decetion_flag==0)
+//                if( Button[1].    status=='S' || (Button[1].status=='D'&& Button[1].decetion_flag==0))
+                if(key_get_state(KEY_3)==KEY_LONG_PRESS || key_get_state(KEY_3)==KEY_SHORT_PRESS )
                 {
                     switch(line)
                     {
@@ -350,83 +365,80 @@ void increase_reduce(void)
                     case (dt_31/16):dt+=0.1;break;
                     case (target_31/16):target+=0.1;break;
                     }
-                Button[1].decetion_flag=1;
+//                    if(Button[1].status=='S') Button[1].status='L';
+//                Button[1].decetion_flag=1;
                 }
-                if(Button[1].status=='S')
-                {
-                    switch(line)
-                    {
-                    case (kp_31/16):kp+=0.1;break;
-                    case (ki_31/16):ki+=0.1;break;
-                    case (kd_31/16):kd+=0.1;break;
-                    case (dt_31/16):dt+=0.1;break;
-                    case (target_31/16):target+=0.1;break;
-                    }
-                    Button[1].status='L';
-                }
+
             }
             else
             {
-                if(Button[1].status=='D'&& Button[1].decetion_flag==0)
+//                if(Button[1].status=='S'||(Button[1].status=='D'&& Button[1].decetion_flag==0))
+                if(key_get_state(KEY_3)==KEY_LONG_PRESS || key_get_state(KEY_3)==KEY_SHORT_PRESS )
                 {
                     switch(line)
                     {
-                        case (kp_31/16):kp+=0.1;break;
-                        case (ki_31/16):ki+=0.1;break;
-                        case (kd_31/16):kd+=0.1;break;
-                        case (dt_31/16):dt+=0.1;break;
-                        case (target_31/16):target+=0.1;break;
+                        case (kp_31/16):kp-=0.1;break;
+                        case (ki_31/16):ki-=0.1;break;
+                        case (kd_31/16):kd-=0.1;break;
+                        case (dt_31/16):dt-=0.1;break;
+                        case (target_31/16):target-=0.1;break;
                     }
-                    Button[1].decetion_flag=1;
+//                    if(Button[1].status=='S') Button[1].status='L';
+//                    Button[1].decetion_flag=1;
                 }
-                if(Button[1].status=='S')
-                {
-                    switch(line)
-                    {
-                    case (kp_31/16):kp+=0.1;break;
-                    case (ki_31/16):ki+=0.1;break;
-                    case (kd_31/16):kd+=0.1;break;
-                    case (dt_31/16):dt+=0.1;break;
-                    case (target_31/16):target+=0.1;break;
-                    }
-                    Button[1].status='L';
-                }
+
             }
 
             break;
-
-        default:
-            break;
     }
 }
-//----------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------
+//  函数简介    获取按键状态
+//---------------------------------------------------------------------------------------------------------
+//void key_status_get(void)
+//{
+//    for(uint8 i=0; KEY_NUMBER > i; i ++)
+//    {
+//        Button[i].level=key_get_state(i);
+//    }
+//}
+//---------------------------------------------------------------------------------------------------------
 // 函数简介      菜单界面显示与操作
 // 备注信息     tft范围为横向最大128竖向最大160，单个中文字符大小为16*line_unit，而英文字符则为8*line_unit，也就是在竖向共有10行，每行能容纳8个字
-//----------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------
 void menu_page(void)
 {
+    key_scanner();
     tft180_show_uint(7*line_unit, 0, Button_mode, 1);
-    if(Button[2].status=='D'&& Button[2].decetion_flag==0)
+//    if(Button[2].status=='D'&& Button[2].decetion_flag==0)
+    if(key_get_state(KEY_2)==KEY_SHORT_PRESS)
         {
             Button_mode=!Button_mode;
-            Button[2].decetion_flag=1;
+//            Button[2].decetion_flag=1;
         }
-    if(Button[0].status=='D'&& Button[0].decetion_flag==0)
+//    if(Button[0].status=='D'&& Button[0].decetion_flag==0)
+    if(key_get_state(KEY_4)==KEY_SHORT_PRESS)
     {
         if(!Button_mode)line++;
         else line--;
         tft180_clear();
-        Button[0].decetion_flag=1;
+//        Button[0].decetion_flag=1;
     }
-    if(Button[3].status=='D'&& Button[3].decetion_flag==0 && Button_mode!=0)
+//    if(Button[3].status=='D'&& Button[3].decetion_flag==0 && Button_mode!=0)
+    if(key_get_state(KEY_1)==KEY_SHORT_PRESS && Button_mode!=0)
     {
+
         page=0;
-        Button[3].decetion_flag=1;
+        line=1;
+        tft180_clear();
+//        Button[3].decetion_flag=1;
     }
     switch(page)
     {
     case 0:
-        tft180_show_chinese(0,0,16,menu[0],2,RGB565_BLACK);
+        if(line<page_0_min)line=page_0_max;
+        if(line>page_0_max)line=page_0_min;
+        tft180_show_chinese(1,0,16,menu[0],2,RGB565_BLACK);
 
         tft180_show_string(0,mpu6050_0,"1.");
         tft180_show_chinese(column_unit,mpu6050_0,16,mpu6050_parament[0],3,RGB565_BLACK);
@@ -436,40 +448,44 @@ void menu_page(void)
 
         tft180_show_string(0,pid_0,"3.");
         tft180_show_string(column_unit,pid_0,"pid");
-        if(line<page_0_min)line=3;
-        if(line>page_0_max)line=1;
-
-        if(Button[3].status=='D'&& Button[3].decetion_flag==0)
-        {
-            page=line*10+1;
-            line=0;
-            tft180_clear();
-            Button[3].decetion_flag=1;
-        }
 
         choose_(5*column_unit,((line*line_unit)-1));
+//        if(Button[3].status=='D'&& Button[3].decetion_flag==0)
+        if(key_get_state(KEY_1)==KEY_SHORT_PRESS && Button_mode==0)
+        {
+            page=line*10+1;
+            line=1;
+            tft180_clear();
+//            Button[3].decetion_flag=1;
+        }
+
+
         break;
     case 11:
         tft180show_better(3);
         break;
     case 21:
-        tft180show_better(2);
         if(line>page_shexiangtou_max)line=page_shexiangtou_min;
         if(line<page_shexiangtou_min)line=page_shexiangtou_max;
+        tft180show_better(2);
+
         break;
     case 31:
-        tft180show_better(1);
+
         if(line>page_pid_max)line=page_pid_min;
         if(line<page_pid_min)line=page_pid_max;
+        choose_(6*column_unit,((line*line_unit)-1));
+        tft180show_better(1);
         break;
     }
-   for(uint8 i=0; i<KEY_Number;i++)
-   {
-       if(Button[i].status!='D' && Button[i].decetion_flag!=0)
-       {
-           Button[i].decetion_flag=0;
-       }
-   }
+    increase_reduce();
+//   for(uint8 i=0; i<KEY_Number;i++)
+//   {
+//       if(Button[i].status!='D' && Button[i].decetion_flag!=0)
+//       {
+//           Button[i].decetion_flag=0;
+//       }
+//   }
 
 //    tft180_show_string();
 }

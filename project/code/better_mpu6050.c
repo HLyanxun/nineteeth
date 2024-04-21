@@ -46,10 +46,10 @@ void mpu6050_data_dispose(void)
 //---------------------------------------------------------------------------------
 void mpu6050_parameter_tft180_show(void)
 {
-    tft180_show_float(0, 0, Angle_pitch, 3, 1);
-    tft180_show_float(0, 16, Angle_yaw, 3, 1);
-    tft180_show_float(0, 32, Angle_roll, 3, 1);
-    tft180_show_string(80, 0, "pitch");
-    tft180_show_string(80, 16, "yaw");
-    tft180_show_string(80, 32, "roll");
+    tft180_show_float(3*column_unit, 0, Angle_pitch, 3, 1);
+    tft180_show_float(2*column_unit, 1*line_unit, Angle_yaw, 3, 1);
+    tft180_show_float(2.5*column_unit, 2*line_unit, Angle_roll, 3, 1);
+    tft180_show_string(0, 0, "pitch:");
+    tft180_show_string(0, 1*line_unit, "yaw:");
+    tft180_show_string(0, 2*line_unit, "roll:");
 }

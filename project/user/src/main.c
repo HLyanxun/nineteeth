@@ -57,8 +57,10 @@ int main (void)
     steering_engine_set_angle(TIM1_PWM_MAP0_CH1_A8,90);
 ////
 //    pwm_init(TIM1_PWM_MAP0_CH1_A8,50,650);
-//    pit_ms_init(TIM2_PIT,2);
+    pit_ms_init(TIM2_PIT,10);
     tft180_init();
+//    menu_button_init();
+    key_init(10);
     mt9v03x_init();
 //    uart_init(DEBUG_UART_INDEX, DEBUG_UART_BAUDRATE, DEBUG_UART_TX_PIN, DEBUG_UART_RX_PIN); // 串口初始化
 //    uart_rx_interrupt(DEBUG_UART_INDEX, ENABLE);                                            // 开启接收中断
@@ -99,7 +101,7 @@ int main (void)
          if(mt9v03x_finish_flag)
          {
 //         otsuThreshold_get();
-             ex_threshold=otsuThreshold(mt9v03x_image);
+
              binarizeImage();
              baseline_get();
              allline_get();
@@ -145,6 +147,8 @@ int main (void)
 
  void pit_hander(void)
  {
+
+//     button_status_get(20);
 //     static uint8 time,time2;
 //     static uint8 a,b;
 //     if(time<10)

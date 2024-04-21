@@ -6,7 +6,7 @@
  */
 #include "zf_common_headfile.h"
 uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];   //摄像头二值化数据存储数组
-
+int16 threshold_fix;                                          //二值化阈值补正
 int ImageScanInterval=6;                                    //扫边的范围
 
 int ex_threshold;                                         //大津法二值化阈值
@@ -333,7 +333,8 @@ void binarizeImage(void)
 {
     if(mt9v03x_finish_flag)
          {
-         int THRESHOLD=ex_threshold+10;
+          ex_threshold=otsuThreshold(mt9v03x_image);
+         int THRESHOLD=ex_threshold+threshold_fix;
 //         if(THRESHOLD<170)THRESHOLD=170;
 
          for (int i = 0; i < MT9V03X_H; i+=2) {

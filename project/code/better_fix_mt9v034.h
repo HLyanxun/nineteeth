@@ -98,6 +98,7 @@ typedef struct {
 
 extern uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];
 extern int ex_threshold;
+extern int16 threshold_fix;                                          //二值化阈值补正
 
 extern uint16 wide_sum;//////////////////
 
