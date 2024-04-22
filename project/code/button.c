@@ -8,7 +8,18 @@
 int page=0,line=1;
 uint8 Button_mode=0;
 
+const uint8 can_shu_bao_cun[8][16]=
+{
+        {0x02,0x00,0x04,0x40,0x08,0x20,0x1F,0xF0,0x02,0x00,0x7F,0xFC,0x08,0x20,0x10,0x90},
+        {0x23,0x08,0xCC,0x46,0x01,0x80,0x06,0x10,0x18,0x20,0x00,0xC0,0x07,0x00,0x78,0x00},/*"参",0*/
+        {0x08,0x20,0x49,0x20,0x2A,0x20,0x08,0x3E,0xFF,0x44,0x2A,0x44,0x49,0x44,0x88,0xA4},
+        {0x10,0x28,0xFE,0x28,0x22,0x10,0x42,0x10,0x64,0x28,0x18,0x28,0x34,0x44,0xC2,0x82},/*"数",1*/
+        {0x08,0x00,0x0B,0xF8,0x0A,0x08,0x12,0x08,0x12,0x08,0x33,0xF8,0x30,0x40,0x50,0x40},
+        {0x97,0xFC,0x10,0xE0,0x11,0x50,0x12,0x48,0x14,0x44,0x18,0x42,0x10,0x40,0x10,0x40},/*"保",2*/
+        {0x04,0x00,0x04,0x00,0xFF,0xFE,0x08,0x00,0x08,0x00,0x13,0xF8,0x10,0x10,0x30,0x20},
+        {0x50,0x40,0x97,0xFE,0x10,0x40,0x10,0x40,0x10,0x40,0x10,0x40,0x11,0x40,0x10,0x80},/*"存",3*/
 
+};
 const uint8 bian_xian[8][16]=
 {
         {0x00,0x40,0x20,0x40,0x10,0x40,0x13,0xFC,0x00,0x44,0x00,0x44,0xF0,0x44,0x10,0x84},
@@ -140,11 +151,11 @@ void status_show(void)
 {
 //    if(!zxy)tft180_show_string(70, 81, "loading");
 //    else
-        if(imageflag.image_element_rings_flag)tft180_show_string(70, 81, "element");
-    else if(imageflag.Zebra_Flag)tft180_show_string(70,81,"_Zebra_");
-    else if(imageflag.Bend_Road)tft180_show_string(70,81,"_Bend__");
-    else if(imagestatus.WhiteLine >= 8)tft180_show_string(70,81,"cross__");
-    else tft180_show_string(70,81,"normal_");
+        if(imageflag.image_element_rings_flag)tft180_show_string(0, 8*line_unit, "element");
+    else if(imageflag.Zebra_Flag)tft180_show_string(0,8*line_unit,"_Zebra_");
+    else if(imageflag.Bend_Road)tft180_show_string(0,8*line_unit,"_Bend__");
+    else if(imagestatus.WhiteLine >= 8)tft180_show_string(0,8*line_unit,"cross__");
+    else tft180_show_string(0,8*line_unit,"normal_");
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -154,7 +165,7 @@ void tft180show_better(uint8 mode)
 {
     float fps_show=0;
     static uint8 mt9v034_mode=0,line_show_mode=0;
-    uint8 yu_zhi_show=0;
+    static uint8 yu_zhi_show;
     static int fps_count=0;
     switch(mode)
     {
@@ -221,12 +232,13 @@ void tft180show_better(uint8 mode)
 
             //二值化阈值显示
             tft180_show_chinese(0, 5*line_unit, 16, yu_zhi[0], 4, RGB565_BLACK);
-            tft180_show_string(column_unit*2,5*line_unit,":");
+            tft180_show_string(column_unit*2,5*line_unit,":   +");
             tft180_show_uint(column_unit*2.5,5*line_unit,yu_zhi_show,3);
+            tft180_show_int(column_unit*4.5,5*line_unit,threshold_fix,2);
             //底层边线坐标显示
-            tft180_show_uint(0,8*line_unit,Sideline_status_array[59].leftline,2);
-            tft180_show_uint(2*column_unit,8*line_unit,Sideline_status_array[59].midline,2);
-            tft180_show_uint(4*column_unit,8*line_unit,Sideline_status_array[59].rightline,3);
+//            tft180_show_uint(0,8*line_unit,Sideline_status_array[59].leftline,2);
+//            tft180_show_uint(2*column_unit,8*line_unit,Sideline_status_array[59].midline,2);
+//            tft180_show_uint(4*column_unit,8*line_unit,Sideline_status_array[59].rightline,3);
             //停止flag
 //            tft180_show_string(0,9*line_unit,"stop:");
 //            tft180_show_uint(column_unit*2.5,9*line_unit,imageflag.stop_flag,1);
@@ -237,7 +249,7 @@ void tft180show_better(uint8 mode)
 //            static uint8 temp;
 //            temp=!temp;
 //            tft180_show_uint(80,9*line_unit,temp,5);
-
+            //道路状态显示
             status_show();
             break;
 
@@ -246,83 +258,7 @@ void tft180show_better(uint8 mode)
         break;
     }
 }
-//---------------------------------------------------------------------------
-// 函数简介     实现菜单功能的按键的初始化
-//---------------------------------------------------------------------------
-//void menu_button_init(void)
-//{
-//    gpio_init(B0, GPI, 0, GPI_PULL_UP);          //KEY初始化，高电平，上拉输出
-//    gpio_init(B12, GPI, 0, GPI_PULL_UP);         //KEY初始化，高电平，上拉输出
-//    gpio_init(D8, GPI, 0, GPI_PULL_UP);          //KEY初始化，高电平，上拉输出
-//    gpio_init(A8, GPI, 0, GPI_PULL_UP);          //KEY初始化，高电平，上拉输出
-//
-//    for(uint8 i=0; i<KEY_Number;i++)
-//    {
-//        Button[i].level_last=0;
-//        Button[i].level=0;
-//        Button[i].decetion_flag=0;
-//        Button[i].time=0;
-//    }
-//}
-//---------------------------------------------------------------------------
-// 函数简介     按键扫描
-// 参数说明 interrupt_time      定时器扫描周期单位ms
-// 备注信息     Button数组共4个，分别对应line number Toggle enter
-//---------------------------------------------------------------------------
-//void menu_button_scan(void)
-//{
-//    for(uint8 i=0; i<KEY_Number;i++)
-//           {
-//               Button[i].level_last=Button[i].level;
-//           }
-//    Button[0].level=gpio_get_level(B0);
-//    Button[1].level=gpio_get_level(B12);
-//    Button[2].level=gpio_get_level(D8);
-//    Button[3].level=gpio_get_level(A8);
-//}
 
-//---------------------------------------------------------------------------
-// 函数简介     按键状态获取
-// 参数说明 interrupt_time      定时器扫描周期单位ms
-// 备注信息     D按下，U未按下，L长按;     中断10ms扫描一次
-//---------------------------------------------------------------------------
-//void button_status_get(uint8 interrupt_time)
-//{
-//    menu_button_scan();
-//    for(uint8 i=0;i<KEY_Number;i++)
-//    {
-//        if(Button[i].level)
-//        {
-//             if(Button[i].level!=Button[i].level_last)
-//             {
-//                Button[i].status='D';
-//             }else {
-//                Button[i].time+=1;
-//                if(Button[i].time>(500/interrupt_time))//0.5s没有松开按键
-//                {
-//                    if(Button[i].time>(600/interrupt_time))
-//                        {
-//                            Button[i].time=(500/interrupt_time);
-//                            if(Button[i].status=='L')Button[i].status='S';//每隔10ms让’L‘信号变为’S‘信号，让数据+1后在变回’L‘
-//                        }
-//
-//                }
-//            }
-//        }else
-//        {
-//            if(Button[i].level!=Button[i].level_last)
-//            {
-//                Button[i].status='U';
-//            }
-//            if(Button[i].time!=0)
-//            {
-//                Button[i].time=0;
-//            }
-//        }
-//
-//    }
-//
-//}
 //----------------------------------------------------------------------------------------
 // 函数简介     按钮increase reduce的功能实现
 //----------------------------------------------------------------------------------------
@@ -449,13 +385,20 @@ void menu_page(void)
         tft180_show_string(0,pid_0,"3.");
         tft180_show_string(column_unit,pid_0,"pid");
 
+        tft180_show_string(0,parament_save_0,"4.");
+        tft180_show_chinese(1*column_unit, parament_save_0, 16, can_shu_bao_cun[0], 4, RGB565_BLACK);
+
         choose_(5*column_unit,((line*line_unit)-1));
 //        if(Button[3].status=='D'&& Button[3].decetion_flag==0)
         if(key_get_state(KEY_1)==KEY_SHORT_PRESS && Button_mode==0)
         {
-            page=line*10+1;
-            line=1;
-            tft180_clear();
+            if(line==(parament_save_0/line_unit))Parament_save();
+            else{
+                page=line*10+1;
+                line=1;
+                tft180_clear();
+            }
+
 //            Button[3].decetion_flag=1;
         }
 

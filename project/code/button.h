@@ -12,7 +12,7 @@
 
 
 
-#define page_0_max                      (3)
+#define page_0_max                      (4)
 #define page_0_min                      (1)
 #define page_shexiangtou_max            (4)
 #define page_shexiangtou_min            (8)
@@ -22,6 +22,7 @@
 #define mpu6050_0                       (line_unit)
 #define tuxiang_0                       (2*line_unit)
 #define pid_0                           (3*line_unit)
+#define parament_save_0                   (4*line_unit)
 
 #define kp_31                           (1*line_unit)
 #define ki_31                           (2*line_unit)

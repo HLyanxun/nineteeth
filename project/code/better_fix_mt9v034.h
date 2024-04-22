@@ -97,7 +97,7 @@ typedef struct {
 
 
 extern uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];
-extern int ex_threshold;
+extern int16 ex_threshold;
 extern int16 threshold_fix;                                          //二值化阈值补正
 
 extern uint16 wide_sum;//////////////////
@@ -110,7 +110,7 @@ extern Image_Flag imageflag;
 //extern uint8 Ring_Help_Flag;
 
 void Get_Border_And_SideType(uint8* p,uint8 type,int L,int H,Jumppoint* Q);
-int otsuThreshold(const uint8 inputImage[MT9V03X_H][MT9V03X_W]);
+int16 otsuThreshold( uint8 inputImage[MT9V03X_H][MT9V03X_W]);
 void binarizeImage(void);
 void flag_init(void);
 void baseline_get(void);

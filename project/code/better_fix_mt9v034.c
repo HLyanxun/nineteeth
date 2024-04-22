@@ -9,7 +9,7 @@ uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];   //摄像头二值化数据存
 int16 threshold_fix;                                          //二值化阈值补正
 int ImageScanInterval=6;                                    //扫边的范围
 
-int ex_threshold;                                         //大津法二值化阈值
+int16 ex_threshold=0;                                         //大津法二值化阈值
 
 uint8 Ring_Help_Flag = 0;                                   //进环辅助标志
 
@@ -263,7 +263,7 @@ void Get_Border_And_SideType(uint8* p,uint8 type,int L,int H,Jumppoint* Q)
 // 备注信息     通过大津法初步优化的二值化阈值算法，或许仍有改进空间，放在定时器中，定时执行(暂不清楚最佳定时时间，建议2ms)
 //----------------------------------------------------------------------------------------------------------------------
 
-int otsuThreshold(const uint8 inputImage[MT9V03X_H][MT9V03X_W])
+int16 otsuThreshold( uint8 inputImage[MT9V03X_H][MT9V03X_W])
 {
     int histogram[256] = {0};
     float sum = 0.0;
@@ -271,7 +271,7 @@ int otsuThreshold(const uint8 inputImage[MT9V03X_H][MT9V03X_W])
     int wB = 0;
     int wF = 0;
     float varMax = 0.0;
-    int threshold = 0;
+    int16 threshold = 0;
 
     // 计算像素值的直方图
     for (int i = 0; i < MT9V03X_H; i++)
