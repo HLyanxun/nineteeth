@@ -55,6 +55,7 @@ int main (void)
     debug_init();                       // 务必保留，本函数用于初始化MPU 时钟 调试串口
     steering_engine_init(TIM1_PWM_MAP0_CH1_A8,50,120);
     steering_engine_set_angle(TIM1_PWM_MAP0_CH1_A8,90);
+    Parament_first();//添加新的变量进flash时运行该行代码
     Parament_init();
 ////
 //    pwm_init(TIM1_PWM_MAP0_CH1_A8,50,650);

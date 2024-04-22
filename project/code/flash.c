@@ -16,21 +16,19 @@ void Parament_init(void)
 {
     flash_buffer_clear();
     flash_read_page_to_buffer(FLASH_SECTION_INDEX, FLASH_PAGE_INDEX);      // 将数据从 flash 读取到缓冲区
-
     system_delay_ms(50);
 
-    kp   =flash_union_buffer[0].float_type;
-    ki   =flash_union_buffer[1].float_type;
-    kd   =flash_union_buffer[2].float_type;
-    dt   =flash_union_buffer[3].float_type;
-    target   =flash_union_buffer[4].float_type;
-    threshold_fix =flash_union_buffer[5].int16_type;
+    kp   =          flash_union_buffer[0].float_type;
+    ki   =          flash_union_buffer[1].float_type;
+    kd   =          flash_union_buffer[2].float_type;
+    dt   =          flash_union_buffer[3].float_type;
+    target   =      flash_union_buffer[4].float_type;
+    threshold_fix = flash_union_buffer[5].int16_type;
 
 }
 void Parament_save(void)
 {
-   flash_write_page_from_buffer(FLASH_SECTION_INDEX, FLASH_PAGE_INDEX);        // 向指定 Flash 扇区的页码写入缓冲区数据
-   flash_buffer_clear();
+    flash_buffer_clear();
    system_delay_ms(50);
    flash_union_buffer[0].float_type = kp;
    flash_union_buffer[1].float_type = ki;
@@ -38,4 +36,20 @@ void Parament_save(void)
    flash_union_buffer[3].float_type = dt;
    flash_union_buffer[4].float_type = target;
    flash_union_buffer[5].int16_type = threshold_fix;
+   flash_write_page_from_buffer(FLASH_SECTION_INDEX, FLASH_PAGE_INDEX);        // 向指定 Flash 扇区的页码写入缓冲区数据
+   flash_buffer_clear();
 }
+void Parament_first(void)
+{
+    flash_erase_sector(FLASH_SECTION_INDEX, FLASH_PAGE_INDEX);
+    flash_buffer_clear();
+    flash_union_buffer[0].float_type = 0.0;
+    flash_union_buffer[1].float_type = 0.0;
+    flash_union_buffer[2].float_type = 0.0;
+    flash_union_buffer[3].float_type = 0.0;
+    flash_union_buffer[4].float_type = 47.0;
+    flash_union_buffer[5].int16_type = 10;
+    flash_write_page_from_buffer(FLASH_SECTION_INDEX, FLASH_PAGE_INDEX);     // 向指定 Flash 扇区的页码写入缓冲区数据
+    flash_buffer_clear();                                                  // 清空缓冲区
+}
+

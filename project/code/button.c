@@ -7,7 +7,7 @@
 #include "zf_common_headfile.h"
 int page=0,line=1;
 uint8 Button_mode=0;
-
+uint8 mt9v034_mode=0,line_show_mode=0;
 const uint8 can_shu_bao_cun[8][16]=
 {
         {0x02,0x00,0x04,0x40,0x08,0x20,0x1F,0xF0,0x02,0x00,0x7F,0xFC,0x08,0x20,0x10,0x90},
@@ -164,7 +164,7 @@ void status_show(void)
 void tft180show_better(uint8 mode)
 {
     float fps_show=0;
-    static uint8 mt9v034_mode=0,line_show_mode=0;
+
     static uint8 yu_zhi_show;
     static int fps_count=0;
     switch(mode)
@@ -195,22 +195,22 @@ void tft180show_better(uint8 mode)
         }
         //图像显示控制
        if(!mt9v034_mode){tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], MT9V03X_W/2, MT9V03X_H/2, (MT9V03X_W/2), (MT9V03X_H/2), 0);
-       tft180_show_chinese(0, 6*line_unit, 16, tu_xiang[0], 2, RGB565_BLACK);
-       tft180_show_string(2*column_unit,6*line_unit,":");
-       tft180_show_chinese(column_unit*2.5, 6*line_unit, 16, erzhihua[0], 3, RGB565_BLACK);}
+       tft180_show_chinese(0, mt9v034_21, 16, tu_xiang[0], 2, RGB565_BLACK);
+       tft180_show_string(2*column_unit,mt9v034_21,":");
+       tft180_show_chinese(column_unit*2.5, mt9v034_21, 16, erzhihua[0], 3, RGB565_BLACK);}
        else {tft180_displayimage03x(mt9v03x_image[0],MT9V03X_W/2,MT9V03X_H/2);
-       tft180_show_chinese(0, 6*line_unit, 16, tu_xiang[0], 2, RGB565_BLACK);
-       tft180_show_string(2*column_unit,6*line_unit,":");
-       tft180_show_chinese(column_unit*2.5, 6*line_unit, 16, hui_du[0], 2, RGB565_BLACK);}
+       tft180_show_chinese(0, mt9v034_21, 16, tu_xiang[0], 2, RGB565_BLACK);
+       tft180_show_string(2*column_unit,mt9v034_21,":");
+       tft180_show_chinese(column_unit*2.5, mt9v034_21, 16, hui_du[0], 2, RGB565_BLACK);}
 
        //边线显示控制
        if(!line_show_mode){line_visualization();
-       tft180_show_chinese(0, 7*line_unit, 16, bian_xian[0], 2, RGB565_BLACK);
-       tft180_show_string(2*line_unit,7*line_unit,":");
-       tft180_show_chinese(2*line_unit+8, 7*line_unit, 16, xian_shi[0], 2, RGB565_BLACK);}
-       else{tft180_show_chinese(0, 7*line_unit, 16, bian_xian[0], 2, RGB565_BLACK);
-       tft180_show_string(2*line_unit,7*line_unit,":");
-       tft180_show_chinese(2*line_unit+8, 7*line_unit, 16, yin_cang[0], 3, RGB565_BLACK);}
+       tft180_show_chinese(0, line_show_21, 16, bian_xian[0], 2, RGB565_BLACK);
+       tft180_show_string(2*line_unit,line_show_21,":");
+       tft180_show_chinese(2*line_unit+8, line_show_21, 16, xian_shi[0], 2, RGB565_BLACK);}
+       else{tft180_show_chinese(0, line_show_21, 16, bian_xian[0], 2, RGB565_BLACK);
+       tft180_show_string(2*line_unit,line_show_21,":");
+       tft180_show_chinese(2*line_unit+8, line_show_21, 16, yin_cang[0], 3, RGB565_BLACK);}
 
 //        line_visualization();
         fps_count++;
@@ -231,10 +231,10 @@ void tft180show_better(uint8 mode)
             tft180_show_string(0, 4*line_unit, "fps:");
 
             //二值化阈值显示
-            tft180_show_chinese(0, 5*line_unit, 16, yu_zhi[0], 4, RGB565_BLACK);
-            tft180_show_string(column_unit*2,5*line_unit,":   +");
-            tft180_show_uint(column_unit*2.5,5*line_unit,yu_zhi_show,3);
-            tft180_show_int(column_unit*4.5,5*line_unit,threshold_fix,2);
+            tft180_show_chinese(0, erzhi_21, 16, yu_zhi[0], 4, RGB565_BLACK);
+            tft180_show_string(column_unit*2,erzhi_21,":   +");
+            tft180_show_uint(column_unit*2.5,erzhi_21,yu_zhi_show,3);
+            tft180_show_int(column_unit*4.5,erzhi_21,threshold_fix,2);
             //底层边线坐标显示
 //            tft180_show_uint(0,8*line_unit,Sideline_status_array[59].leftline,2);
 //            tft180_show_uint(2*column_unit,8*line_unit,Sideline_status_array[59].midline,2);
@@ -274,18 +274,30 @@ void increase_reduce(void)
 
             break;
         case 21:
-//            if(Button[1].status=='D'&& Button[1].decetion_flag==0)
-//            {
-//                switch(line)
-//                {
-//
-//                case 5:
-//                    break;//对阈值的修改
-//                default:
-//                    break;
-//                }
-//                Button[1].decetion_flag=1;
-//            }
+            if(!Button_mode)
+            {
+                if(key_get_state(KEY_3)==KEY_LONG_PRESS || key_get_state(KEY_3)==KEY_SHORT_PRESS )
+                {
+                    switch(line)
+                    {
+                    case (erzhi_21/line_unit):threshold_fix++;break;
+                    case (line_show_21/line_unit): line_show_mode=!line_show_mode; break;
+                    case (mt9v034_21/line_unit): mt9v034_mode=!mt9v034_mode;break;
+                    }
+                }
+            }
+            else
+            {
+                if(key_get_state(KEY_3)==KEY_LONG_PRESS || key_get_state(KEY_3)==KEY_SHORT_PRESS )
+                {
+                    switch(line)
+                    {
+                    case (erzhi_21/line_unit):threshold_fix--;break;
+                    case (line_show_21/line_unit): line_show_mode=!line_show_mode; break;
+                    case (mt9v034_21/line_unit): mt9v034_mode=!mt9v034_mode;break;
+                    }
+                }
+            }
             break;
         case 31:
             if(!Button_mode)
@@ -366,6 +378,7 @@ void menu_page(void)
 
         page=0;
         line=1;
+//        Button_mode=0;
         tft180_clear();
 //        Button[3].decetion_flag=1;
     }
@@ -392,10 +405,10 @@ void menu_page(void)
 //        if(Button[3].status=='D'&& Button[3].decetion_flag==0)
         if(key_get_state(KEY_1)==KEY_SHORT_PRESS && Button_mode==0)
         {
-            if(line==(parament_save_0/line_unit))Parament_save();
+            if(line==(parament_save_0/line_unit)){Parament_save();tft180_show_string(0, 8*line_unit, "save success!");}
             else{
                 page=line*10+1;
-                line=1;
+                line=10;                                //一定要注意给每一页的line设置最大最小值，否则会出错
                 tft180_clear();
             }
 
@@ -405,11 +418,14 @@ void menu_page(void)
 
         break;
     case 11:
+        if(line>page_mpu6050_max)line=page_mpu6050_min;
+        if(line<page_mpu6050_min)line=page_mpu6050_max;
         tft180show_better(3);
         break;
     case 21:
         if(line>page_shexiangtou_max)line=page_shexiangtou_min;
         if(line<page_shexiangtou_min)line=page_shexiangtou_max;
+        choose_(6*column_unit,((line*line_unit)-1));
         tft180show_better(2);
 
         break;
