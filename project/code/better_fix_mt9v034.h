@@ -16,11 +16,9 @@
 #define IMAGE_HEIGHT MT9V03X_H/2
 #define Row  MT9V03X_W
 #define Col MT9V03X_H
-#define findline_start_left     (10)
-#define findline_start_right   (IMAGE_WIDTH-11)
+
 #define MAX_BLACK_PIXELS 10 // 区域内黑点数量的最大允许值
-#define find_start              (2)
-#define find_end                (58)
+
 #define LimitL(L) (L = ((L < 1) ? 1 : L))    //限幅限幅
 #define LimitH(H) (H = ((H > 92) ? 92            : H))  //限幅限幅
 
@@ -67,9 +65,7 @@ typedef struct {
     int16 Miss_Left_lines;                      //左线丢失
     int16 Miss_Right_lines;                     //右线丢失
 
-    //int Det_True;
-    //float MU_P;
-    //float MU_D;
+
     //左右手法则扫线数据
     int16 WhiteLine_L;                          //左边丢线数
     int16 WhiteLine_R;                          //右边丢线数
@@ -97,7 +93,8 @@ typedef struct {
 
 
 extern uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];
-extern int16 ex_threshold;
+extern uint8 ex_threshold;
+extern int16 exposure_time;                                           //曝光时间
 extern int16 threshold_fix;                                          //二值化阈值补正
 
 extern uint16 wide_sum;//////////////////
@@ -107,7 +104,8 @@ extern Image_Status imagestatus;
 extern Image_Flag imageflag;
 
 
-//extern uint8 Ring_Help_Flag;
+void Image_Process(void);                   //看不懂用这个就行
+
 
 void Get_Border_And_SideType(uint8* p,uint8 type,int L,int H,Jumppoint* Q);
 int16 otsuThreshold( uint8 inputImage[MT9V03X_H][MT9V03X_W]);
@@ -118,22 +116,18 @@ void allline_get(void);
 void Search_Bottom_Line_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col, uint8 Bottonline);
 void Search_Left_and_Right_Lines(uint8 imageInput[LCDH][LCDW],uint8 row,uint8 col,uint8 Bottonline);
 void Search_Border_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col, uint8 Bottonline);
+
 void Element_Handle(void);
 void Scan_Element(void);
 void Element_Judgment_RoadBlock(void);
 void Element_Judgment_Left_Rings(void);
 void Element_Judgment_Right_Rings(void);
-
 void Element_Judgment_Zebra();//斑马线判断
 void Element_Judgment_Bend();
 void Straight_long_judge(void);     //返回结果小于1即为直线
 void Straight_long_handle(void);     //返回结果小于1即为直线
 
 void auto_extension_line(void);
-//void medianFilter(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH]);
-//void horizontal_line_fix(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH], uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT],  uint8 midLine[IMAGE_HEIGHT]);
-//uint8 hasLargeWhiteArea(uint8 image[IMAGE_HEIGHT][IMAGE_WIDTH], int x1, int y1,int x3, int y3);
-//void period_dispose(void);
 
 
 #endif /* BETTER_FIX_MT9V034_H_ */

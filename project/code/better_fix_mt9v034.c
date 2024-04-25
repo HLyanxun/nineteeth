@@ -7,9 +7,10 @@
 #include "zf_common_headfile.h"
 uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];   //摄像头二值化数据存储数组
 int16 threshold_fix;                                          //二值化阈值补正
-int ImageScanInterval=6;                                    //扫边的范围
+int16 exposure_time;
+int ImageScanInterval=10;                                    //扫边的范围
 
-int16 ex_threshold=0;                                         //大津法二值化阈值
+uint8 ex_threshold=0;                                         //大津法二值化阈值
 
 uint8 Ring_Help_Flag = 0;                                   //进环辅助标志
 
@@ -21,9 +22,9 @@ int Repair_Point_Xsite,Repair_Point_Ysite;                  //补线点横纵坐标
 uint8 ExtenLFlag = 0;                                       //左边线是否需要补线的标志变量
 uint8 ExtenRFlag = 0;                                       //右边线是否需要补线的标志变量
 uint16 wide_sum;//////////////////
-static float BottomBorderRight = 79,              //59行的右边界
-BottomBorderLeft = 0,                           //59行的左边界
-Bottommidline = 0;                               //59行的中点
+static float BottomBorderRight = (MT9V03X_W/2-10),              //(MT9V03X_H/2-1)行的右边界
+BottomBorderLeft = 0,                           //(MT9V03X_H/2-1)行的左边界
+Bottommidline = 0;                               //(MT9V03X_H/2-1)行的中点
 //uint8 Garage_Location_Flag = 0;                 //判断库的次数
 //
 //uint16 Ramp_num,Zebra_num,Garage_length,mode;
@@ -36,7 +37,7 @@ static int TFSite = 0, left_FTSite = 0,right_FTSite = 0;    //补线计算斜率的时候
 static int ytemp = 0;                                       //存放行的临时变量
 static uint8* Pixel;                                        //一个保存单行图像的指针
 
-Sideline_status Sideline_status_array[60];
+Sideline_status Sideline_status_array[MT9V03X_H/2];
 
 Image_Status imagestatus;
 Image_Flag imageflag;
@@ -144,7 +145,7 @@ uint32 break_road(uint8 line_start)//冲出赛道
 {
     short i,j;
     int bai=0;
-    for(i=58;i>line_start;i--)
+    for(i=(MT9V03X_H/2-2);i>line_start;i--)
     {
         for(j=5;j<88;j++)
         {
@@ -205,7 +206,7 @@ void Get_Border_And_SideType(uint8* p,uint8 type,int L,int H,Jumppoint* Q)
   {
     for (i = H; i >= L; i--)                    //从右往左扫
     {
-      if (*(p + i) == 255 && *(p + i - 1) != 255)   //如果有黑白跳变    1是白 0是黑
+      if (*(p + i) == 255 && *(p + i - 1) != 255)   //如果有黑白跳变    255是白 0是黑
       {
         Q->point = i;                           //那就把这个列记录下来作为左边线
         Q->type = 'T';                          //并且把这一行当作是正常跳变，边线类型记为T，即边线正常。
@@ -414,45 +415,45 @@ void baseline_get(void)
 {
     /*下面进行底边中线，边线的搜索*/
 
-    Pixel=ex_mt9v03x_binarizeImage[59];
-        for(uint8 i=45;i<MT9V03X_W/2-2;i++)
+    Pixel=ex_mt9v03x_binarizeImage[(MT9V03X_H/2)-1];
+        for(uint8 i=((MT9V03X_H/4)-2);i<MT9V03X_W/2-2;i++)
             {
                 if (*(Pixel + i) == 0 && *(Pixel + i + 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
                 {
                     BottomBorderRight = i;                                      //把这一列记录下来作为这一行的右边线
                     break;                                                          //跳出循环
                 }
-                else if (i == MT9V03X_W/2-3)                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
+                else if (i == MT9V03X_W/2-3)                                             //如果找到了第(MT9V03X_H/2-2)列都还没出现黑点，说明这一行的边线有问题。
                 {
-                    BottomBorderRight = MT9V03X_W/2-3;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
+                    BottomBorderRight = MT9V03X_W/2-3;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第(MT9V03X_W/2-11)列）就是这一行的右边线。
                     break;                                                          //跳出循环
                 }
             }
-        for(uint8 i=45;i>0;i--)
+        for(uint8 i=((MT9V03X_H/4)-2);i>0;i--)
             {
                 if (*(Pixel + i) == 0 && *(Pixel + i - 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
                 {
                     BottomBorderLeft = i;                                      //把这一列记录下来作为这一行的右边线
                     break;                                                          //跳出循环
                 }
-                else if (i == MT9V03X_W/2-3)                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
+                else if (i == MT9V03X_W/2-3)                                             //如果找到了第(MT9V03X_H/2-2)列都还没出现黑点，说明这一行的边线有问题。
                 {
-                    BottomBorderLeft = 0;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
+                    BottomBorderLeft = 0;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第(MT9V03X_W/2-11)列）就是这一行的右边线。
                     break;                                                          //跳出循环
                 }
             }
 
 
         Bottommidline =(BottomBorderLeft + BottomBorderRight) / 2.0;
-        Sideline_status_array[59].leftline = BottomBorderLeft;                        //把第59行的左边界存储进数组，注意看Sideline_status_array这个数字的下标，是不是正好对应59。
-        Sideline_status_array[59].rightline = BottomBorderRight;                      //把第59行的右边界存储进数组，注意看Sideline_status_array这个数字的下标，是不是正好对应59。
-        Sideline_status_array[59].midline=Bottommidline;
-        Sideline_status_array[59].wide=(BottomBorderRight-BottomBorderLeft);
-        Sideline_status_array[59].De_m=(Bottommidline-(MT9V03X_W/4-2));
-        Sideline_status_array[59].IsLeftFind = 'T';                                     //记录第59行的左边线类型为T，即正常找到左边线。
-        Sideline_status_array[59].IsRightFind = 'T';                                    //记录第59行的右边线类型为T，即正常找到右边线。
-        /*根据搜索到的底边中线，扫描58到54行*/
-    for(uint8 j=58;j>54;j--)
+        Sideline_status_array[(MT9V03X_H/2)-1].leftline = BottomBorderLeft;                        //把第(MT9V03X_H/2-1)行的左边界存储进数组，注意看Sideline_status_array这个数字的下标，是不是正好对应(MT9V03X_H/2-1)。
+        Sideline_status_array[(MT9V03X_H/2)-1].rightline = BottomBorderRight;                      //把第(MT9V03X_H/2-1)行的右边界存储进数组，注意看Sideline_status_array这个数字的下标，是不是正好对应(MT9V03X_H/2-1)。
+        Sideline_status_array[(MT9V03X_H/2)-1].midline=Bottommidline;
+        Sideline_status_array[(MT9V03X_H/2)-1].wide=(BottomBorderRight-BottomBorderLeft);
+        Sideline_status_array[(MT9V03X_H/2)-1].De_m=(Bottommidline-(MT9V03X_W/4-2));
+        Sideline_status_array[(MT9V03X_H/2)-1].IsLeftFind = 'T';                                     //记录第(MT9V03X_H/2-1)行的左边线类型为T，即正常找到左边线。
+        Sideline_status_array[(MT9V03X_H/2)-1].IsRightFind = 'T';                                    //记录第(MT9V03X_H/2-1)行的右边线类型为T，即正常找到右边线。
+        /*根据搜索到的底边中线，扫描(MT9V03X_H/2-2)到54行*/
+    for(uint8 j=((MT9V03X_H/2)-2);j>((MT9V03X_H/2)-6);j--)
     {
         Pixel=ex_mt9v03x_binarizeImage[j];
     for(uint8 i=Sideline_status_array[j+1].midline;i<MT9V03X_W/2-2;i++)
@@ -462,9 +463,9 @@ void baseline_get(void)
                 BottomBorderRight = i;                                      //把这一列记录下来作为这一行的右边线
                 break;                                                          //跳出循环
             }
-            else if (i == MT9V03X_W/2-1)                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
+            else if (i == MT9V03X_W/2-1)                                             //如果找到了第(MT9V03X_H/2-2)列都还没出现黑点，说明这一行的边线有问题。
             {
-                BottomBorderRight = MT9V03X_W/2-2;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
+                BottomBorderRight = MT9V03X_W/2-2;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第(MT9V03X_W/2-11)列）就是这一行的右边线。
                 break;                                                          //跳出循环
             }
         }
@@ -475,9 +476,9 @@ void baseline_get(void)
                 BottomBorderLeft = i;                                      //把这一列记录下来作为这一行的右边线
                 break;                                                          //跳出循环
             }
-            else if (i == MT9V03X_W/2-2)                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
+            else if (i == MT9V03X_W/2-2)                                             //如果找到了第(MT9V03X_H/2-2)列都还没出现黑点，说明这一行的边线有问题。
             {
-                BottomBorderLeft = 0;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
+                BottomBorderLeft = 0;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第(MT9V03X_W/2-11)列）就是这一行的右边线。
                 break;                                                          //跳出循环
             }
         }
@@ -487,7 +488,7 @@ void baseline_get(void)
     Sideline_status_array[j].rightline=BottomBorderRight;
     Sideline_status_array[j].wide=(BottomBorderRight-BottomBorderLeft);
     Sideline_status_array[j].De_m=(Bottommidline-(MT9V03X_W/4-2));
-    Sideline_status_array[j].IsLeftFind = 'T';                                     //记录第59行的左边线类型为T，即正常找到左边线。
+    Sideline_status_array[j].IsLeftFind = 'T';                                     //记录第(MT9V03X_H/2-1)行的左边线类型为T，即正常找到左边线。
     Sideline_status_array[j].IsRightFind = 'T';
     }
 
@@ -512,8 +513,10 @@ void allline_get(void)
     imagestatus.WhiteLine = 0;
     imagestatus.Miss_Left_lines = 0;
 
-    for(uint8 i=54;i>imagestatus.OFFLine;i--)
+    for(uint8 i=((MT9V03X_H/2)-6);i>imagestatus.OFFLine;i--)
     {
+        static uint8 L_temp=0,R_temp=0;             //保存最后一次正常线的x值
+
         Pixel=ex_mt9v03x_binarizeImage[i];
         Jumppoint jumppoint[2];
 
@@ -542,7 +545,8 @@ void allline_get(void)
         //如果本行的左边线属于不正常跳变，即这10个点都是白点。
         if (jumppoint[0].type =='W')                                                                     //如果本行的左边线属于不正常跳变，即这10个点都是白点。
         {
-            Sideline_status_array[i].leftline =Sideline_status_array[i + 1].leftline;                  //那么本行的左边线就采用上一行的边线。
+//            Sideline_status_array[i].leftline =Sideline_status_array[i + 1].leftline;                     //那么本行的左边线就采用上一行的边线。
+            Sideline_status_array[i].leftline =L_temp;
         }
         else                                                                                             //如果本行的左边线属于T或者是H类别
         {
@@ -551,12 +555,16 @@ void allline_get(void)
 
          if (jumppoint[1].type == 'W')                                                                //如果本行的右边线属于不正常跳变，即这10个点都是白点。
          {
-             Sideline_status_array[i].rightline =Sideline_status_array[i + 1].rightline;            //那么本行的右边线就采用上一行的边线。
+//             Sideline_status_array[i].rightline =Sideline_status_array[i + 1].rightline;            //那么本行的右边线就采用上一行的边线。
+             Sideline_status_array[i].rightline = R_temp;
          }
          else                                                                                         //如果本行的右边线属于T或者是H类别
          {
              Sideline_status_array[i].rightline = jumppoint[1].point;                                 //那么扫描到的边线是多少，我就记录下来是多少。
          }
+         if(jumppoint[0].type == 'T')L_temp=Sideline_status_array[i].leftline;
+         if(jumppoint[1].type == 'T')R_temp=Sideline_status_array[i].rightline;
+
 
          Sideline_status_array[i].IsLeftFind =jumppoint[0].type;                                  //记录本行找到的左边线类型，是T？是W？还是H？这个类型后面是有用的，因为我还要进一步处理。
          Sideline_status_array[i].IsRightFind = jumppoint[1].type;                                //记录本行找到的右边线类型，是T？是W？还是H？这个类型后面是有用的，因为我还要进一步处理。
@@ -627,7 +635,7 @@ void allline_get(void)
              uint8 L_found_point = 0;
              uint8 R_found_point = 0;
              /**************************处理左边线的无边行***************************/
-             if (Sideline_status_array[i].IsRightFind == 'W' && i > 10 && i < 50)
+             if (Sideline_status_array[i].IsRightFind == 'W' && i > MT9V03X_H/12 && i < (MT9V03X_H/2-MT9V03X_H/12))
              {
                if (Get_R_line == 'F')
                {
@@ -668,7 +676,7 @@ void allline_get(void)
 
 
              /**************************处理左边线的无边行***************************/
-             if (Sideline_status_array[i].IsLeftFind == 'W' && i > 10 && i < 50 )
+             if (Sideline_status_array[i].IsLeftFind == 'W' && i > MT9V03X_H/12 && i < (MT9V03X_H/2-MT9V03X_H/12) )
              {
                if (Get_L_line == 'F')
                {
@@ -716,11 +724,11 @@ void allline_get(void)
                   {
                       imagestatus.WhiteLine++;  //要是左右都无边，丢边数+1
                   }
-                 if (Sideline_status_array[i].IsLeftFind == 'W' && i < 55 )
+                 if (Sideline_status_array[i].IsLeftFind == 'W' && i < (MT9V03X_H-5) )
                  {
                      imagestatus.Miss_Left_lines++;
                  }
-                 if (Sideline_status_array[i].IsRightFind == 'W'&& i < 55)
+                 if (Sideline_status_array[i].IsRightFind == 'W'&& i < (MT9V03X_H-5))
                  {
                      imagestatus.Miss_Right_lines++;
                  }
@@ -738,12 +746,12 @@ void allline_get(void)
                   temp=func_abs(temp);
                   if(temp>3){changepoint.y=i;changepoint.num+=1;}
 
-                  if (Sideline_status_array[i].wide <= 7)//判断异常循迹
+                  if (Sideline_status_array[i].wide <= 9)//判断异常循迹
                   {
                       imagestatus.OFFLine = i + 1;
                       break;
                   }
-                  else if (Sideline_status_array[i].rightline <= 10||Sideline_status_array[i].leftline >= 80)//判断驶出边线
+                  else if (Sideline_status_array[i].rightline <= (MT9V03X_W/19)||Sideline_status_array[i].leftline >= (MT9V03X_W/2-(MT9V03X_W/19)))//判断驶出边线
                   {
                       imagestatus.OFFLine = i + 1;
                       break;
@@ -923,7 +931,7 @@ void Search_Left_and_Right_Lines(uint8 imageInput[LCDH][LCDW],uint8 row,uint8 co
                     //方向不变  Right_Rirection
                     Right_Ysite = Right_Ysite + Right_Rule[0][2 * Right_Rirection + 1];
                     Right_Xsite = Right_Xsite + Right_Rule[0][2 * Right_Rirection];
-                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 93 )
+                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == (MT9V03X_W/2-2) )
                         Sideline_status_array[Right_Ysite].RightBoundary_First = Right_Xsite;
                     Sideline_status_array[Right_Ysite].RightBoundary = Right_Xsite;
                 }
@@ -932,7 +940,7 @@ void Search_Left_and_Right_Lines(uint8 imageInput[LCDH][LCDW],uint8 row,uint8 co
                     // 方向发生改变 Right_Rirection  逆时针90度
                     Right_Ysite = Right_Ysite + Right_Rule[1][2 * Right_Rirection + 1];
                     Right_Xsite = Right_Xsite + Right_Rule[1][2 * Right_Rirection];
-                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 93)
+                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == (MT9V03X_W/2-2))
                         Sideline_status_array[Right_Ysite].RightBoundary_First = Right_Xsite;
                     Sideline_status_array[Right_Ysite].RightBoundary = Right_Xsite;
                     if (Right_Rirection == 3)
@@ -1015,10 +1023,10 @@ void auto_extension_line(void)
 
     /************************************左边线的补线处理*************************************************/
     if (imagestatus.WhiteLine >= 8)                                       //如果丢边行的数量大于8
-        TFSite = 55;                                                      //那就给TFSite赋值为55，这个变量是待会算补线斜率的一个变量。
+        TFSite = MT9V03X_W/4;                                                      //那就给TFSite赋值为55，这个变量是待会算补线斜率的一个变量。
     left_FTSite=0;
     if (ExtenLFlag != 'F')                                                //如果ExtenLFlag标志量不等于F，那就开始进行补线操作。
-        for (uint8 Ysite = 54; Ysite >= (imagestatus.OFFLine + 4);Ysite--)        //从第54开始往上扫，一直扫到顶边下面几行。
+        for (uint8 Ysite = (MT9V03X_H/2-6); Ysite >= (imagestatus.OFFLine + 4);Ysite--)        //从第54开始往上扫，一直扫到顶边下面几行。
         {
             Pixel = ex_mt9v03x_binarizeImage[Ysite];
             if (Sideline_status_array[Ysite].IsLeftFind =='W')                            //如果本行的左边线类型是W类型，也就是无边行类型。
@@ -1032,7 +1040,7 @@ void auto_extension_line(void)
                 {
                     Ysite--;                                                      //行数减减
                     if (Sideline_status_array[Ysite].IsLeftFind == 'T' && Sideline_status_array[Ysite - 1].IsLeftFind == 'T' && Sideline_status_array[Ysite - 2].IsLeftFind == 'T'
- && Sideline_status_array[Ysite - 2].leftline > 0 && Sideline_status_array[Ysite - 2].leftline <80)     //如果扫到的无边行的上面连续三行都是正常边线
+ && Sideline_status_array[Ysite - 2].leftline > 0 && Sideline_status_array[Ysite - 2].leftline <(MT9V03X_W/2-10))     //如果扫到的无边行的上面连续三行都是正常边线
                     {
                         left_FTSite = Ysite - 2;                                         //那就把扫到的这一行的上面两行存入FTsite变量
                         break;                                                      //跳出while循环
@@ -1053,9 +1061,9 @@ void auto_extension_line(void)
 
       /************************************右边线的补线处理（跟左边线处理思路一模一样）注释略*************************************************/
       if (imagestatus.WhiteLine >= 8)//重新设定TFSite，为了避免十字路口这种两边都需要补线的情况下，左右边补线函数冲突
-      TFSite = 55;
+      TFSite = MT9V03X_W/4;
       if (ExtenRFlag != 'F')
-      for (uint8 Ysite = 54; Ysite >= (imagestatus.OFFLine + 4);Ysite--)
+      for (uint8 Ysite = (MT9V03X_H/2-6); Ysite >= (imagestatus.OFFLine + 4);Ysite--)
       {
         Pixel = ex_mt9v03x_binarizeImage[Ysite];  //存当前行
         if (Sideline_status_array[Ysite].IsRightFind =='W')
@@ -1107,7 +1115,7 @@ void Element_Judgment_RoadBlock(void)
     static uint16 wide_sum_last=0;
     uint8 Right_Num=0,Left_Num=0;
 //    uint16 De_sum;
-    if(imagestatus.OFFLine>10)
+    if(imagestatus.OFFLine>MT9V03X_H/12)
     {
 
         for(int Ysite = imagestatus.OFFLine + 1;Ysite < imagestatus.OFFLine + 11;Ysite++)
@@ -1168,19 +1176,19 @@ void Element_Judgment_Left_Rings(void)
     if (   imagestatus.Miss_Right_lines > 3 || imagestatus.Miss_Left_lines < 13
         || imagestatus.OFFLine > 5 || Straight_Judge(2, 5, 55) > 1
         || imageflag.image_element_rings == 2 || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
-        || Sideline_status_array[52].IsLeftFind == 'W'
-        || Sideline_status_array[53].IsLeftFind == 'W'
-        || Sideline_status_array[54].IsLeftFind == 'W'
-        || Sideline_status_array[55].IsLeftFind == 'W'
-        || Sideline_status_array[56].IsLeftFind == 'W'
-        || Sideline_status_array[57].IsLeftFind == 'W'
-        || Sideline_status_array[58].IsLeftFind == 'W')
+        || Sideline_status_array[(MT9V03X_H/2-8)].IsLeftFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-7)].IsLeftFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-6)].IsLeftFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-5)].IsLeftFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-4)].IsLeftFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-3)].IsLeftFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-2)].IsLeftFind == 'W')
         return;
     int ring_ysite = 25;
     uint8 Left_Less_Num = 0;
     Left_RingsFlag_Point1_Ysite = 0;
     Left_RingsFlag_Point2_Ysite = 0;
-    for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
+    for (int Ysite = (MT9V03X_H/2-2); Ysite > ring_ysite; Ysite--)
     {
         if (Sideline_status_array[Ysite].LeftBoundary_First - Sideline_status_array[Ysite - 1].LeftBoundary_First > 4)
         {
@@ -1188,7 +1196,7 @@ void Element_Judgment_Left_Rings(void)
             break;
         }
     }
-    for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
+    for (int Ysite = (MT9V03X_H/2-2); Ysite > ring_ysite; Ysite--)
     {
         if (Sideline_status_array[Ysite + 1].LeftBoundary - Sideline_status_array[Ysite].LeftBoundary > 4)
         {
@@ -1248,20 +1256,20 @@ void Element_Judgment_Right_Rings(void)
     if (   imagestatus.Miss_Left_lines > 3 || imagestatus.Miss_Right_lines < 15
         || imagestatus.OFFLine > 5 || Straight_Judge(1, 5, 55) > 1
         || imageflag.image_element_rings == 1 || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
-        || Sideline_status_array[52].IsRightFind == 'W'
-        || Sideline_status_array[53].IsRightFind == 'W'
-        || Sideline_status_array[54].IsRightFind == 'W'
-        || Sideline_status_array[55].IsRightFind == 'W'
-        || Sideline_status_array[56].IsRightFind == 'W'
-        || Sideline_status_array[57].IsRightFind == 'W'
-        || Sideline_status_array[58].IsRightFind == 'W')
+        || Sideline_status_array[(MT9V03X_H/2-8)].IsRightFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-7)].IsRightFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-6)].IsRightFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-5)].IsRightFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-4)].IsRightFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-3)].IsRightFind == 'W'
+        || Sideline_status_array[(MT9V03X_H/2-2)].IsRightFind == 'W')
         return;
 
     int ring_ysite = 25;
     uint8 Right_Less_Num = 0;
     Right_RingsFlag_Point1_Ysite = 0;
     Right_RingsFlag_Point2_Ysite = 0;
-    for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
+    for (int Ysite = (MT9V03X_H/2-2); Ysite > ring_ysite; Ysite--)
     {
         if (Sideline_status_array[Ysite - 1].RightBoundary_First - Sideline_status_array[Ysite].RightBoundary_First > 4)
         {
@@ -1269,7 +1277,7 @@ void Element_Judgment_Right_Rings(void)
             break;
         }
     }
-    for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
+    for (int Ysite = (MT9V03X_H/2-2); Ysite > ring_ysite; Ysite--)
     {
         if (Sideline_status_array[Ysite].RightBoundary - Sideline_status_array[Ysite + 1].RightBoundary > 4)
         {
@@ -1409,7 +1417,7 @@ void Element_Handle_Left_Rings()
 
     /***************************************判断**************************************/
     int num = 0;
-    for (int Ysite = 55; Ysite > 30; Ysite--)
+    for (int Ysite = (MT9V03X_H/2-5); Ysite > MT9V03X_H/4; Ysite--)
     {
 //        if(Sideline_status_array[Ysite].LeftBoundary_First < 3)
 //        {
@@ -1442,7 +1450,7 @@ void Element_Handle_Left_Rings()
         //Stop= 1;
         Point_Ysite = 0;
         Point_Xsite = 0;
-        for (int Ysite = 20; Ysite > imagestatus.OFFLine + 2; Ysite--)
+        for (int Ysite = (MT9V03X_H/6); Ysite > imagestatus.OFFLine + 2; Ysite--)
         {
             if(Sideline_status_array[Ysite].IsLeftFind == 'W' && Sideline_status_array[Ysite-1].IsLeftFind == 'T')
             {
@@ -1533,7 +1541,7 @@ void Element_Handle_Left_Rings()
 //    if (imageflag.image_element_rings_flag == 9 )
 //    {
 //        int num=0;
-//        for (int Ysite = 58; Ysite > 30; Ysite--)
+//        for (int Ysite = (MT9V03X_H/2-2); Ysite > 30; Ysite--)
 //        {
 //            if(Sideline_status_array[Ysite].LeftBoundary_First < 3 )
 //            {
@@ -1549,7 +1557,7 @@ void Element_Handle_Left_Rings()
     if (imageflag.image_element_rings_flag == 9)
     {
         int num=0;
-        for (int Ysite = 40; Ysite > 10; Ysite--)
+        for (int Ysite = MT9V03X_H/3; Ysite > 10; Ysite--)
         {
             if(Sideline_status_array[Ysite].IsLeftFind == 'W' )
                 num++;
@@ -1573,7 +1581,7 @@ void Element_Handle_Left_Rings()
         || imageflag.image_element_rings_flag == 3
         || imageflag.image_element_rings_flag == 4)
     {
-        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
         {
             Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Road_Wide[Ysite];
         }
@@ -1586,7 +1594,7 @@ void Element_Handle_Left_Rings()
         int  flag_Xsite_1=0;
         int flag_Ysite_1=0;
         float Slope_Rings=0;
-        for(int Ysite=55;Ysite>imagestatus.OFFLine;Ysite--)//下面弧点
+        for(int Ysite=(MT9V03X_H/2-5);Ysite>imagestatus.OFFLine;Ysite--)//下面弧点
         {
             for(int Xsite=Sideline_status_array[Ysite].leftline + 1;Xsite<Sideline_status_array[Ysite].rightline - 1;Xsite++)
             {
@@ -1594,7 +1602,7 @@ void Element_Handle_Left_Rings()
                  {
                    flag_Ysite_1 = Ysite;
                    flag_Xsite_1 = Xsite;
-                   Slope_Rings=(float)(79-flag_Xsite_1)/(float)(59-flag_Ysite_1);
+                   Slope_Rings=(float)((MT9V03X_W/2-10)-flag_Xsite_1)/(float)((MT9V03X_H/2-1)-flag_Ysite_1);
                    break;
                  }
             }
@@ -1605,7 +1613,7 @@ void Element_Handle_Left_Rings()
         }
         if(flag_Ysite_1 == 0)
         {
-            for(int Ysite=imagestatus.OFFLine+1;Ysite<30;Ysite++)
+            for(int Ysite=imagestatus.OFFLine+1;Ysite<MT9V03X_H/4;Ysite++)
             {
                 if(Sideline_status_array[Ysite].IsLeftFind=='T'&&Sideline_status_array[Ysite+1].IsLeftFind=='T'&&Sideline_status_array[Ysite+2].IsLeftFind=='W'
                     &&abs(Sideline_status_array[Ysite].leftline-Sideline_status_array[Ysite+2].leftline)>10
@@ -1614,7 +1622,7 @@ void Element_Handle_Left_Rings()
                     flag_Ysite_1=Ysite;
                     flag_Xsite_1=Sideline_status_array[flag_Ysite_1].leftline;
                     imagestatus.OFFLine=Ysite;
-                    Slope_Rings=(float)(79-flag_Xsite_1)/(float)(59-flag_Ysite_1);
+                    Slope_Rings=(float)((MT9V03X_W/2-11)-flag_Xsite_1)/(float)((MT9V03X_H/2-1)-flag_Ysite_1);
                     break;
                 }
 
@@ -1623,7 +1631,7 @@ void Element_Handle_Left_Rings()
         //补线
         if(flag_Ysite_1 != 0)
         {
-            for(int Ysite=flag_Ysite_1;Ysite<60;Ysite++)
+            for(int Ysite=flag_Ysite_1;Ysite<MT9V03X_H/2;Ysite++)
             {
                 Sideline_status_array[Ysite].rightline=flag_Xsite_1+Slope_Rings*(Ysite-flag_Ysite_1);
                 //if(imageflag.ring_big_small==1)//大圆环不减半宽
@@ -1634,7 +1642,7 @@ void Element_Handle_Left_Rings()
 //                    Sideline_status_array[Ysite].midline = 0;
             }
             Sideline_status_array[flag_Ysite_1].rightline=flag_Xsite_1;
-            for(int Ysite=flag_Ysite_1-1;Ysite>10;Ysite--) //A点上方进行扫线
+            for(int Ysite=flag_Ysite_1-1;Ysite>MT9V03X_H/6;Ysite--) //A点上方进行扫线
             {
                 for(int Xsite=Sideline_status_array[Ysite+1].rightline-10;Xsite<Sideline_status_array[Ysite+1].rightline+2;Xsite++)
                 {
@@ -1667,7 +1675,7 @@ void Element_Handle_Left_Rings()
         //环内 小环弯道减半宽 大环不减
     if (imageflag.image_element_rings_flag == 7)
     {
-//        for (int Ysite = 57; Ysite > imagestatus.OFFLine+1; Ysite--)
+//        for (int Ysite = (MT9V03X_H/2-3); Ysite > imagestatus.OFFLine+1; Ysite--)
 //        {
 //            if(imageflag.ring_big_small==2)
 //                Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Bend_Wide[Ysite];
@@ -1682,21 +1690,21 @@ void Element_Handle_Left_Rings()
         //大圆环出环 补线
     if (imageflag.image_element_rings_flag == 8 && imageflag.ring_big_small == 1)    //大圆环
     {
-        Repair_Point_Xsite = 20;
+        Repair_Point_Xsite = MT9V03X_W/9.4;
         Repair_Point_Ysite = 0;
-        for (int Ysite = 40; Ysite > 5; Ysite--)
+        for (int Ysite = MT9V03X_H/3; Ysite > MT9V03X_H/24; Ysite--)
         {
-            if (ex_mt9v03x_binarizeImage[Ysite][23] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][23] == 0)//28
+            if (ex_mt9v03x_binarizeImage[Ysite][(uint8)(MT9V03X_W/9.4)+3] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][(uint8)(MT9V03X_W/9.4)+3] == 0)//28
             {
-                Repair_Point_Xsite = 23;
+                Repair_Point_Xsite = (MT9V03X_W/9.4+3);
                 Repair_Point_Ysite = Ysite-1;
-                imagestatus.OFFLine = Ysite + 1;  //截止行重新规划
+                imagestatus.OFFLine = Ysite + 1;  //截止行重新规划&
                 break;
             }
         }
-        for (int Ysite = 57; Ysite > Repair_Point_Ysite-3; Ysite--)         //补线
+        for (int Ysite = (MT9V03X_H/2-3); Ysite > Repair_Point_Ysite-3; Ysite--)         //补线
         {
-            Sideline_status_array[Ysite].rightline = (Sideline_status_array[58].rightline - Repair_Point_Xsite) * (Ysite - 58) / (58 - Repair_Point_Ysite)  + Sideline_status_array[58].rightline;
+            Sideline_status_array[Ysite].rightline = (Sideline_status_array[(MT9V03X_H/2)-2].rightline - Repair_Point_Xsite) * (Ysite - (MT9V03X_H/2-2)) / ((MT9V03X_H/2-2) - Repair_Point_Ysite)  + Sideline_status_array[(MT9V03X_H/2-2)].rightline;
             Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline) / 2;
         }
     }
@@ -1705,7 +1713,7 @@ void Element_Handle_Left_Rings()
     {
         Repair_Point_Xsite = 0;
         Repair_Point_Ysite = 0;
-        for (int Ysite = 55; Ysite > 5; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-5); Ysite > 5; Ysite--)
         {
             if (ex_mt9v03x_binarizeImage[Ysite][15] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][15] == 0)
             {
@@ -1715,16 +1723,16 @@ void Element_Handle_Left_Rings()
                 break;
             }
         }
-        for (int Ysite = 57; Ysite > Repair_Point_Ysite-3; Ysite--)         //补线
+        for (int Ysite = (MT9V03X_H/2-3); Ysite > Repair_Point_Ysite-3; Ysite--)         //补线
         {
-            Sideline_status_array[Ysite].rightline = (Sideline_status_array[58].rightline - Repair_Point_Xsite) * (Ysite - 58) / (58 - Repair_Point_Ysite)  + Sideline_status_array[58].rightline;
+            Sideline_status_array[Ysite].rightline = (Sideline_status_array[(MT9V03X_H/2-2)].rightline - Repair_Point_Xsite) * (Ysite - (MT9V03X_H/2-2)) / ((MT9V03X_H/2-2) - Repair_Point_Ysite)  + Sideline_status_array[(MT9V03X_H/2-2)].rightline;
             Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline) / 2;
         }
     }
         //已出环 半宽处理
     if (imageflag.image_element_rings_flag == 9 || imageflag.image_element_rings_flag == 10)
     {
-        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
         {
             Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Road_Wide[Ysite];
         }
@@ -1766,7 +1774,7 @@ void Element_Handle_Right_Rings()
 //    }
     /****************判断*****************/
     int num =0 ;
-    for (int Ysite = 55; Ysite > 30; Ysite--)
+    for (int Ysite = (MT9V03X_H/2-5); Ysite > (MT9V03X_H/4); Ysite--)
     {
 //        if(Sideline_status_array[Ysite].RightBoundary_First > 76)
 //        {
@@ -1793,7 +1801,7 @@ void Element_Handle_Right_Rings()
     {
         Point_Ysite = 0;
         Point_Xsite = 0;
-        for (int Ysite = 30; Ysite > imagestatus.OFFLine + 2; Ysite--)
+        for (int Ysite = (MT9V03X_H/4); Ysite > imagestatus.OFFLine + 2; Ysite--)
         {
             if(Sideline_status_array[Ysite].IsRightFind == 'W' && Sideline_status_array[Ysite-1].IsRightFind == 'T')
             {
@@ -1838,7 +1846,7 @@ void Element_Handle_Right_Rings()
     {
         Point_Xsite = 0;
         Point_Ysite = 0;
-        for (int Ysite = 45; Ysite > imagestatus.OFFLine + 7; Ysite--)
+        for (int Ysite = (MT9V03X_H/3+5); Ysite > imagestatus.OFFLine + 7; Ysite--)
         {
             if (    Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite + 2].leftline
                  && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 2].leftline
@@ -1858,7 +1866,7 @@ void Element_Handle_Right_Rings()
                         break;
             }
         }
-        if (Point_Ysite > 22)
+        if (Point_Ysite > (MT9V03X_H/6+1))
         {
             imageflag.image_element_rings_flag = 8;
             //Stop = 1;
@@ -1869,7 +1877,7 @@ void Element_Handle_Right_Rings()
     {
         Point_Xsite = 0;
         Point_Ysite = 0;
-        for (int Ysite = 50; Ysite > imagestatus.OFFLineBoundary+3; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-10); Ysite > imagestatus.OFFLineBoundary+3; Ysite--)
         {
             if (  Sideline_status_array[Ysite].LeftBoundary > Sideline_status_array[Ysite + 2].LeftBoundary
                && Sideline_status_array[Ysite].LeftBoundary > Sideline_status_array[Ysite - 2].LeftBoundary
@@ -1881,7 +1889,7 @@ void Element_Handle_Right_Rings()
                       break;
             }
         }
-        if (Point_Ysite > 20)
+        if (Point_Ysite > MT9V03X_H/6)
         {
             imageflag.image_element_rings_flag = 8;
         }
@@ -1901,7 +1909,7 @@ void Element_Handle_Right_Rings()
     if (imageflag.image_element_rings_flag == 9)
     {
         int num=0;
-        for (int Ysite = 50; Ysite > 10; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-10); Ysite > 10; Ysite--)
         {
             if(Sideline_status_array[Ysite].IsRightFind == 'W' )
                 num++;
@@ -1922,7 +1930,7 @@ void Element_Handle_Right_Rings()
         || imageflag.image_element_rings_flag == 3
         || imageflag.image_element_rings_flag == 4)
     {
-        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
         {
             Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Road_Wide[Ysite];
         }
@@ -1936,7 +1944,7 @@ void Element_Handle_Right_Rings()
         int flag_Xsite_1=0;
         int  flag_Ysite_1=0;
         float Slope_Right_Rings = 0;
-        for(int Ysite=55;Ysite>imagestatus.OFFLine;Ysite--)
+        for(int Ysite=(MT9V03X_H/2-5);Ysite>imagestatus.OFFLine;Ysite--)
         {
             for(int Xsite=Sideline_status_array[Ysite].leftline + 1;Xsite<Sideline_status_array[Ysite].rightline - 1;Xsite++)
             {
@@ -1944,7 +1952,7 @@ void Element_Handle_Right_Rings()
                 {
                     flag_Ysite_1=Ysite;
                     flag_Xsite_1=Xsite;
-                    Slope_Right_Rings=(float)(0-flag_Xsite_1)/(float)(59-flag_Ysite_1);
+                    Slope_Right_Rings=(float)(0-flag_Xsite_1)/(float)((MT9V03X_H/2-1)-flag_Ysite_1);
                     break;
                 }
             }
@@ -1955,7 +1963,7 @@ void Element_Handle_Right_Rings()
         }
         if(flag_Ysite_1==0)
         {
-        for(int Ysite=imagestatus.OFFLine+1;Ysite<30;Ysite++)
+        for(int Ysite=imagestatus.OFFLine+1;Ysite<MT9V03X_H/4;Ysite++)
         {
          if(Sideline_status_array[Ysite].IsRightFind=='T'&&Sideline_status_array[Ysite+1].IsRightFind=='T'&&Sideline_status_array[Ysite+2].IsRightFind=='W'
                &&abs(Sideline_status_array[Ysite].rightline-Sideline_status_array[Ysite+2].rightline)>10
@@ -1964,7 +1972,7 @@ void Element_Handle_Right_Rings()
              flag_Ysite_1=Ysite;
              flag_Xsite_1=Sideline_status_array[flag_Ysite_1].rightline;
              imagestatus.OFFLine=Ysite;
-             Slope_Right_Rings=(float)(0-flag_Xsite_1)/(float)(59-flag_Ysite_1);
+             Slope_Right_Rings=(float)(0-flag_Xsite_1)/(float)((MT9V03X_H/2-1)-flag_Ysite_1);
              break;
          }
 
@@ -1974,15 +1982,15 @@ void Element_Handle_Right_Rings()
         //补线
         if(flag_Ysite_1!=0)
         {
-            for(int Ysite=flag_Ysite_1;Ysite<60;Ysite++)
+            for(int Ysite=flag_Ysite_1;Ysite<(MT9V03X_H/2);Ysite++)
             {
                 Sideline_status_array[Ysite].leftline=flag_Xsite_1+Slope_Right_Rings*(Ysite-flag_Ysite_1);
                 //if(imageflag.ring_big_small==2)//小圆环加半宽
                 //    Sideline_status_array[Ysite].midline=Sideline_status_array[Ysite].leftline+Half_Bend_Wide[Ysite];//板块
 //              else//大圆环不加半宽
                     Sideline_status_array[Ysite].midline=(Sideline_status_array[Ysite].leftline+Sideline_status_array[Ysite].rightline)/2;//板块
-                //if(Sideline_status_array[Ysite].midline>79)
-                //    Sideline_status_array[Ysite].midline=79;
+                //if(Sideline_status_array[Ysite].midline>(MT9V03X_W/2-11))
+                //    Sideline_status_array[Ysite].midline=(MT9V03X_W/2-11);
             }
             Sideline_status_array[flag_Ysite_1].leftline=flag_Xsite_1;
             for(int Ysite=flag_Ysite_1-1;Ysite>10;Ysite--) //A点上方进行扫线
@@ -1997,8 +2005,8 @@ void Element_Handle_Right_Rings()
                   //       Sideline_status_array[Ysite].midline=Sideline_status_array[Ysite].leftline+Half_Bend_Wide[Ysite];//板块
                    //  else//大圆环不加半宽
                          Sideline_status_array[Ysite].midline=(Sideline_status_array[Ysite].leftline+Sideline_status_array[Ysite].rightline)/2;//板块
-                   //  if(Sideline_status_array[Ysite].midline>79)
-                   //      Sideline_status_array[Ysite].midline=79;
+                   //  if(Sideline_status_array[Ysite].midline>(MT9V03X_W/2-11))
+                   //      Sideline_status_array[Ysite].midline=(MT9V03X_W/2-11);
                      break;
                     }
                 }
@@ -2019,13 +2027,13 @@ void Element_Handle_Right_Rings()
         //环内不处理
     if (imageflag.image_element_rings_flag == 7)
     {
-//        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+//        for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
 //        {
 //            if(imageflag.ring_big_small==2)
 //                Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Bend_Wide[Ysite];
-//            if(Sideline_status_array[Ysite].midline >= 79)
+//            if(Sideline_status_array[Ysite].midline >= (MT9V03X_W/2-11))
 //            {
-//                Sideline_status_array[Ysite].midline = 79;
+//                Sideline_status_array[Ysite].midline = (MT9V03X_W/2-11);
 //                imagestatus.OFFLine=Ysite-1;
 //                break;
 //            }
@@ -2035,51 +2043,51 @@ void Element_Handle_Right_Rings()
         //大圆环出环 补线
     if (imageflag.image_element_rings_flag == 8 && imageflag.ring_big_small == 1)  //大圆环
     {
-        Repair_Point_Xsite = 60;
+        Repair_Point_Xsite = (MT9V03X_H/2);
         Repair_Point_Ysite = 0;
-        for (int Ysite = 50; Ysite > 5; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-10); Ysite > 5; Ysite--)
         {
-            if (ex_mt9v03x_binarizeImage[Ysite][57] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][57] == 0)
+            if (ex_mt9v03x_binarizeImage[Ysite][(MT9V03X_H/2-3)] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][(MT9V03X_H/2-3)] == 0)
             {
-                Repair_Point_Xsite = 57;
+                Repair_Point_Xsite = (MT9V03X_H/2-3);
                 Repair_Point_Ysite = Ysite-1;
                 imagestatus.OFFLine = Ysite + 1;  //截止行重新规划
                         //  ips200_show_uint(200,200,Repair_Point_Ysite,2);
                 break;
             }
         }
-        for (int Ysite = 57; Ysite > Repair_Point_Ysite-3; Ysite--)         //补线
+        for (int Ysite = (MT9V03X_H/2-3); Ysite > Repair_Point_Ysite-3; Ysite--)         //补线
         {
-            Sideline_status_array[Ysite].leftline = (Sideline_status_array[58].leftline - Repair_Point_Xsite) * (Ysite - 58) / (58 - Repair_Point_Ysite)  + Sideline_status_array[58].leftline;
+            Sideline_status_array[Ysite].leftline = (Sideline_status_array[(MT9V03X_H/2-2)].leftline - Repair_Point_Xsite) * (Ysite - (MT9V03X_H/2-2)) / ((MT9V03X_H/2-2) - Repair_Point_Ysite)  + Sideline_status_array[(MT9V03X_H/2-2)].leftline;
             Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline) / 2;
         }
     }
         //小圆环出环 补线
     if (imageflag.image_element_rings_flag == 8 && imageflag.ring_big_small == 2)  //小圆环
     {
-        Repair_Point_Xsite = 79;
+        Repair_Point_Xsite = (MT9V03X_W/2-11);
         Repair_Point_Ysite = 0;
-        for (int Ysite = 40; Ysite > 5; Ysite--)
+        for (int Ysite = (MT9V03X_H/3); Ysite > 5; Ysite--)
         {
-            if (ex_mt9v03x_binarizeImage[Ysite][58] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][58] == 0)
+            if (ex_mt9v03x_binarizeImage[Ysite][(MT9V03X_H/2-2)] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][(MT9V03X_H/2-2)] == 0)
             {
-                Repair_Point_Xsite = 58;
+                Repair_Point_Xsite = (MT9V03X_H/2-2);
                 Repair_Point_Ysite = Ysite-1;
                 imagestatus.OFFLine = Ysite + 1;  //截止行重新规划
                         //  ips200_show_uint(200,200,Repair_Point_Ysite,2);
                 break;
             }
         }
-        for (int Ysite = 55; Ysite > Repair_Point_Ysite-3; Ysite--)         //补线
+        for (int Ysite = (MT9V03X_H/2-5); Ysite > Repair_Point_Ysite-3; Ysite--)         //补线
         {
-            Sideline_status_array[Ysite].leftline = (Sideline_status_array[58].leftline - Repair_Point_Xsite) * (Ysite - 58) / (58 - Repair_Point_Ysite)  + Sideline_status_array[58].leftline;
+            Sideline_status_array[Ysite].leftline = (Sideline_status_array[(MT9V03X_H/2-2)].leftline - Repair_Point_Xsite) * (Ysite - (MT9V03X_H/2-2)) / ((MT9V03X_H/2-2) - Repair_Point_Ysite)  + Sideline_status_array[(MT9V03X_H/2-2)].leftline;
             Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline) / 2;
         }
     }
         //已出环 半宽处理
     if (imageflag.image_element_rings_flag == 9 || imageflag.image_element_rings_flag == 10)
     {
-        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
         {
             Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Road_Wide[Ysite];
         }
@@ -2100,9 +2108,9 @@ void Element_Judgment_Zebra()//斑马线判断
     if(imageflag.Zebra_Flag || imageflag.image_element_rings == 1 || imageflag.image_element_rings == 2
             || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1) return;
     int NUM = 0,net = 0;
-    if(imagestatus.OFFLineBoundary<20)
+    if(imagestatus.OFFLineBoundary<(MT9V03X_H/6))
     {
-        for (int Ysite = 20; Ysite < 33; Ysite++)
+        for (int Ysite = (MT9V03X_H/6); Ysite < 33; Ysite++)
         {
             net = 0;
             for (int Xsite =Sideline_status_array[Ysite].LeftBoundary + 2; Xsite < Sideline_status_array[Ysite].RightBoundary - 2; Xsite++)
@@ -2134,7 +2142,7 @@ void Element_Handle_Zebra(void)
 
     if(imageflag.Zebra_Flag == 1)//车库标志位
         {
-            for (int Ysite = 59; Ysite > imagestatus.OFFLineBoundary + 1; Ysite--)
+            for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLineBoundary + 1; Ysite--)
             {
                  Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].RightBoundary  - Half_Road_Wide[Ysite];
                  if(Sideline_status_array[Ysite].IsLeftFind=='T')
@@ -2174,7 +2182,7 @@ void Element_Handle_Zebra(void)
 //    if(Sideline_status_array[imagestatus.OFFLine+1].leftline > 30
 //                && imagestatus.Miss_Left_lines < 4
 //                && imagestatus.Miss_Right_lines > 8
-//                && Straight_Judge(1, imagestatus.OFFLine+2, 58) > 1)
+//                && Straight_Judge(1, imagestatus.OFFLine+2, (MT9V03X_H/2-2)) > 1)
 //    {
 //
 //    }
@@ -2212,10 +2220,10 @@ void Element_Judgment_Bend()
 //            gpio_set_level(B0, 1);
 ////            Statu = Bend;
 //        }
-    if(Sideline_status_array[imagestatus.OFFLine+1].leftline > 30
+    if(Sideline_status_array[imagestatus.OFFLine+1].leftline > (MT9V03X_H/2)
             && imagestatus.Miss_Left_lines < 4
             && imagestatus.Miss_Right_lines > 8
-            && Straight_Judge(1, imagestatus.OFFLine+2, 58) > 1)
+            && Straight_Judge(1, imagestatus.OFFLine+2, (MT9V03X_H/2-2)) > 1)
     {
 
         imageflag.Bend_Road = 1;
@@ -2224,7 +2232,7 @@ void Element_Judgment_Bend()
     if(Sideline_status_array[imagestatus.OFFLine+1].rightline < 50
             && imagestatus.Miss_Right_lines < 4
             && imagestatus.Miss_Left_lines > 8
-            && Straight_Judge(2, imagestatus.OFFLine+2, 58) > 1)
+            && Straight_Judge(2, imagestatus.OFFLine+2, (MT9V03X_H/2-2)) > 1)
     {
 
         imageflag.Bend_Road = 2;
@@ -2244,16 +2252,16 @@ void Element_Handle_Bend()
     if(imagestatus.OFFLine<10) { imageflag.Bend_Road = 0;}
     if(imageflag.Bend_Road==1)
     {
-        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
         {
             Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Bend_Wide[Ysite];
-            if(Sideline_status_array[Ysite].midline >= 79)
-                Sideline_status_array[Ysite].midline = 79;
+            if(Sideline_status_array[Ysite].midline >= (MT9V03X_W/2-11))
+                Sideline_status_array[Ysite].midline = (MT9V03X_W/2-11);
         }
     }
     if(imageflag.Bend_Road==2)
     {
-        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+        for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
         {
             Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Bend_Wide[Ysite];
             if(Sideline_status_array[Ysite].midline < 0)
@@ -2273,14 +2281,14 @@ void Element_Handle_Bend()
     {
         if(imagestatus.OFFLine < 4 && imagestatus.WhiteLine_R>10 && Straight_Judge(1, 20, 50)<1)
         {
-            for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+            for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
             {
                 Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Road_Wide[Ysite];
             }
         }
         if(imagestatus.OFFLine < 4 && imagestatus.WhiteLine_L>10 && Straight_Judge(2, 20, 50)<1)
         {
-            for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
+            for (int Ysite = (MT9V03X_H/2-1); Ysite > imagestatus.OFFLine; Ysite--)
             {
                 Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Road_Wide[Ysite];
             }
@@ -2311,189 +2319,26 @@ void Element_Handle_Bend()
         else if(imagestatus.WhiteLine >= 8) //十字处理
             auto_extension_line();
     }
-////--------------------------------------------------------------------------------------------------------------------------
-//// 函数简介     横向巡线，将边线信息记录在ex_leftline,ex_midline,ex_rightline数组中
-//// 使用实例     horizontal_line_fix(ex_mt9v03x_binarizeImage,ex_leftline,ex_rightline,ex_midline);
-////--------------------------------------------------------------------------------------------------------------------------
-//void horizontal_line_fix(uint8 binaryImage[IMAGE_HEIGHT][IMAGE_WIDTH], uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT], uint8 midLine[IMAGE_HEIGHT])
-//{
-//    static int lastMid = IMAGE_WIDTH / 2; // 初始化上一行中线位置为图像中心列
-//    for (int row = find_start; row < find_end; row++)
-//    {
-//        int left = -1;
-//        int right = -1;
-//
-//        // 从上一行中线位置开始向两边寻找边线
-//        for (int col = lastMid; col > 0; col--)
-//        {
-//            if(col<=5){left = 5;}
-//            else if (binaryImage[row][col] == 0)
-//            {
-//                left = col;
-//                break;
-//            }
-//
-//        }
-//        for (int col = lastMid; col < IMAGE_WIDTH-1; col++)
-//        {
-//            if (binaryImage[row][col] == 0)
-//            {
-//                right = col;
-//                break;
-//            }
-//            if(col>=IMAGE_WIDTH-6)right = IMAGE_WIDTH-6;
-//        }
-//
-//        // 更新上一行中线位置
-//        lastMid = (left + right) / 2;
-//
-//        // 将结果存储到相应数组中
-//        leftLine[row] = left;
-//        rightLine[row] = right;
-//        midLine[row] = lastMid;
-//
-//    }
-////    int i, j;
-////
-//       for (i = 0; i < IMAGE_HEIGHT; i++) {
-//           int leftIndex = 0;
-//           int rightIndex = IMAGE_WIDTH - 1;
-//           int midIndex = IMAGE_WIDTH / 2;
-//
-//           for (j = 0; j < IMAGE_WIDTH; j++) {
-//               if (binaryImage[i][j] == 0) {
-//                   // 找到左边线的位置
-//                   leftLine[leftIndex] = j;
-//                   leftIndex++;
-//                   // 找到右边线的位置
-//                   rightLine[rightIndex] = j;
-//                   rightIndex--;
-//                   // 找到中线的位置
-//                   midLine[j] = i;
-//               }
-//           }
-//       }
-//}
+//-------------------------------------------------------------------------------------------------
+//  函数名称        图像处理（一键操作傻瓜型）
+//  备注信息        扔主函数里这一页就不用管了
+//--------------------------------------------------------------------------------------------------------
+void Image_Process(void)
+{
+    if(mt9v03x_finish_flag)
+    {
+   //         otsuThreshold_get();
 
-////------------------------------------------------------------------------------------------------------------------------------
-//// 函数简介     寻找丢线起始行_左边线
-//// 使用实例     findLaneStartRow_left(ex_leftline);
-////------------------------------------------------------------------------------------------------------------------------------
-//int findLaneStartRow_left(uint8 leftLine[IMAGE_HEIGHT])
-//{
-//    int startRow = -1;  // 初始化为-1，表示未找到丢线开始行
-//
-//    // 从图像底部向顶部搜索
-//    for (uint8 i = IMAGE_HEIGHT - 1; i >= 0; i--) {
-//        if (leftLine[i] == 0 )
-//        {
-//            startRow = i;
-//            break;  // 找到丢线开始行，退出循环
-//        }
-//    }
-//
-//    return startRow;
-//}
-////------------------------------------------------------------------------------------------------------------------------------
-//// 函数简介     寻找丢线起始行_右边线
-//// 使用实例     findLaneStartRow_left(ex_rightline);
-////------------------------------------------------------------------------------------------------------------------------------
-//int findLaneStartRow_right(uint8 rightLine[IMAGE_HEIGHT])
-//{
-//    int startRow = -1;
-//    for(uint8 i = IMAGE_HEIGHT - 1; i >= 0; i--)
-//    {
-//        if(rightLine[i] == IMAGE_HEIGHT - 1)
-//        {
-//            startRow = i;
-//            break;
-//        }
-//    }
-//    return startRow;
-//}
-
-////-------------------------------------------------------------------------------------------------------------------------------
-//// 函数简介     拐点检测
-//// 使用示例     detectCornerBothLines(ex_leftline,ex_rightline,ex_leftCorners,ex_rightCorners,&ex_leftCornerCount,&ex_rightCornerCount)
-//// 备注信息     无
-////-------------------------------------------------------------------------------------------------------------------------------
-//void detectCornerBothLines(uint8 leftLine[IMAGE_HEIGHT], uint8 rightLine[IMAGE_HEIGHT], CornerPoint leftCorners[], CornerPoint rightCorners[], int* leftCornerCount, int* rightCornerCount) {
-//    *leftCornerCount = 0; // 初始化左边线拐点计数为0
-//    *rightCornerCount = 0; // 初始化右边线拐点计数为0
-//
-//    for (int i = 2; i < IMAGE_HEIGHT - 2; i += 2) { // 每两行检测一次
-//        if ((leftLine[i] - leftLine[i-2]) * (leftLine[i+2] - leftLine[i]) < 0) {
-//            // 当左边线在同一行出现凹陷时，认为是一个拐点
-//            leftCorners[*leftCornerCount].x = leftLine[i]; // 记录左边线拐点的横坐标
-//            leftCorners[*leftCornerCount].y = i; // 记录左边线拐点的纵坐标为行号
-//            (*leftCornerCount)++; // 左边线拐点计数加1
-//        }
-//
-//        if ((rightLine[i] - rightLine[i-2]) * (rightLine[i+2] - rightLine[i]) < 0) {
-//            // 当右边线在同一行出现凹陷时，认为是一个拐点
-//            rightCorners[*rightCornerCount].x = rightLine[i]; // 记录右边线拐点的横坐标
-//            rightCorners[*rightCornerCount].y = i; // 记录右边线拐点的纵坐标为行号
-//            (*rightCornerCount)++; // 右边线拐点计数加1
-//        }
-//    }
-//}
-//-----------------------------------------------------------------------------------------------------------------------------
-// 函数简介     补线函数
-// 参数说明 x1  中断点1的x坐标
-// 参数说明 y1  中断点1的y坐标
-// 参数说明 x2  中断点2的x坐标
-// 参数说明 y2  中断点2的y坐标
-// 使用实例     line(0,0,20,30);
-//-----------------------------------------------------------------------------------------------------------------------------
-//void connect_line(uint8 x1,uint8 y1,uint8 x2,uint8 y2)
-//{
-//  short i,j,swap;
-//  float k;
-//  if(y1>y2)
-//  {
-//    swap = x1;
-//    x1 = x2;
-//    x2 = swap;
-//    swap = y1;
-//    y1 = y2;
-//    y2 = swap;
-//  }
-//  if(x1==x2)
-//  {
-//    for(i=y1;i<y2+1;i++)
-//        ex_mt9v03x_binarizeImage[i][x1]=0;
-//  }
-//  else if(y1==y2)
-//  {
-//    for(i=x1;i<x2+1;i++)
-//        ex_mt9v03x_binarizeImage[y1][i]=0;
-//  }
-//  else
-//  {
-//    k = ((float)x2-(float)x1)/((float)y2-(float)y1);
-//    for(i=y1;i<=y2;i++)
-//        ex_mt9v03x_binarizeImage[i][(short)(x1+(i-y1)*k)]=0;
-//  }
-//}
-
-//
-////--------------------------------------------------------------------------------------------------------------------------
-//// 函数简介     对直线进行判定(辅助环岛判定)
-//// 参数说明 arr     传入数组
-//// 返回值       1为直线 0为非直线
-//// 使用实例     Straight_line_judgment(left_arr);
-//// 备注信息     只判断30-100
-////--------------------------------------------------------------------------------------------------------------------------
-//uint8 straight_line_judgment(uint8 arr[Row])
-//{
-//  short i,sum=0;
-//  float kk;
-//  kk=((float)arr[90]-(float)arr[20])/70.0;//计算k值
-//  sum = 0;
-//  for(i=20;i<=90;i++)
-//    if(((arr[20]+(float)(i-20)*kk)-arr[i])<=20) sum++;//如果理论值与实际值的差异小于等于35，则计数
-//    else break;
-//  if(sum>68 && kk>-1.1 && kk<1.1) return 1;
-//  else return 0;
-//}
-//
+        binarizeImage();
+        baseline_get();
+        allline_get();
+        Scan_Element();
+        Element_Handle();
+   //         if(!imageflag.Out_Road)
+   //                             Search_Border_OTSU(ex_mt9v03x_binarizeImage, LCDH, LCDW, LCDH - 2);//(MT9V03X_H/2-2)行位底行
+   //                         else
+   //                             imagestatus.OFFLineBoundary = 5;
+   //         Forward_control();
+        mt9v03x_finish_flag=0;
+    }
+}
