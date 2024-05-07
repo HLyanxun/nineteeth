@@ -34,32 +34,25 @@
 ********************************************************************************************************************/
 //RX(B10) TX(B11)
 #include "zf_common_headfile.h"
-#include "better_fix_mt9v034.h"
+//#include "better_fix_mt9v034.h"
 #include "math.h"
-
 int main (void)
 {
     clock_init(SYSTEM_CLOCK_120M);      // 初始化芯片时钟 工作频率为 120MHz
     debug_init();                       // 务必保留，本函数用于初始化MPU 时钟 调试串口
     steering_engine_init(TIM1_PWM_MAP0_CH1_A8,50,120);
     steering_engine_set_angle(TIM1_PWM_MAP0_CH1_A8,90);
-//    Parament_first();//添加新的变量进flash时运行该行代码
-    Parament_init();
-    pit_ms_init(TIM2_PIT,10);
-    tft180_init();
-    key_init(10);
-    mt9v03x_init();
 
-    timer_init(TIM_3,TIMER_MS);
-    timer_start(TIM_3);
-    flag_init();
      // 此处编写用户代码 例如外设初始化代码等
 
 
      while(1)
      {
-         menu_page();
-
+//         Image_Process();
+//         menu_page();
+         sendimg_binary(mt9v03x_image[0],MT9V03X_W,MT9V03X_H,100);
+//         sendimg_binary(mt9v03x_image[0],MT9V03X_W,MT9V03X_H,My_Threshold);
+//         sendimg_binary(ex_mt9v03x_binarizeImage, MT9V03X_W/2, MT9V03X_H/2,0);
      }
  }
 

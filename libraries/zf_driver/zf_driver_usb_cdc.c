@@ -68,12 +68,12 @@ void cdc_send_pack(const uint8 *p, uint32 length)
 
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     发送图像数据到上位机
-// 参数说明     *image          图像数组
+// 参数说明     *ex_mt9v03x_binarizeImage          图像数组
 // 参数说明     length          发送多少个数据
 // 返回参数     void
 // 备注信息
 //-------------------------------------------------------------------------------------------------------------------
-void camera_send_image_usb_cdc(const uint8 *image, uint32 length)
+void camera_send_image_usb_cdc(const uint8 *ex_mt9v03x_binarizeImage, uint32 length)
 {
     uint8 send_buffer[4] = {0x00,0xff,0x01,0x01};
     cdc_send_pack(send_buffer, 4);
@@ -82,13 +82,13 @@ void camera_send_image_usb_cdc(const uint8 *image, uint32 length)
     {
         if(length >= 63)
         {
-            cdc_send_pack(image, 63);
-            image += 63;
+            cdc_send_pack(ex_mt9v03x_binarizeImage, 63);
+            ex_mt9v03x_binarizeImage += 63;
             length -= 63;
         }
         else
         {
-            cdc_send_pack(image, length);
+            cdc_send_pack(ex_mt9v03x_binarizeImage, length);
             length = 0;
         }
     }

@@ -39,7 +39,7 @@
 #include "ch32v30x_usbotg_device.h"
 
 void cdc_send_pack(const uint8 *p, uint32 length);
-void camera_send_image_usb_cdc(const uint8 *image, uint32 length);
+void camera_send_image_usb_cdc(const uint8 *ex_mt9v03x_binarizeImage, uint32 length);
 void usb_cdc_init( void );
 
 #endif

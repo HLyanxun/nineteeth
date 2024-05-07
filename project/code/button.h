@@ -22,7 +22,8 @@
 #define page_tuxiang_max                (8)
 #define page_pid_max                    (5)
 #define page_pid_min                    (1)
-#define page_shexiangtou                (4)
+#define page_shexiangtou_min            (4)
+#define page_shexiangtou_max            (4)
 
 #define mpu6050_0                       (line_unit)
 #define tuxiang_0                       (2*line_unit)
@@ -44,7 +45,7 @@
 
 #define baoguangtime_41                 (4*line_unit)
 
-
+extern int16 exposure_time;
 
 void menu_page(void);
 void button_status_get(uint8 interrupt_time);

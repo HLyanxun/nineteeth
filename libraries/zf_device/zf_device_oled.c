@@ -450,7 +450,7 @@ void oled_show_float (uint16 x,uint16 y,const double dat,uint8 num,uint8 pointnu
 // 函数简介     OLED 显示二值图像 数据每八个点组成一个字节数据
 // 参数说明     x               x 轴坐标设置 0-127
 // 参数说明     y               y 轴坐标设置 0-7
-// 参数说明     *image          图像数组指针
+// 参数说明     *ex_mt9v03x_binarizeImage          图像数组指针
 // 参数说明     width           图像实际宽度
 // 参数说明     height          图像实际高度
 // 参数说明     dis_width       图像显示宽度 参数范围 [0, 128]
@@ -462,14 +462,14 @@ void oled_show_float (uint16 x,uint16 y,const double dat,uint8 num,uint8 pointnu
 //              这个函数不可以用来直接显示总钻风的未压缩的二值化图像
 //              这个函数不可以用来直接显示总钻风的未压缩的二值化图像
 //-------------------------------------------------------------------------------------------------------------------
-void oled_show_binary_image (uint16 x, uint16 y, const uint8 *image, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height)
+void oled_show_binary_image (uint16 x, uint16 y, const uint8 *ex_mt9v03x_binarizeImage, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height)
 {
     // 如果程序在输出了断言信息 并且提示出错位置在这里
     // 那么一般是屏幕显示的时候超过屏幕分辨率范围了
     // 检查一下你的显示调用的函数 自己计算一下哪里超过了屏幕显示范围
     zf_assert(128 > x);
     zf_assert(8 > y);
-    zf_assert(NULL != image);
+    zf_assert(NULL != ex_mt9v03x_binarizeImage);
 
     uint32 i = 0, j = 0, z = 0;
     uint8 dat = 0;
@@ -488,35 +488,35 @@ void oled_show_binary_image (uint16 x, uint16 y, const uint8 *image, uint16 widt
             for(z = 0; 8 > z; z ++)
             {
                 dat = 0;
-                if(*(image + height_index * width / 8 + width_index + width / 8 * 0) & (0x80 >> z))
+                if(*(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index + width / 8 * 0) & (0x80 >> z))
                 {
                     dat |= 0x01;
                 }
-                if(*(image + height_index * width / 8 + width_index + width / 8 * 1) & (0x80 >> z))
+                if(*(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index + width / 8 * 1) & (0x80 >> z))
                 {
                     dat |= 0x02;
                 }
-                if(*(image + height_index * width / 8 + width_index + width / 8 * 2) & (0x80 >> z))
+                if(*(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index + width / 8 * 2) & (0x80 >> z))
                 {
                     dat |= 0x04;
                 }
-                if(*(image + height_index * width / 8 + width_index + width / 8 * 3) & (0x80 >> z))
+                if(*(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index + width / 8 * 3) & (0x80 >> z))
                 {
                     dat |= 0x08;
                 }
-                if(*(image + height_index * width / 8 + width_index + width / 8 * 4) & (0x80 >> z))
+                if(*(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index + width / 8 * 4) & (0x80 >> z))
                 {
                     dat |= 0x10;
                 }
-                if(*(image + height_index * width / 8 + width_index + width / 8 * 5) & (0x80 >> z))
+                if(*(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index + width / 8 * 5) & (0x80 >> z))
                 {
                     dat |= 0x20;
                 }
-                if(*(image + height_index * width / 8 + width_index + width / 8 * 6) & (0x80 >> z))
+                if(*(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index + width / 8 * 6) & (0x80 >> z))
                 {
                     dat |= 0x40;
                 }
-                if(*(image + height_index * width / 8 + width_index + width / 8 * 7) & (0x80 >> z))
+                if(*(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index + width / 8 * 7) & (0x80 >> z))
                 {
                     dat |= 0x80;
                 }
@@ -531,7 +531,7 @@ void oled_show_binary_image (uint16 x, uint16 y, const uint8 *image, uint16 widt
 // 函数简介     OLED 显示 8bit 灰度图像 带二值化阈值
 // 参数说明     x               x 轴坐标设置 0-127
 // 参数说明     y               y 轴坐标设置 0-7
-// 参数说明     *image          图像数组指针
+// 参数说明     *ex_mt9v03x_binarizeImage          图像数组指针
 // 参数说明     width           图像实际宽度
 // 参数说明     height          图像实际高度
 // 参数说明     dis_width       图像显示宽度 参数范围 [0, 128]
@@ -544,14 +544,14 @@ void oled_show_binary_image (uint16 x, uint16 y, const uint8 *image, uint16 widt
 //              如果要显示二值化图像 直接修改最后一个参数为需要的二值化阈值即可
 //              如果要显示二值化图像 直接修改最后一个参数为需要的二值化阈值即可
 //-------------------------------------------------------------------------------------------------------------------
-void oled_show_gray_image (uint16 x, uint16 y, const uint8 *image, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 threshold)
+void oled_show_gray_image (uint16 x, uint16 y, const uint8 *ex_mt9v03x_binarizeImage, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 threshold)
 {
     // 如果程序在输出了断言信息 并且提示出错位置在这里
     // 那么一般是屏幕显示的时候超过屏幕分辨率范围了
     // 检查一下你的显示调用的函数 自己计算一下哪里超过了屏幕显示范围
     zf_assert(128 > x);
     zf_assert(8 > y);
-    zf_assert(NULL != image);
+    zf_assert(NULL != ex_mt9v03x_binarizeImage);
 
     int16 i = 0, j = 0;
     uint8 dat = 0;
@@ -567,35 +567,35 @@ void oled_show_gray_image (uint16 x, uint16 y, const uint8 *image, uint16 width,
         {
             width_index = i * width / dis_width;
             dat = 0;
-            if(*(image + height_index * width + width_index + width * 0) > threshold)
+            if(*(ex_mt9v03x_binarizeImage + height_index * width + width_index + width * 0) > threshold)
             {
                 dat |= 0x01;
             }
-            if(*(image + height_index * width + width_index + width * 1) > threshold)
+            if(*(ex_mt9v03x_binarizeImage + height_index * width + width_index + width * 1) > threshold)
             {
                 dat |= 0x02;
             }
-            if(*(image + height_index * width + width_index + width * 2) > threshold)
+            if(*(ex_mt9v03x_binarizeImage + height_index * width + width_index + width * 2) > threshold)
             {
                 dat |= 0x04;
             }
-            if(*(image + height_index * width + width_index + width * 3) > threshold)
+            if(*(ex_mt9v03x_binarizeImage + height_index * width + width_index + width * 3) > threshold)
             {
                 dat |= 0x08;
             }
-            if(*(image + height_index * width + width_index + width * 4) > threshold)
+            if(*(ex_mt9v03x_binarizeImage + height_index * width + width_index + width * 4) > threshold)
             {
                 dat |= 0x10;
             }
-            if(*(image + height_index * width + width_index + width * 5) > threshold)
+            if(*(ex_mt9v03x_binarizeImage + height_index * width + width_index + width * 5) > threshold)
             {
                 dat |= 0x20;
             }
-            if(*(image + height_index * width + width_index + width * 6) > threshold)
+            if(*(ex_mt9v03x_binarizeImage + height_index * width + width_index + width * 6) > threshold)
             {
                 dat |= 0x40;
             }
-            if(*(image + height_index * width + width_index + width * 7) > threshold)
+            if(*(ex_mt9v03x_binarizeImage + height_index * width + width_index + width * 7) > threshold)
             {
                 dat |= 0x80;
             }

@@ -15,6 +15,7 @@
 void Parament_init(void);
 void Parament_save(void);
 void Parament_first(void);
+void All_Init(void);
 
 
 #endif /* FLASH_H_ */

@@ -27,7 +27,7 @@ void Parament_init(void)
     kd   =          flash_union_buffer[2].float_type;
     dt   =          flash_union_buffer[3].float_type;
     target   =      flash_union_buffer[4].float_type;
-    threshold_fix = flash_union_buffer[5].int16_type;
+    threshold_fix = flash_union_buffer[5].int8_type;
     exposure_time = flash_union_buffer[6].int16_type;
     mt9v03x_set_exposure_time(exposure_time);
 }
@@ -69,4 +69,18 @@ void Parament_first(void)
     flash_write_page_from_buffer(FLASH_SECTION_INDEX, FLASH_PAGE_INDEX);     // 向指定 Flash 扇区的页码写入缓冲区数据
     flash_buffer_clear();                                                  // 清空缓冲区
 }
-
+//-----------------------------------------------------------------------------------------------------------
+// 函数简介     函数所有初始化处理（避免遗漏）
+//-----------------------------------------------------------------------------------------------------------
+void All_Init(void)
+{
+    //    Parament_first();//添加新的变量进flash时运行该行代码
+    Parament_init();
+    tft180_init();
+    pit_ms_init(TIM2_PIT,10);
+    key_init(10);       //括号里是中断周期
+    mt9v03x_init();
+    timer_init(TIM_3,TIMER_MS);
+    timer_start(TIM_3);
+    Flag_init();
+}

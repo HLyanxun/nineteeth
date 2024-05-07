@@ -18,6 +18,7 @@ int Right_RingsFlag_Point1_Ysite, Right_RingsFlag_Point2_Ysite; //右圆环判断的两
 int Left_RingsFlag_Point1_Ysite, Left_RingsFlag_Point2_Ysite;   //左圆环判断的两点纵坐标
 int Point_Xsite,Point_Ysite;                                //拐点横纵坐标
 int Repair_Point_Xsite,Repair_Point_Ysite;                  //补线点横纵坐标
+int THRESHOLD;
 
 uint8 ExtenLFlag = 0;                                       //左边线是否需要补线的标志变量
 uint8 ExtenRFlag = 0;                                       //右边线是否需要补线的标志变量
@@ -315,38 +316,35 @@ int16 otsuThreshold( uint8 inputImage[MT9V03X_H][MT9V03X_W])
 
 //---------------------------------------------------------------------------------------
 // 函数简介     将摄像头数据进行二值化后储存到新的二维数组中
-// 使用实例     binarizeImage(mt9v03x_image,ex_mt9v03x_binarizeImage)
+// 参数说明      x_s     横坐标起始值（左上）
+//        y_s     纵坐标起始值（左上）
+//        x_e     横坐标终点值（右下）
+//        y_s     纵坐标终点值（右下）
+// 使用实例     binarizeImage(20,20,40,40);
 //---------------------------------------------------------------------------------------
-//void binarizeImage(const uint8 inputImage[MT9V03X_H][MT9V03X_W], uint8 outputImage[MT9V03X_H][MT9V03X_W])
-//{
-//    int THRESHOLD=otsuThreshold(mt9v03x_image);
-//    for (int i = 0; i < MT9V03X_H; i++) {
-//        for (int j = 0; j < MT9V03X_W; j++) {
-//            if (inputImage[i][j] > THRESHOLD) {
-//                outputImage[i][j] = 255; // 设置为白色
-//            } else {
-//                outputImage[i][j] = 0;   // 设置为黑色
-//            }
-//        }
-//    }
-//}
-void binarizeImage(void)
+void binarizeImage(uint8 x_s,uint8 y_s,uint8 x_e,uint8 y_e)
 {
     if(mt9v03x_finish_flag)
          {
           ex_threshold=otsuThreshold(mt9v03x_image);
-         int THRESHOLD=ex_threshold+threshold_fix;
-//         if(THRESHOLD<170)THRESHOLD=170;
+          THRESHOLD=ex_threshold+threshold_fix;
+          for(uint8 i= x_s;i < x_e;i++)
+          {
+              for(uint8 j=y_s;j<y_e;j++)
+              {
+                 (ex_mt9v03x_binarizeImage[i/2][j/2])=(mt9v03x_image[i][j] > THRESHOLD)? (255) : (0);
+              }
+          }
 
-         for (int i = 0; i < MT9V03X_H; i+=2) {
-             for (int j = 0; j < MT9V03X_W; j+=2) {
-                 if (mt9v03x_image[i][j] > THRESHOLD) {
-                     ex_mt9v03x_binarizeImage[i/2][j/2] = 255; // 设置为白色
-                 } else {
-                     ex_mt9v03x_binarizeImage[i/2][j/2] = 0;   // 设置为黑色
-                 }
-             }
-         }
+//         for (int i = 0; i < MT9V03X_H; i+=2) {
+//             for (int j = 0; j < MT9V03X_W; j+=2) {
+//                 if (mt9v03x_image[i][j] > THRESHOLD) {
+//                     ex_mt9v03x_binarizeImage[i/2][j/2] = 255; // 设置为白色
+//                 } else {
+//                     ex_mt9v03x_binarizeImage[i/2][j/2] = 0;   // 设置为黑色
+//                 }
+//             }
+//         }
          }
 
 }
@@ -2325,11 +2323,11 @@ void Element_Handle_Bend()
 //--------------------------------------------------------------------------------------------------------
 void Image_Process(void)
 {
-    if(mt9v03x_finish_flag)
+    if(mt9v03x_finish_flag==1)
     {
    //         otsuThreshold_get();
 
-        binarizeImage();
+//        binarizeImage();
         baseline_get();
         allline_get();
         Scan_Element();
@@ -2342,3 +2340,24 @@ void Image_Process(void)
         mt9v03x_finish_flag=0;
     }
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//  函数简介        基于八邻域法的障碍判断函数
+//
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//void Element_judgment(uint8 y_h,uint8 y_l,uint8 dir)
+//{
+//    uint8 x,y,area,area_l,growth_u,growth_d;
+//    switch(dir)
+//    {
+//    case 0:
+//        x=Sideline_status_array[y_l].leftline;
+//        area=Sideline_status_array[y_l-1].leftline;
+//        for(uint8 i=0;i<2;i++)
+//        {
+//            area_l=area;
+//            area=;
+//        }
+//        break;
+//
+//    }
+//}

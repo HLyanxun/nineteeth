@@ -7,7 +7,7 @@
 #include "zf_common_headfile.h"
 #include "math.h"
 float kp,ki,kd,dt,target;
-
+uint8 offset_point_strat=MT9V03X_H/4,offset_point_end=MT9V03X_H/3;              //
 float arctan(float x,float y)
 {
     float temp;
@@ -25,9 +25,9 @@ void Forward_control(void)
         if(!imageflag.straight_long)
         {
 //
-            for(uint8 i=40;i>30;i--){input+=Sideline_status_array[i].midline;}
+            for(uint8 i=offset_point_end;i>offset_point_strat;i--){input+=Sideline_status_array[i].midline;}
 //
-            input=input/10;
+            input=input/(offset_point_end-offset_point_strat);
             int output=pid(input, kp, ki, kd, dt, target);
             if(output>160)output=160;
             if(output<20)output=70;

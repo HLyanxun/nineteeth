@@ -65,7 +65,6 @@ typedef struct {
     int16 Miss_Left_lines;                      //左线丢失
     int16 Miss_Right_lines;                     //右线丢失
 
-
     //左右手法则扫线数据
     int16 WhiteLine_L;                          //左边丢线数
     int16 WhiteLine_R;                          //右边丢线数
@@ -75,11 +74,9 @@ typedef struct {
 typedef struct {
 
     int16 CrossRoad_Flag;
-
     int16 Bend_Road;                            /*0 :无               1 :右弯道     2 :左弯道*/
     int16 image_element_rings;                  /*0 :无圆环          1 :左圆环       2 :右圆环*/
     int16 ring_big_small;                       /*0:无                     1 :大圆环       2 :小圆环*/
-
     int16 image_element_rings_flag;             /*圆环进程*/
     int16 straight_long;                        /*长直道标志位*/
     int16 straight_xie;
@@ -93,13 +90,13 @@ typedef struct {
 
 
 extern uint8 ex_mt9v03x_binarizeImage[MT9V03X_H/2][MT9V03X_W/2];
-extern uint8 ex_threshold;
+extern uint8 ex_threshold;                                            //大津法阈值
 extern int16 exposure_time;                                           //曝光时间
 extern int16 threshold_fix;                                          //二值化阈值补正
-
+extern int THRESHOLD;
 extern uint16 wide_sum;//////////////////
 
-extern Sideline_status Sideline_status_array[60];
+extern Sideline_status Sideline_status_array[MT9V03X_H/2];
 extern Image_Status imagestatus;
 extern Image_Flag imageflag;
 
@@ -108,8 +105,8 @@ void Image_Process(void);                   //看不懂用这个就行
 
 
 void Get_Border_And_SideType(uint8* p,uint8 type,int L,int H,Jumppoint* Q);
-int16 otsuThreshold( uint8 inputImage[MT9V03X_H][MT9V03X_W]);
-void binarizeImage(void);
+uint8 otsuThreshold( uint8* ex_mt9v03x_binarizeImage[][LCDW]);
+//void binarizeImage(void);
 void flag_init(void);
 void baseline_get(void);
 void allline_get(void);

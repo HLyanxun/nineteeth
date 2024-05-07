@@ -113,9 +113,9 @@ void    ips114_show_int                 (uint16 x,uint16 y, const int32 dat, uin
 void    ips114_show_uint                (uint16 x,uint16 y, const uint32 dat, uint8 num);
 void    ips114_show_float               (uint16 x,uint16 y, const double dat, uint8 num, uint8 pointnum);
 
-void    ips114_show_binary_image        (uint16 x, uint16 y, const uint8 *image, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height);
-void    ips114_show_gray_image          (uint16 x, uint16 y, const uint8 *image, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 threshold);
-void    ips114_show_rgb565_image        (uint16 x, uint16 y, const uint16 *image, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 color_mode);
+void    ips114_show_binary_image        (uint16 x, uint16 y, const uint8 *ex_mt9v03x_binarizeImage, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height);
+void    ips114_show_gray_image          (uint16 x, uint16 y, const uint8 *ex_mt9v03x_binarizeImage, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 threshold);
+void    ips114_show_rgb565_image        (uint16 x, uint16 y, const uint16 *ex_mt9v03x_binarizeImage, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 color_mode);
 
 void    ips114_show_wave                (uint16 x, uint16 y, const uint16 *wave, uint16 width, uint16 value_max, uint16 dis_width, uint16 dis_value_max);
 void    ips114_show_chinese             (uint16 x, uint16 y, uint8 size, const uint8 *chinese_buffer, uint8 number, const uint16 color);

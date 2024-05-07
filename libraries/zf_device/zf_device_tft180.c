@@ -628,7 +628,7 @@ void tft180_show_float (uint16 x, uint16 y, const double dat, uint8 num, uint8 p
 // 函数简介     TFT180 显示二值图像 数据每八个点组成一个字节数据
 // 参数说明     x               坐标x方向的起点 参数范围 [0, tft180_x_max-1]
 // 参数说明     y               坐标y方向的起点 参数范围 [0, tft180_y_max-1]
-// 参数说明     *image          图像数组指针
+// 参数说明     *ex_mt9v03x_binarizeImage          图像数组指针
 // 参数说明     width           图像实际宽度
 // 参数说明     height          图像实际高度
 // 参数说明     dis_width       图像显示宽度 参数范围 [0, tft180_x_max]
@@ -640,13 +640,13 @@ void tft180_show_float (uint16 x, uint16 y, const double dat, uint8 num, uint8 p
 //              这个函数不可以用来直接显示总钻风的未压缩的二值化图像
 //              这个函数不可以用来直接显示总钻风的未压缩的二值化图像
 //-------------------------------------------------------------------------------------------------------------------
-void tft180_show_binary_image (uint16 x, uint16 y, const uint8 *image, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height)
+void tft180_show_binary_image (uint16 x, uint16 y, const uint8 *ex_mt9v03x_binarizeImage, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height)
 {
     // 如果程序在输出了断言信息 并且提示出错位置在这里
     // 那么一般是屏幕显示的时候超过屏幕分辨率范围了
     zf_assert(x < tft180_x_max);
     zf_assert(y < tft180_y_max);
-    zf_assert(NULL != image);
+    zf_assert(NULL != ex_mt9v03x_binarizeImage);
 
     uint32 i = 0, j = 0;
     uint8 temp = 0;
@@ -661,7 +661,7 @@ void tft180_show_binary_image (uint16 x, uint16 y, const uint8 *image, uint16 wi
         for(i = 0; i < dis_width; i ++)
         {
             width_index = i * width / dis_width;
-            temp = *(image + height_index * width / 8 + width_index / 8);       // 读取像素点
+            temp = *(ex_mt9v03x_binarizeImage + height_index * width / 8 + width_index / 8);       // 读取像素点
             if(0x80 & (temp << (width_index % 8)))
             {
                 tft180_write_16bit_data(RGB565_WHITE);
@@ -679,7 +679,7 @@ void tft180_show_binary_image (uint16 x, uint16 y, const uint8 *image, uint16 wi
 // 函数简介     TFT180 显示 8bit 灰度图像 带二值化阈值
 // 参数说明     x               坐标x方向的起点 参数范围 [0, tft180_x_max-1]
 // 参数说明     y               坐标y方向的起点 参数范围 [0, tft180_y_max-1]
-// 参数说明     *image          图像数组指针
+// 参数说明     *ex_mt9v03x_binarizeImage          图像数组指针
 // 参数说明     width           图像实际宽度
 // 参数说明     height          图像实际高度
 // 参数说明     dis_width       图像显示宽度 参数范围 [0, tft180_x_max]
@@ -692,13 +692,13 @@ void tft180_show_binary_image (uint16 x, uint16 y, const uint8 *image, uint16 wi
 //              如果要显示二值化图像 直接修改最后一个参数为需要的二值化阈值即可
 //              如果要显示二值化图像 直接修改最后一个参数为需要的二值化阈值即可
 //-------------------------------------------------------------------------------------------------------------------
-void tft180_show_gray_image (uint16 x, uint16 y, const uint8 *image, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 threshold)
+void tft180_show_gray_image (uint16 x, uint16 y, const uint8 *ex_mt9v03x_binarizeImage, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 threshold)
 {
     // 如果程序在输出了断言信息 并且提示出错位置在这里
     // 那么一般是屏幕显示的时候超过屏幕分辨率范围了
     zf_assert(x < tft180_x_max);
     zf_assert(y < tft180_y_max);
-    zf_assert(NULL != image);
+    zf_assert(NULL != ex_mt9v03x_binarizeImage);
 
     uint32 i = 0, j = 0;
     uint16 color = 0,temp = 0;
@@ -713,7 +713,7 @@ void tft180_show_gray_image (uint16 x, uint16 y, const uint8 *image, uint16 widt
         for(i = 0; i < dis_width; i ++)
         {
             width_index = i * width / dis_width;
-            temp = *(image + height_index * width + width_index);               // 读取像素点
+            temp = *(ex_mt9v03x_binarizeImage + height_index * width + width_index);               // 读取像素点
             if(threshold == 0)
             {
                 color = (0x001f & ((temp) >> 3)) << 11;
@@ -738,7 +738,7 @@ void tft180_show_gray_image (uint16 x, uint16 y, const uint8 *image, uint16 widt
 // 函数简介     TFT180 显示 RGB565 彩色图像
 // 参数说明     x               坐标x方向的起点 参数范围 [0, tft180_x_max-1]
 // 参数说明     y               坐标y方向的起点 参数范围 [0, tft180_y_max-1]
-// 参数说明     *image          图像数组指针
+// 参数说明     *ex_mt9v03x_binarizeImage          图像数组指针
 // 参数说明     width           图像实际宽度
 // 参数说明     height          图像实际高度
 // 参数说明     dis_width       图像显示宽度 参数范围 [0, tft180_x_max]
@@ -751,13 +751,13 @@ void tft180_show_gray_image (uint16 x, uint16 y, const uint8 *image, uint16 widt
 //              如果要显示低位在前的其他 RGB565 图像 修改最后一个参数即可
 //              如果要显示低位在前的其他 RGB565 图像 修改最后一个参数即可
 //-------------------------------------------------------------------------------------------------------------------
-void tft180_show_rgb565_image (uint16 x, uint16 y, const uint16 *image, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 color_mode)
+void tft180_show_rgb565_image (uint16 x, uint16 y, const uint16 *ex_mt9v03x_binarizeImage, uint16 width, uint16 height, uint16 dis_width, uint16 dis_height, uint8 color_mode)
 {
     // 如果程序在输出了断言信息 并且提示出错位置在这里
     // 那么一般是屏幕显示的时候超过屏幕分辨率范围了
     zf_assert(x < tft180_x_max);
     zf_assert(y < tft180_y_max);
-    zf_assert(NULL != image);
+    zf_assert(NULL != ex_mt9v03x_binarizeImage);
 
     uint32 i = 0, j = 0;
     uint16 color = 0;
@@ -772,7 +772,7 @@ void tft180_show_rgb565_image (uint16 x, uint16 y, const uint16 *image, uint16 w
         for(i = 0; i < dis_width; i ++)
         {
             width_index = i * width / dis_width;
-            color = *(image + height_index * width + width_index);              // 读取像素点
+            color = *(ex_mt9v03x_binarizeImage + height_index * width + width_index);              // 读取像素点
             if(color_mode)
             {
                 color = ((color & 0xff) << 8) | (color >> 8);

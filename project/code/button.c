@@ -8,6 +8,7 @@
 int page=0,line=1;
 uint8 Button_mode=0;
 uint8 mt9v034_mode=0,line_show_mode=0;
+int16 exposure_time;
 const uint8 bao_guang_shi_jian[8][16]=
 {
         {0x03,0xF8,0x02,0x08,0xF3,0xF8,0x92,0x08,0x93,0xF8,0x91,0x10,0x97,0xFC,0xF1,0x10},
@@ -129,14 +130,6 @@ void line_visualization(void)
             mid=Sideline_status_array[i].midline;
             right=Sideline_status_array[i].rightline;
 
-            LimitL(left);                                                             //这里就是对传给Get_Border_And_SideType()函数的扫描区间进行一个限幅操作。
-            LimitH(left);
-            LimitL(mid);                                                             //这里就是对传给Get_Border_And_SideType()函数的扫描区间进行一个限幅操作。
-            LimitH(mid);
-            LimitL(right);                                                             //这里就是对传给Get_Border_And_SideType()函数的扫描区间进行一个限幅操作。
-            LimitH(right);
-
-
             tft180_draw_point(left, i, RGB565_RED);  // 绘制中线
             tft180_draw_point(mid,i,RGB565_BLUE);
             tft180_draw_point(right,i,RGB565_PURPLE);
@@ -149,6 +142,11 @@ void status_show(void)
 {
 //    if(!zxy)tft180_show_string(70, 81, "loading");
 //    else
+    if(imageflag.run_flag==0)
+    {
+        tft180_show_string(0, 8*line_unit, "loading");
+        return;
+    }
         if(imageflag.image_element_rings_flag)tft180_show_string(0, 8*line_unit, "element");
     else if(imageflag.Zebra_Flag)tft180_show_string(0,8*line_unit,"_Zebra_");
     else if(imageflag.Bend_Road)tft180_show_string(0,8*line_unit,"_Bend__");
@@ -218,7 +216,7 @@ void tft180show_better(uint8 mode)
            if(fps_show>=MT9V03X_FPS_DEF)fps_show=MT9V03X_FPS_DEF;
            fps_count=0;
 
-           yu_zhi_show=ex_threshold;
+           yu_zhi_show=My_Threshold;
 
             //fps显示
            tft180_show_float(column_unit*2,4*line_unit,fps_show,6,2);
@@ -271,6 +269,7 @@ void tft180show_better(uint8 mode)
         tft180_show_chinese(0,baoguangtime_41,16,bao_guang_shi_jian[0],4,RGB565_BLACK);
         tft180_show_string(4*column_unit, baoguangtime_41, ":");
         tft180_show_int(4.5*column_unit,baoguangtime_41,exposure_time,4);
+
         mt9v03x_set_exposure_time(exposure_time);           //设置曝光时间
         break;
     }
@@ -293,7 +292,7 @@ void increase_reduce(void)
                 {
                     switch(line)
                     {
-                    case (erzhi_21/line_unit):threshold_fix++;break;
+                    case (erzhi_21/line_unit):if(threshold_fix<=99)threshold_fix++;break;
                     case (line_show_21/line_unit): line_show_mode=!line_show_mode; break;
                     case (mt9v034_21/line_unit): mt9v034_mode=!mt9v034_mode;break;
                     }
@@ -305,7 +304,7 @@ void increase_reduce(void)
                 {
                     switch(line)
                     {
-                    case (erzhi_21/line_unit):threshold_fix--;break;
+                    case (erzhi_21/line_unit):if(threshold_fix>=-99)threshold_fix--;break;
                     case (line_show_21/line_unit): line_show_mode=!line_show_mode; break;
                     case (mt9v034_21/line_unit): mt9v034_mode=!mt9v034_mode;break;
                     }
@@ -476,7 +475,8 @@ void menu_page(void)
         tft180show_better(1);
         break;
     case (((shexiangtou_0/column_unit)*10)+1):
-        if(line!=page_shexiangtou)line=page_shexiangtou;
+        if(line>page_shexiangtou_max)line=page_shexiangtou_min;
+        if(line<page_shexiangtou_min)line=page_shexiangtou_max;
         choose_(6*column_unit,((line*line_unit)-1));
         tft180show_better(5);
         break;
