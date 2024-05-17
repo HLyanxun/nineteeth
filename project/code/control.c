@@ -25,7 +25,7 @@ void Forward_control(void)
         if(!imageflag.straight_long)
         {
 //
-            for(uint8 i=offset_point_end;i>offset_point_strat;i--){input+=Sideline_status_array[i].midline;}
+//            for(uint8 i=offset_point_end;i>offset_point_strat;i--){input+=Sideline_status_array[i].midline;}
 //
             input=input/(offset_point_end-offset_point_strat);
             int output=pid(input, kp, ki, kd, dt, target);

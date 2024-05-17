@@ -8,11 +8,7 @@
 
 uint8* Image_Use[LCDH][LCDW];      //用来存储压缩之后灰度图像的二维数组
 uint8 ex_mt9v03x_binarizeImage[LCDH][LCDW];          //图像处理时真正处理的二值化图像数组
-//uint8 All_Sobel_Image[LCDH][LCDW];
 uint8 Threshold;                                //通过大津法计算出来的二值化阈值
-uint16 threshold1,threshold2,threshold3,block_yuzhi=60;
-uint16 yuzhi1,yuzhi2,yuzhi3;
-uint16 Ramp_cancel,circle_stop,block_num,duan_num;
 int ImageScanInterval=5;                        //扫边的范围
 static uint8* PicTemp;                          //一个保存单行图像的指针变量
 static int IntervalLow = 0, IntervalHigh = 0;   //扫描区间的上下限变量
@@ -42,6 +38,12 @@ Sideline_status ImageDeal1[80];             //记录单列信息的结构体数组
 Image_Status imagestatus;                 //图像处理的的全局变量
 ImageFlagtypedef imageflag;
 uint64 Gray_Value=0;
+
+//uint8 All_Sobel_Image[LCDH][LCDW];
+//uint16 threshold1,threshold2,threshold3,block_yuzhi=60;
+//uint16 yuzhi1,yuzhi2,yuzhi3;
+//uint16 Ramp_cancel,circle_stop,block_num,duan_num;
+
 float Mh = MT9V03X_H;
 float Lh = LCDH;
 float Mw = MT9V03X_W;
@@ -342,52 +344,55 @@ uint8 get_Threshold(uint8* ex_mt9v03x_binarizeImage[][LCDW],uint16 col, uint16 r
 //  @Author
 //  Sample usage:   Get_BinaryImage();
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
+int8 threshold_fix;
 void Get_BinaryImage(void)
 {
-    if(imageflag.Out_Road == 1)
-    {
-        if(duan_num==0)
-        {
-            Threshold  = block_yuzhi ;
-        }
-        else if(duan_num==1)
-        {
-            Threshold  = threshold1 ;
-        }
-        else if(duan_num==2)
-        {
-            Threshold  = threshold2 ;
-        }
-        else if(duan_num==3)
-        {
-            Threshold  = threshold3 ;
-        }
-    }
-    else if(imageflag.RoadBlock_Flag == 1)
-    {
-        if(block_num==1)
-        {
-            Threshold  = yuzhi1 ;
-        }
-        else if(block_num==2)
-        {
-            Threshold  = yuzhi2 ;
-        }
-        else if(block_num==3)
-        {
-            Threshold  = yuzhi3 ;
-        }
-    }
-    else {
-        Threshold = get_Threshold(Image_Use, LCDW, LCDH);      //这里是一个函数调用，通过该函数可以计算出一个效果很不错的二值化阈值。
-    }
+//    if(imageflag.Out_Road == 1)
+//    {
+//        if(duan_num==0)
+//        {
+//            Threshold  = block_yuzhi ;
+//        }
+//        else if(duan_num==1)
+//        {
+//            Threshold  = threshold1 ;
+//        }
+//        else if(duan_num==2)
+//        {
+//            Threshold  = threshold2 ;
+//        }
+//        else if(duan_num==3)
+//        {
+//            Threshold  = threshold3 ;
+//        }
+//    }
+//    else if(imageflag.RoadBlock_Flag == 1)
+//    {
+//        if(block_num==1)
+//        {
+//            Threshold  = yuzhi1 ;
+//        }
+//        else if(block_num==2)
+//        {
+//            Threshold  = yuzhi2 ;
+//        }
+//        else if(block_num==3)
+//        {
+//            Threshold  = yuzhi3 ;
+//        }
+//    }
+//    else {
+//        Threshold = get_Threshold(Image_Use, LCDW, LCDH);      //这里是一个函数调用，通过该函数可以计算出一个效果很不错的二值化阈值。
+//    }
+    Threshold = get_Threshold(Image_Use, LCDW, LCDH)+threshold_fix;      //这里是一个函数调用，通过该函数可以计算出一个效果很不错的二值化阈值。
+
   uint8 i, j = 0;
   for (i = 0; i < LCDH; i++)                                //遍历二维数组的每一行
   {
     for (j = 0; j < LCDW; j++)                              //遍历二维数组的每一列
     {
       if (*Image_Use[i][j] > Threshold)                      //如果这个点的灰度值大于阈值Threshold
-          ex_mt9v03x_binarizeImage[i][j] = 1;                                  //那么这个像素点就记为白点
+          ex_mt9v03x_binarizeImage[i][j] = 255;                                  //那么这个像素点就记为白点
       else                                                  //如果这个点的灰度值小于阈值Threshold
           ex_mt9v03x_binarizeImage[i][j] = 0;                                  //那么这个像素点就记为黑点
     }
@@ -1393,41 +1398,41 @@ void Element_Judgment_Right_Rings()
 //  @Author         MRCHEN
 //  Sample usage:   Element_Judgment_Ramp();
 //--------------------------------------------------------------
-void Element_Judgment_Ramp()
-{
-    if (imagestatus.WhiteLine >= 3 || Ramp_cancel)
-        return;
-    int i = 0;
-    if (imagestatus.OFFLine <= 5)
-    {
-        for (Ysite = imagestatus.OFFLine + 1; Ysite < 7; Ysite++)
-        {
-            if ( Sideline_status_array[Ysite].wide > 18
-                        && (Sideline_status_array[Ysite].IsRightFind == 'T'
-                        && Sideline_status_array[Ysite].IsLeftFind == 'T')
-                        && Sideline_status_array[Ysite].leftline < 40
-                        && Sideline_status_array[Ysite].rightline > 40 && ex_mt9v03x_binarizeImage[Ysite][Sideline_status_array[Ysite].midline] == 1
-                        && ex_mt9v03x_binarizeImage[Ysite][Sideline_status_array[Ysite].midline-2] == 1
-                        && ex_mt9v03x_binarizeImage[Ysite][Sideline_status_array[Ysite].midline+2] == 1
-                        && dl1b_distance_mm < 700
-                        && imagestatus.Miss_Left_lines <7
-                        && imagestatus.Miss_Right_lines < 7
-                )
-                     i++;
-//            ips114_show_int(20,0, i,3);
-            if (i >= 3)
-            {
-//                Stop=1;
-                imageflag.Ramp = 1;
-//                BeeOn;
-//                Statu = Ramp;
-                i = 0;
-                break;
-            }
-        }
-    }
-
-}
+//void Element_Judgment_Ramp()
+//{
+//    if (imagestatus.WhiteLine >= 3 || Ramp_cancel)
+//        return;
+//    int i = 0;
+//    if (imagestatus.OFFLine <= 5)
+//    {
+//        for (Ysite = imagestatus.OFFLine + 1; Ysite < 7; Ysite++)
+//        {
+//            if ( Sideline_status_array[Ysite].wide > 18
+//                        && (Sideline_status_array[Ysite].IsRightFind == 'T'
+//                        && Sideline_status_array[Ysite].IsLeftFind == 'T')
+//                        && Sideline_status_array[Ysite].leftline < 40
+//                        && Sideline_status_array[Ysite].rightline > 40 && ex_mt9v03x_binarizeImage[Ysite][Sideline_status_array[Ysite].midline] == 1
+//                        && ex_mt9v03x_binarizeImage[Ysite][Sideline_status_array[Ysite].midline-2] == 1
+//                        && ex_mt9v03x_binarizeImage[Ysite][Sideline_status_array[Ysite].midline+2] == 1
+//                        && dl1b_distance_mm < 700
+//                        && imagestatus.Miss_Left_lines <7
+//                        && imagestatus.Miss_Right_lines < 7
+//                )
+//                     i++;
+////            ips114_show_int(20,0, i,3);
+//            if (i >= 3)
+//            {
+////                Stop=1;
+//                imageflag.Ramp = 1;
+////                BeeOn;
+////                Statu = Ramp;
+//                i = 0;
+//                break;
+//            }
+//        }
+//    }
+//
+//}
 
 
 //--------------------------------------------------------------
@@ -1443,7 +1448,7 @@ int Start=0,End=0,a=0;
 int Out_Black_flag = 0;
 void Element_Judgment_OutRoad()
 {
-    if(dl1b_distance_mm < 1150 || imageflag.RoadBlock_Flag == 1 || imageflag.Out_Road)   return;
+    if( imageflag.RoadBlock_Flag == 1 || imageflag.Out_Road)   return;
     int Right_Num=0,Left_Num=0;
     if(imagestatus.OFFLine > 20)
     {
@@ -1460,8 +1465,6 @@ void Element_Judgment_OutRoad()
     if(Left_Num > 7 && Right_Num > 7 && !imageflag.Out_Road)
     {
         imageflag.Out_Road = 1;
-        duan_num++;
-//        BeeOn;
     }
 //    if(duan_num==1)
 //        Stop=1;
@@ -1537,52 +1540,52 @@ void Element_Judgment_OutRoad()
 //  @Author         MRCHEN
 //  Sample usage:   Element_Judgment_RoadBlock();
 //--------------------------------------------------------------
-uint8 Auto_Through_RoadBlock = 0;
-int RoadBlock_length = 0;
-uint8 RoadBlock_Flag = 0;
-uint8 RoadBlock_Thruough_Flag = 2;
-uint8 Regular_RoadBlock = 0;
-uint8 RoadBlock_Regular_Way[8][3] = {{0,0,0},{1,0,0},{0,1,0},{1,1,0},{0,0,1},{1,0,1},{0,1,1},{1,1,1}};
-uint8 RoadBlock_Thruough_Flag_Record = 0;
-uint8 Bend_Thruough_RoadBlock_Flag = 0;
-uint8 ICM20602_Clear_Flag = 0;
-int RoadBlock_Length_Compensate = 0;
-void Element_Judgment_RoadBlock()
-{
-//    if(imageflag.Ramp /*|| imagestatus.OFFLineBoundary < 20 || dl1a_distance_mm > 1100*/)   return;
-//    if(imagestatus.OFFLine >= 10  && imagestatus.OFFLine < 50 && dl1b_distance_mm < 1100
-//    && Straight_Judge(1, imagestatus.OFFLine+8, imagestatus.OFFLine+25) < 1
-//    && Straight_Judge(2, imagestatus.OFFLine+8, imagestatus.OFFLine+25) < 1
-//    && imagestatus.Miss_Left_lines< 3
-//    && imagestatus.Miss_Right_lines< 3
-//    )
+//uint8 Auto_Through_RoadBlock = 0;
+//int RoadBlock_length = 0;
+//uint8 RoadBlock_Flag = 0;
+//uint8 RoadBlock_Thruough_Flag = 2;
+//uint8 Regular_RoadBlock = 0;
+//uint8 RoadBlock_Regular_Way[8][3] = {{0,0,0},{1,0,0},{0,1,0},{1,1,0},{0,0,1},{1,0,1},{0,1,1},{1,1,1}};
+//uint8 RoadBlock_Thruough_Flag_Record = 0;
+//uint8 Bend_Thruough_RoadBlock_Flag = 0;
+//uint8 ICM20602_Clear_Flag = 0;
+//int RoadBlock_Length_Compensate = 0;
+//void Element_Judgment_RoadBlock()
+//{
+////    if(imageflag.Ramp /*|| imagestatus.OFFLineBoundary < 20 || dl1a_distance_mm > 1100*/)   return;
+////    if(imagestatus.OFFLine >= 10  && imagestatus.OFFLine < 50 && dl1b_distance_mm < 1100
+////    && Straight_Judge(1, imagestatus.OFFLine+8, imagestatus.OFFLine+25) < 1
+////    && Straight_Judge(2, imagestatus.OFFLine+8, imagestatus.OFFLine+25) < 1
+////    && imagestatus.Miss_Left_lines< 3
+////    && imagestatus.Miss_Right_lines< 3
+////    )
+////    {
+////        imageflag.RoadBlock_Flag = 1;
+////        //Stop = 1;
+////        BeeOn;
+////        Statu = RoadBlock;
+////        Steer_Flag=1; //打开陀螺仪
+////        Angle_block = Yaw_Now;//陀螺仪一段打角
+////        RoadBlock_Flag++;
+////    }
+//
+//    if(imageflag.Ramp || imagestatus.OFFLine < 10 || dl1b_distance_mm > 1100)   return;
+//    int Right_Num=0,Left_Num=0;
+//    for(int Ysite = imagestatus.OFFLine + 1;Ysite < imagestatus.OFFLine + 11;Ysite++)
+//    {
+//        //if((Sideline_status_array[Ysite].IsLeftFind))
+//        if(Sideline_status_array[Ysite].IsLeftFind == 'T')
+//            Left_Num++;
+//        if(Sideline_status_array[Ysite].IsRightFind == 'T')
+//            Right_Num++;
+//    }
+//    if(Left_Num > 7 && Right_Num > 7)
 //    {
 //        imageflag.RoadBlock_Flag = 1;
+//        block_num++;
+//        /********/
 //        //Stop = 1;
-//        BeeOn;
-//        Statu = RoadBlock;
-//        Steer_Flag=1; //打开陀螺仪
-//        Angle_block = Yaw_Now;//陀螺仪一段打角
-//        RoadBlock_Flag++;
-//    }
-
-    if(imageflag.Ramp || imagestatus.OFFLine < 10 || dl1b_distance_mm > 1100)   return;
-    int Right_Num=0,Left_Num=0;
-    for(int Ysite = imagestatus.OFFLine + 1;Ysite < imagestatus.OFFLine + 11;Ysite++)
-    {
-        //if((Sideline_status_array[Ysite].IsLeftFind))
-        if(Sideline_status_array[Ysite].IsLeftFind == 'T')
-            Left_Num++;
-        if(Sideline_status_array[Ysite].IsRightFind == 'T')
-            Right_Num++;
-    }
-    if(Left_Num > 7 && Right_Num > 7)
-    {
-        imageflag.RoadBlock_Flag = 1;
-        block_num++;
-        /********/
-        //Stop = 1;
-//        Statu = RoadBlock;
+////        Statu = RoadBlock;
 //        if( !Regular_RoadBlock )
 //            Auto_RoadBlock_Through();
 //        else
@@ -1593,30 +1596,30 @@ void Element_Judgment_RoadBlock()
 //                   { RoadBlock_Thruough_Flag = 1; Auto_Through_RoadBlock = 0; }
 //                if(Parameter_Justment_Flag == 2)
 //                   { RoadBlock_Thruough_Flag = 2; Auto_Through_RoadBlock = 0; }
-                if( imagestatus.Det_True > 2 || imagestatus.Det_True < -2 )
-                   {
-                    RoadBlock_Length_Compensate = 267;
-//                    BeeOn;
-                   }
-                else
-                    RoadBlock_Length_Compensate = 0;
+//                if( imagestatus.Det_True > 2 || imagestatus.Det_True < -2 )
+//                   {
+//                    RoadBlock_Length_Compensate = 267;
+////                    BeeOn;
+//                   }
+//                else
+//                    RoadBlock_Length_Compensate = 0;
 //            }
-//            else
-//                Auto_RoadBlock_Through();
+////            else
+////                Auto_RoadBlock_Through();
 //        }
-//        Steer_Flag=1; //打开陀螺仪
-        ICM20602_Clear_Flag++;
-        RoadBlock_Flag++;
-    }
-}
-
-//void Auto_RoadBlock_Through()
+////        Steer_Flag=1; //打开陀螺仪
+//        ICM20602_Clear_Flag++;
+//        RoadBlock_Flag++;
+//    }
+//}
+//
+//void Auto_RoadBlock_Through(void)
 //{
 //    if( imagestatus.Det_True >= 0 )
 //    {
 //        RoadBlock_Thruough_Flag = 1;  //左
 //        if( imagestatus.Det_True > 3 )
-//         { Auto_Through_RoadBlock = 1; BeeOn; }
+//         { Auto_Through_RoadBlock = 1;  }
 //        else
 //            Auto_Through_RoadBlock = 0;
 //    }
@@ -1624,7 +1627,7 @@ void Element_Judgment_RoadBlock()
 //    {
 //        RoadBlock_Thruough_Flag = 2;   //右
 //        if( imagestatus.Det_True < -3 )
-//         { Auto_Through_RoadBlock = 1; BeeOn; }
+//         { Auto_Through_RoadBlock = 1;  }
 //        else
 //            Auto_Through_RoadBlock = 0;
 //    }
@@ -1748,7 +1751,7 @@ void Element_Judgment_RoadBlock()
 //  @Author         MRCHEN
 //  Sample usage:   Element_Judgment_Zebra();
 //--------------------------------------------------------------
-void Element_Judgment_Zebra()//斑马线判断
+void Element_Judgment_Zebra(void)//斑马线判断
 {
     if(imageflag.Zebra_Flag || imageflag.image_element_rings == 1 || imageflag.image_element_rings == 2
             || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1) return;
@@ -1857,14 +1860,14 @@ void Element_Handle_OutRoad()//断路处理
     {
         for(int Xsite = 30;Xsite < 50;Xsite++)
         {
-            Gray_Value=Gray_Value+ex_mt9v03x_binarizeImage[Ysite][Xsite];
+            if(ex_mt9v03x_binarizeImage[Ysite][Xsite])
+            Gray_Value++;
         }
     }
     if(Gray_Value > 360 && imagestatus.OFFLine < 20)//最大400
     {
-        //Stop=1;
         imageflag.Out_Road=0;
-//        BeeOff;
+
     }
 }
 
@@ -2785,14 +2788,12 @@ void Scan_Element()
             && imageflag.Ramp == 0       && imageflag.Bend_Road == 0
             &&  imageflag.straight_long== 0  )
     {
-//        Statu = Normal;                     //
-        Element_Judgment_RoadBlock();       //路障
+//        Element_Judgment_RoadBlock();       //路障
         Element_Judgment_OutRoad();         //断路
         Element_Judgment_Left_Rings();      //左圆环
         Element_Judgment_Right_Rings();     //右圆环
         Element_Judgment_Zebra();           //斑马线
         Element_Judgment_Bend();            //弯道
-        Element_Judgment_Ramp();            //坡道
         Straight_long_judge();              //长直道
     }
     if(imageflag.Bend_Road)
@@ -2801,29 +2802,21 @@ void Scan_Element()
         if(imageflag.Out_Road)
             imageflag.Bend_Road=0;
     }
-//    if(imageflag.Ramp)
+
+//    if(imageflag.Bend_Road)
 //    {
-//        Element_Judgment_OutRoad();         //断路
-//        if(imageflag.Ramp)
+////        Element_Judgment_RoadBlock();         //路障
+//        if(imageflag.RoadBlock_Flag)
+//        {
+//            Bend_Thruough_RoadBlock_Flag = 1;
+//            if( imageflag.Bend_Road == 1 )
+//                RoadBlock_Thruough_Flag = 2;
+//            if( imageflag.Bend_Road == 2 )
+//                RoadBlock_Thruough_Flag = 1;
 //            imageflag.Bend_Road=0;
+//        }
 //    }
-    if(imageflag.Bend_Road)
-    {
-        Element_Judgment_RoadBlock();         //路障
-        if(imageflag.RoadBlock_Flag)
-        {
-            Bend_Thruough_RoadBlock_Flag = 1;
-            if( imageflag.Bend_Road == 1 )
-                RoadBlock_Thruough_Flag = 2;
-            if( imageflag.Bend_Road == 2 )
-                RoadBlock_Thruough_Flag = 1;
-            imageflag.Bend_Road=0;
-        }
-    }
-    /*if(imageflag.Out_Road)
-    {
-        Element_Judgment_Ramp();            //坡道
-    }*/
+
     if(imageflag.Bend_Road)
     {
         Element_Judgment_Zebra();           //斑马线
@@ -2869,7 +2862,7 @@ void Element_Handle()
 void Flag_init(void)
 {
     imageflag.Bend_Road = 0;
-    imageflag.Garage_Location = 0;
+//    imageflag.Garage_Location = 0;
     imageflag.Ramp = 0;
     imageflag.Zebra_Flag = 0;
     imageflag.image_element_rings = 0;
@@ -2879,7 +2872,15 @@ void Flag_init(void)
     imageflag.ring_big_small = 0;
     imageflag.RoadBlock_Flag = 0;
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//  函数简介        一键全初始化
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+void Init_overall(void)
+{
+    Image_CompressInit();
+    Flag_init();
 
+}
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
 //  @name           Image_Process
 //  @brief          整个图像处理的主函数，里面包含了所有的图像处理子函数
@@ -2898,8 +2899,11 @@ void Image_Process(void)
 //           binarizeImage();
 //           baseline_get();
 //           allline_get();
-           Scan_Element();
-           Element_Handle();
+        Get_BinaryImage();
+        Get_BaseLine();
+        Get_AllLine();
+        Scan_Element();
+        Element_Handle();
       //         if(!imageflag.Out_Road)
       //                             Search_Border_OTSU(ex_mt9v03x_binarizeImage, LCDH, LCDW, LCDH - 2);//(MT9V03X_H/2-2)行位底行
       //                         else

@@ -16,7 +16,7 @@
 // 函数简介     初始化flash，将存在flash中的数据读取出来
 // 使用实例     Parament_init();
 //----------------------------------------------------------------------------------------------------------
-void Parament_init(void)
+void Parameter_init(void)
 {
     flash_buffer_clear();
     flash_read_page_to_buffer(FLASH_SECTION_INDEX, FLASH_PAGE_INDEX);      // 将数据从 flash 读取到缓冲区
@@ -36,7 +36,7 @@ void Parament_init(void)
 // 使用实例     Parament_save();
 // 备注信息     断电前别忘保存
 //----------------------------------------------------------------------------------------------------------
-void Parament_save(void)
+void Parameter_save(void)
 {
     flash_buffer_clear();
    system_delay_ms(50);
@@ -55,7 +55,7 @@ void Parament_save(void)
 // 使用实例     Parament_first();
 // 备注信息     别忘用，别忘删！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 //-----------------------------------------------------------------------------------------------------------
-void Parament_first(void)
+void Parameter_first(void)
 {
     flash_erase_sector(FLASH_SECTION_INDEX, FLASH_PAGE_INDEX);
     flash_buffer_clear();
@@ -75,12 +75,11 @@ void Parament_first(void)
 void All_Init(void)
 {
     //    Parament_first();//添加新的变量进flash时运行该行代码
-    Parament_init();
+    Parameter_init();
     tft180_init();
     pit_ms_init(TIM2_PIT,10);
     key_init(10);       //括号里是中断周期
     mt9v03x_init();
-    timer_init(TIM_3,TIMER_MS);
-    timer_start(TIM_3);
-    Flag_init();
+//    timer_init(TIM_3,TIMER_MS);
+//    Flag_init();
 }

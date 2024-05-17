@@ -16,7 +16,7 @@
 
 #define page_mpu6050_min                (0)
 #define page_mpu6050_max                (3)
-#define page_0_max                      (4)
+#define page_0_max                      (7)
 #define page_0_min                      (1)
 #define page_tuxiang_min                (4)
 #define page_tuxiang_max                (8)
@@ -29,8 +29,9 @@
 #define tuxiang_0                       (2*line_unit)
 #define pid_0                           (3*line_unit)
 #define shexiangtou_0                   (4*line_unit)
-#define parament_debug_0                (5*line_unit)
-#define parament_save_0                 (6*line_unit)
+#define parameter_debug_0                (5*line_unit)
+#define parameter_save_0                 (6*line_unit)
+#define parameter_init_0                 (7*line_unit)
 
 
 #define kp_31                           (1*line_unit)
@@ -49,6 +50,7 @@ extern int16 exposure_time;
 
 void menu_page(void);
 void button_status_get(uint8 interrupt_time);
+void line_visualization(void);
 
 
 

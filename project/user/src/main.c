@@ -36,23 +36,38 @@
 #include "zf_common_headfile.h"
 //#include "better_fix_mt9v034.h"
 #include "math.h"
+
+uint16 timer_conter=0,count=0;
 int main (void)
 {
-    clock_init(SYSTEM_CLOCK_120M);      // 初始化芯片时钟 工作频率为 120MHz
+    clock_init(SYSTEM_CLOCK_144M);      // 初始化芯片时钟 工作频率为 120MHz
     debug_init();                       // 务必保留，本函数用于初始化MPU 时钟 调试串口
-    steering_engine_init(TIM1_PWM_MAP0_CH1_A8,50,120);
-    steering_engine_set_angle(TIM1_PWM_MAP0_CH1_A8,90);
-
+//    steering_engine_init(TIM1_PWM_MAP0_CH1_A8,50,120);
+//    steering_engine_set_angle(TIM1_PWM_MAP0_CH1_A8,90);
+//    mt9v03x_init();
+//    ImagePerspective_Init();
+//    timer_init(TIM_3,TIMER_US);
+//    tft180_init();
+//    timer_clear(TIM_3);
+//    Image_CompressInit();
+    Init_overall();
+    All_Init();
      // 此处编写用户代码 例如外设初始化代码等
-
-
      while(1)
      {
-//         Image_Process();
-//         menu_page();
-         sendimg_binary(mt9v03x_image[0],MT9V03X_W,MT9V03X_H,100);
-//         sendimg_binary(mt9v03x_image[0],MT9V03X_W,MT9V03X_H,My_Threshold);
-//         sendimg_binary(ex_mt9v03x_binarizeImage, MT9V03X_W/2, MT9V03X_H/2,0);
+//         Camera_tracking();
+//         tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], image_w, image_h, image_w, image_h, 0);
+//         tft180_show_int(0, 8*line_unit, My_Threshold, 4);
+         timer_clear(TIM_3);
+         timer_start(TIM_3);
+         Image_Process();
+         timer_conter=timer_get(TIM_3);
+         timer_stop(TIM_3);
+//         tft180_show_uint(0, 7*line_unit, timer_conter, 5);
+//         line_visualization();
+         menu_page();
+//         }
+
      }
  }
 

@@ -21,10 +21,10 @@
 #define PER_IMG     mt9v03x_image//SimBinImage:ÓÃÓÚÍ¸ÊÓ±ä»»µÄÍ¼Ïñ
 
 /*Ö±½ÓÓÃ£¬¶¼ÒªÓÃ*/
-void Camera_tracking(void);
+void Camera_tracking(void);         //Í¼Ïñ´¦Àí×Üº¯Êı
 void ImagePerspective_Init(void);
-void Inflexion_Point(void);  //ËÄ¸ö¹Õµã  ÏÔÊ¾
-void xianshi_a(void);        //±ßÏßÏÔÊ¾
+void Inflexion_Point(void);  //ËÄ¸ö¹Õµã  ÏÔÊ¾     (²»¿ÉÓÃ×´Ì¬)
+void xianshi_a(void);        //±ßÏßÏÔÊ¾              (²»¿ÉÓÃ×´Ì¬)
 
 //tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], image_w, image_h, image_w, image_h, 0)//ÓÃÀ´ÏÔÊ¾¶şÖµ»¯ºóµÄÍ¼Ïñ
 
@@ -90,11 +90,12 @@ extern int16 threshold_fix;                                          //¶şÖµ»¯ãĞÖ
 extern uint8 My_Threshold;                                           //×îÖÕ¤Î¶şÖµ»¯ãĞÖµ
 extern uint8 ex_mt9v03x_binarizeImage[image_h][image_w];
 
-uint8 my_adapt_threshold(uint8 *ex_mt9v03x_binarizeImage, uint16 col, uint16 row);   //×¢Òâ¼ÆËããĞÖµµÄÒ»¶¨ÒªÊÇÔ­Í¼Ïñ
+void Binaryzation(void);
+//uint8 my_adapt_threshold(uint8 *ex_mt9v03x_binarizeImage, uint16 col, uint16 row);   //×¢Òâ¼ÆËããĞÖµµÄÒ»¶¨ÒªÊÇÔ­Í¼Ïñ
 double Angel_compute(int x1, int y1, int x2, int y2, int x3, int y3);
 
 void  Stayguy_ADS(int x_start, int y_start, int x_end, int y_end);
-void search(uint16 break_flag,uint8(*image_u)[image_w],uint8* hightest); //ÔİÊ±Ã»ÓĞÀí½â
+void search(uint16 break_flag,uint8(*image_u)[image_w],uint8* hightest);
 void curvature_judge(void);
 
 

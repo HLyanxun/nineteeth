@@ -33,6 +33,7 @@ extern uint8 RoadBlock_Flag ; //路障位置  1 : 第一段打角  2 : 编码器计数行进路程
 extern uint8 RoadBlock_Thruough_Flag ; //路障通过方式  1 : 左通过  2 : 右通过
 extern uint8 RoadBlock_Thruough_Flag_Record,Bend_Thruough_RoadBlock_Flag,ICM20602_Clear_Flag ;
 extern uint8 Regular_RoadBlock;
+extern int8 threshold_fix;
 //每一行的属性
 typedef struct {
     uint8 leftline;////左边线 梯度扫线
@@ -79,7 +80,7 @@ typedef struct {
      int16 image_element_rings_flag;             /*圆环进程*/
      int16 straight_long;                        /*长直道标志位*/
      int16 straight_xie;
-     int16 Garage_Location;                      /*0 :无车库          1 :左车库       2 :右车库*/
+//     int16 Garage_Location;                      /*0 :无车库          1 :左车库       2 :右车库*/
      int16 Zebra_Flag;                           /*0 :无斑马线       1 左车库       2 :右车库*/
      int16 Ramp;                                  /*0 :无坡道          1：坡道*/
      int16 RoadBlock_Flag;                        /*0 :无路障            1 :路障*/
@@ -93,10 +94,9 @@ extern Image_Status imagestatus;
 extern ImageFlagtypedef imageflag;
 
 extern uint32 break_road(uint8 line_start);
+
 uint8 get_Threshold(uint8* ex_mt9v03x_binarizeImage[][LCDW],uint16 col, uint16 row);
 void Image_CompressInit(void);
-void Image_Process(void);
-void Get_SideLine(void);
 void Get_BinaryImage(void);
 void Element_Handle(void);
 extern uint8 Garage_Location_Flag;
@@ -105,7 +105,18 @@ void Get_BaseLine(void);
 void Get_AllLine(void);
 void Get_ExtensionLine(void);
 void Flag_init(void);
-void Auto_RoadBlock_Through();
+void Auto_RoadBlock_Through(void);
 
+                                                                    /*傻瓜式使用*/
+                                                    /*傻瓜式使用*/
+                                     /*傻瓜式使用*/
+                      /*傻瓜式使用*/
+void Image_Process(void);           //图像处理总函数
+void Init_overall(void);            //一键初始化
+
+                        /*傻瓜式使用*/
+                                            /*傻瓜式使用*/
+                                                                /*傻瓜式使用*/
+                                                                                /*傻瓜式使用*/
 
 #endif /* REVISION_MT9V03X_H_ */
