@@ -95,10 +95,10 @@ const uint8 hui_du[8][16]=
 //};
 const uint8 menu[8][16]=
 {
-{0x08,0x20,0x08,0x20,0xFF,0xFE,0x08,0x20,0x00,0x10,0x00,0xF8,0x3F,0x00,0x11,0x10},
-{0x08,0x20,0x01,0x00,0x7F,0xFC,0x05,0x40,0x09,0x20,0x31,0x18,0xC1,0x06,0x01,0x00},/*"菜",0*/
-{0x10,0x10,0x08,0x20,0x04,0x40,0x3F,0xF8,0x21,0x08,0x21,0x08,0x3F,0xF8,0x21,0x08},
-{0x21,0x08,0x3F,0xF8,0x01,0x00,0x01,0x00,0xFF,0xFE,0x01,0x00,0x01,0x00,0x01,0x00},/*"单",1*/
+        {0x08,0x20,0x08,0x20,0xFF,0xFE,0x08,0x20,0x00,0x10,0x00,0xF8,0x3F,0x00,0x11,0x10},
+        {0x08,0x20,0x01,0x00,0x7F,0xFC,0x05,0x40,0x09,0x20,0x31,0x18,0xC1,0x06,0x01,0x00},/*"菜",0*/
+        {0x10,0x10,0x08,0x20,0x04,0x40,0x3F,0xF8,0x21,0x08,0x21,0x08,0x3F,0xF8,0x21,0x08},
+        {0x21,0x08,0x3F,0xF8,0x01,0x00,0x01,0x00,0xFF,0xFE,0x01,0x00,0x01,0x00,0x01,0x00},/*"单",1*/
 };
 const uint8 mpu6050_parament[8][16]=
 {
@@ -133,11 +133,15 @@ const uint8 yu_zhi[8][16]=
 void line_visualization(void)
 {
     uint8 left,mid,right;
-    for (int i = 59; i > 0; i--)
+    for (int i = 59; i > imagestatus.OFFLine; i--)
         {
             left=Sideline_status_array[i].leftline;
             mid=Sideline_status_array[i].midline;
             right=Sideline_status_array[i].rightline;
+
+            if(left>6*column_unit)left=6*column_unit;
+            if(right>6*column_unit)right=6*column_unit;
+            if(mid>6*column_unit)mid=6*column_unit;
 
             tft180_draw_point(left, i, RGB565_RED);  // 绘制中线
             tft180_draw_point(mid,i,RGB565_BLUE);
@@ -199,10 +203,12 @@ void tft180show_better(uint8 mode)
             timer_clear(TIM_3);
         }
         //图像显示控制
-       if(!mt9v034_mode){tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], LCDW, LCDH, LCDW, LCDH, 0);
-       tft180_show_chinese(0, mt9v034_21, 16, tu_xiang[0], 2, RGB565_BLACK);
-       tft180_show_string(2*column_unit,mt9v034_21,":");
-       tft180_show_chinese(column_unit*2.5, mt9v034_21, 16, erzhihua[0], 3, RGB565_BLACK);}
+       if(!mt9v034_mode){
+           tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], LCDW, LCDH, LCDW, LCDH, 0);
+//           tft180_show_gray_image(0, 0, Image_Use[0], LCDW, LCDH, LCDW, LCDH, Threshold);
+           tft180_show_chinese(0, mt9v034_21, 16, tu_xiang[0], 2, RGB565_BLACK);
+           tft180_show_string(2*column_unit,mt9v034_21,":");
+           tft180_show_chinese(column_unit*2.5, mt9v034_21, 16, erzhihua[0], 3, RGB565_BLACK);}
        else {tft180_displayimage03x(mt9v03x_image[0],MT9V03X_W/2,MT9V03X_H/2);
        tft180_show_chinese(0, mt9v034_21, 16, tu_xiang[0], 2, RGB565_BLACK);
        tft180_show_string(2*column_unit,mt9v034_21,":");
@@ -304,6 +310,7 @@ void increase_reduce(void)
                     case (erzhi_21/line_unit):if(threshold_fix<=99)threshold_fix++;break;
                     case (line_show_21/line_unit): line_show_mode=!line_show_mode; break;
                     case (mt9v034_21/line_unit): mt9v034_mode=!mt9v034_mode;tft180_clear();break;
+                    case (runflag_21/line_unit): imageflag.run_flag=1;break;
                     }
                 }
             }

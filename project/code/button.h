@@ -43,6 +43,7 @@
 #define erzhi_21                        (5*line_unit)
 #define mt9v034_21                      (6*line_unit)
 #define line_show_21                    (7*line_unit)
+#define runflag_21                      (8*line_unit)
 
 #define baoguangtime_41                 (4*line_unit)
 

@@ -184,7 +184,7 @@ uint32 break_road(uint8 line_start)//冲出赛道
     {
         for(j=5;j<74;j++)
         {
-            if(ex_mt9v03x_binarizeImage[i][j]==1)
+            if(ex_mt9v03x_binarizeImage[i][j] != 0)
             {
                 bai++;
             }
@@ -200,7 +200,7 @@ uint32 white_point(uint8 line_end,uint8 line_start) //白点数量
     {
         for(j=29;j<49;j++)
         {
-            if(ex_mt9v03x_binarizeImage[i][j]==1)
+            if(ex_mt9v03x_binarizeImage[i][j]!=0)
             {
                 bai++;
             }
@@ -421,7 +421,7 @@ void Get_Border_And_SideType(uint8* p,uint8 type,int L,int H,JumpPointtypedef* Q
   {
     for (i = H; i >= L; i--)                    //从右往左扫
     {
-      if (*(p + i) == 1 && *(p + i - 1) != 1)   //如果有黑白跳变    1是白 0是黑
+      if (*(p + i) != 0 && *(p + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
       {
         Q->point = i;                           //那就把这个列记录下来作为左边线
         Q->type = 'T';                          //并且把这一行当作是正常跳变，边线类型记为T，即边线正常。
@@ -448,7 +448,7 @@ void Get_Border_And_SideType(uint8* p,uint8 type,int L,int H,JumpPointtypedef* Q
   {
     for (i = L; i <= H; i++)                    //从左往右扫
     {
-      if (*(p + i) == 1 && *(p + i + 1) != 1)   //如果有黑白跳变    1是白 0是黑
+      if (*(p + i) != 0 && *(p + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
       {
         Q->point = i;                           //那就把这个列记录下来作为右边线
         Q->type = 'T';                          //并且把这一行当作是正常跳变，边线类型记为T，即边线正常。
@@ -963,7 +963,7 @@ void Search_Bottom_Line_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col,
     //寻找左边边界
     for (int Xsite = col / 2-2; Xsite > 1; Xsite--)
     {
-        if (imageInput[Bottonline][Xsite] == 1 && imageInput[Bottonline][Xsite - 1] == 0)
+        if (imageInput[Bottonline][Xsite] != 0 && imageInput[Bottonline][Xsite - 1] == 0)
         {
             Sideline_status_array[Bottonline].LeftBoundary = Xsite;//获取底边左边线
             break;
@@ -971,7 +971,7 @@ void Search_Bottom_Line_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col,
     }
     for (int Xsite = col / 2+2; Xsite < LCDW-1; Xsite++)
     {
-        if (imageInput[Bottonline][Xsite] == 1 && imageInput[Bottonline][Xsite + 1] == 0)
+        if (imageInput[Bottonline][Xsite] != 0 && imageInput[Bottonline][Xsite + 1] == 0)
         {
             Sideline_status_array[Bottonline].RightBoundary = Xsite;//获取底边右边线
             break;
@@ -986,7 +986,7 @@ void Search_Bottom_Line_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col,
 //    //寻找左边边界
 //    for (int Xsite = col / 2-2; Xsite > 1; Xsite--)
 //    {
-//        if (imageInput[Bottonline][Xsite] == 255 && imageInput[Bottonline][Xsite - 1] == 0)
+//        if (imageInput[Bottonline][Xsite] == 1 && imageInput[Bottonline][Xsite - 1] == 0)
 //        {
 //            Sideline_status_array[Bottonline].LeftBoundary = Xsite;//获取底边左边线
 //            break;
@@ -994,7 +994,7 @@ void Search_Bottom_Line_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col,
 //    }
 //    for (int Xsite = col / 2+2; Xsite < LCDW-1; Xsite++)
 //    {
-//        if (imageInput[Bottonline][Xsite] == 255 && imageInput[Bottonline][Xsite + 1] == 0)
+//        if (imageInput[Bottonline][Xsite] == 1 && imageInput[Bottonline][Xsite + 1] == 0)
 //        {
 //            Sideline_status_array[Bottonline].RightBoundary = Xsite;//获取底边右边线
 //            break;
@@ -1763,7 +1763,7 @@ void Element_Judgment_Zebra(void)//斑马线判断
             net = 0;
             for (int Xsite =Sideline_status_array[Ysite].LeftBoundary + 2; Xsite < Sideline_status_array[Ysite].RightBoundary - 2; Xsite++)
             {
-                if (ex_mt9v03x_binarizeImage[Ysite][Xsite] == 0 && ex_mt9v03x_binarizeImage[Ysite][Xsite + 1] == 1)
+                if (ex_mt9v03x_binarizeImage[Ysite][Xsite] == 0 && ex_mt9v03x_binarizeImage[Ysite][Xsite + 1] != 0)
                 {
                     net++;
                     if (net > 4)
@@ -2114,7 +2114,7 @@ void Element_Handle_Left_Rings()
         {
             for(Xsite=Sideline_status_array[Ysite].leftline + 1;Xsite<Sideline_status_array[Ysite].rightline - 1;Xsite++)
             {
-                if(  ex_mt9v03x_binarizeImage[Ysite][Xsite] == 1 && ex_mt9v03x_binarizeImage[Ysite][Xsite + 1] == 0)
+                if(  ex_mt9v03x_binarizeImage[Ysite][Xsite] != 0 && ex_mt9v03x_binarizeImage[Ysite][Xsite + 1] == 0)
                  {
                    flag_Ysite_1 = Ysite;
                    flag_Xsite_1 = Xsite;
@@ -2162,7 +2162,7 @@ void Element_Handle_Left_Rings()
             {
                 for(Xsite=Sideline_status_array[Ysite+1].rightline-10;Xsite<Sideline_status_array[Ysite+1].rightline+2;Xsite++)
                 {
-                    if(ex_mt9v03x_binarizeImage[Ysite][Xsite]==1 && ex_mt9v03x_binarizeImage[Ysite][Xsite+1]==0)
+                    if(ex_mt9v03x_binarizeImage[Ysite][Xsite]!= 0 && ex_mt9v03x_binarizeImage[Ysite][Xsite+1]==0)
                     {
                         Sideline_status_array[Ysite].rightline=Xsite;
                         //if(imageflag.ring_big_small==1)//大圆环不减半宽
@@ -2210,7 +2210,7 @@ void Element_Handle_Left_Rings()
         Repair_Point_Ysite = 0;
         for (int Ysite = 40; Ysite > 5; Ysite--)
         {
-            if (ex_mt9v03x_binarizeImage[Ysite][23] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][23] == 0)//28
+            if (ex_mt9v03x_binarizeImage[Ysite][23] != 0 && ex_mt9v03x_binarizeImage[Ysite-1][23] == 0)//28
             {
                 Repair_Point_Xsite = 23;
                 Repair_Point_Ysite = Ysite-1;
@@ -2231,7 +2231,7 @@ void Element_Handle_Left_Rings()
         Repair_Point_Ysite = 0;
         for (int Ysite = 55; Ysite > 5; Ysite--)
         {
-            if (ex_mt9v03x_binarizeImage[Ysite][15] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][15] == 0)
+            if (ex_mt9v03x_binarizeImage[Ysite][15] != 0 && ex_mt9v03x_binarizeImage[Ysite-1][15] == 0)
             {
                 Repair_Point_Xsite = 15;
                 Repair_Point_Ysite = Ysite-1;
@@ -2465,7 +2465,7 @@ void Element_Handle_Right_Rings()
         {
             for(Xsite=Sideline_status_array[Ysite].leftline + 1;Xsite<Sideline_status_array[Ysite].rightline - 1;Xsite++)
             {
-                if(ex_mt9v03x_binarizeImage[Ysite][Xsite]==1 && ex_mt9v03x_binarizeImage[Ysite][Xsite+1]==0)
+                if(ex_mt9v03x_binarizeImage[Ysite][Xsite]!= 0 && ex_mt9v03x_binarizeImage[Ysite][Xsite+1]==0)
                 {
                     flag_Ysite_1=Ysite;
                     flag_Xsite_1=Xsite;
@@ -2514,7 +2514,7 @@ void Element_Handle_Right_Rings()
             {
                 for(Xsite=Sideline_status_array[Ysite+1].leftline+8;Xsite>Sideline_status_array[Ysite+1].leftline-4;Xsite--)
                 {
-                    if(ex_mt9v03x_binarizeImage[Ysite][Xsite]==1 && ex_mt9v03x_binarizeImage[Ysite][Xsite-1]==0)
+                    if(ex_mt9v03x_binarizeImage[Ysite][Xsite]!= 0 && ex_mt9v03x_binarizeImage[Ysite][Xsite-1]==0)
                     {
                      Sideline_status_array[Ysite].leftline=Xsite;
                      Sideline_status_array[Ysite].wide=Sideline_status_array[Ysite].rightline-Sideline_status_array[Ysite].leftline;
@@ -2564,7 +2564,7 @@ void Element_Handle_Right_Rings()
         Repair_Point_Ysite = 0;
         for (int Ysite = 50; Ysite > 5; Ysite--)
         {
-            if (ex_mt9v03x_binarizeImage[Ysite][57] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][57] == 0)
+            if (ex_mt9v03x_binarizeImage[Ysite][57] != 0 && ex_mt9v03x_binarizeImage[Ysite-1][57] == 0)
             {
                 Repair_Point_Xsite = 57;
                 Repair_Point_Ysite = Ysite-1;
@@ -2586,7 +2586,7 @@ void Element_Handle_Right_Rings()
         Repair_Point_Ysite = 0;
         for (int Ysite = 40; Ysite > 5; Ysite--)
         {
-            if (ex_mt9v03x_binarizeImage[Ysite][58] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][58] == 0)
+            if (ex_mt9v03x_binarizeImage[Ysite][58] != 0 && ex_mt9v03x_binarizeImage[Ysite-1][58] == 0)
             {
                 Repair_Point_Xsite = 58;
                 Repair_Point_Ysite = Ysite-1;
