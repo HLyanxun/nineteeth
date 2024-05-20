@@ -141,6 +141,8 @@
 
 //===================================================用户自定义文件===================================================
 //#include "Camera_Process.h"
+//#include "find_line_test.h"
+
 #include "better_mpu6050.h"
 #include "better_pid.h"
 #include "better_pwm.h"
@@ -148,7 +150,6 @@
 #include "control.h"
 #include "flash.h"
 #include "UART_Data_Unpacker.h"
-//#include "find_line_test.h"
 #include "swj.h"
 #include "revision_mt9v03x.h"
 

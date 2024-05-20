@@ -9,6 +9,7 @@ int page=0,line=1;
 uint8 Button_mode=0;
 uint8 mt9v034_mode=0,line_show_mode=0;
 int16 exposure_time;
+uint16 timer_conter=0;
 const uint8 parameter_init[8][16]=
 {
         {0x10,0x80,0x10,0x80,0x10,0xF8,0x11,0x08,0xFB,0x10,0x14,0xA0,0x30,0x40,0x38,0xA0},
@@ -160,7 +161,7 @@ void status_show(void)
         tft180_show_string(0, 8*line_unit, "loading");
         return;
     }
-        if(imageflag.image_element_rings_flag)tft180_show_string(0, 8*line_unit, "element");
+        if(imageflag.image_element_rings)tft180_show_string(0, 8*line_unit, "element");
     else if(imageflag.Zebra_Flag)tft180_show_string(0,8*line_unit,"_Zebra_");
     else if(imageflag.Bend_Road)tft180_show_string(0,8*line_unit,"_Bend__");
     else if(imagestatus.WhiteLine >= 8)tft180_show_string(0,8*line_unit,"cross__");
@@ -172,10 +173,8 @@ void status_show(void)
 //---------------------------------------------------------------------------------------------------------------------------
 void tft180show_better(uint8 mode)
 {
-    float fps_show=0;
 
     static uint8 yu_zhi_show;
-    static int fps_count=0;
     switch(mode)
     {
     case 1:
@@ -198,14 +197,10 @@ void tft180show_better(uint8 mode)
 
         break;
     case 2://二值化图像以及扫线情况显示
-        if(fps_count==0)
-        {
-            timer_clear(TIM_3);
-        }
+
         //图像显示控制
        if(!mt9v034_mode){
            tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], LCDW, LCDH, LCDW, LCDH, 0);
-//           tft180_show_gray_image(0, 0, Image_Use[0], LCDW, LCDH, LCDW, LCDH, Threshold);
            tft180_show_chinese(0, mt9v034_21, 16, tu_xiang[0], 2, RGB565_BLACK);
            tft180_show_string(2*column_unit,mt9v034_21,":");
            tft180_show_chinese(column_unit*2.5, mt9v034_21, 16, erzhihua[0], 3, RGB565_BLACK);}
@@ -223,19 +218,10 @@ void tft180show_better(uint8 mode)
        tft180_show_string(2*line_unit,line_show_21,":");
        tft180_show_chinese(2*line_unit+8, line_show_21, 16, yin_cang[0], 3, RGB565_BLACK);}
 
-       fps_count++;
-       if(fps_count>=30)
-       {
-           fps_show=timer_get(TIM_3);
-           fps_show=(fps_count/fps_show)*1000;
-           if(fps_show>=MT9V03X_FPS_DEF)fps_show=MT9V03X_FPS_DEF;
-           fps_count=0;
-
            yu_zhi_show=Threshold;
 
             //fps显示
-           tft180_show_float(column_unit*2,4*line_unit,fps_show,6,2);
-       }
+           tft180_show_uint(column_unit*2,4*line_unit,timer_conter,5);
             tft180_show_string(0, 4*line_unit, "fps:");
 
             //二值化阈值显示
