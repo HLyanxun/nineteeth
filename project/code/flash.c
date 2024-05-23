@@ -77,9 +77,30 @@ void All_Init(void)
     //    Parament_first();//添加新的变量进flash时运行该行代码
     Parameter_init();
     tft180_init();
-    pit_ms_init(TIM2_PIT,10);
     key_init(10);       //括号里是中断周期
     mt9v03x_init();
+    pit_ms_init(TIM2_PIT,10);
+    Flag_init();
 //    timer_init(TIM_3,TIMER_MS);
 //    Flag_init();
+}
+//---------------------------
+ uint8 wocaonima=10;
+void test(void)
+{
+
+
+    if(key_get_state(KEY_3)==KEY_SHORT_PRESS)
+        {
+            wocaonima++;
+        }
+    if(key_get_state(KEY_4)==KEY_SHORT_PRESS)
+    {
+        wocaonima--;
+    }
+//    if(wocaonima<5)wocaonima=5;
+//    if(wocaonima>10)wocaonima=10;
+
+    better_pwm_set_duty(A1,wocaonima);
+    tft180_show_uint(0,0,wocaonima,3);
 }

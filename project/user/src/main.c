@@ -34,38 +34,48 @@
 ********************************************************************************************************************/
 //RX(B10) TX(B11)
 #include "zf_common_headfile.h"
-//#include "better_fix_mt9v034.h"
 #include "math.h"
-
 int main (void)
 {
     clock_init(SYSTEM_CLOCK_144M);      // 初始化芯片时钟 工作频率为 120MHz
     debug_init();                       // 务必保留，本函数用于初始化MPU 时钟 调试串口
+
 //    steering_engine_init(TIM1_PWM_MAP0_CH1_A8,50,120);
 //    steering_engine_set_angle(TIM1_PWM_MAP0_CH1_A8,90);
 //    mt9v03x_init();
 //    ImagePerspective_Init();
 //    tft180_init();
-    timer_init(TIM_3,TIMER_US);
-    timer_clear(TIM_3);
-//    Image_CompressInit();
+
+//    timer_init(TIM_3,TIMER_US);
+//    timer_clear(TIM_3);
     Init_overall();
     All_Init();
+
+//     key_init(10);
+//     tft180_init();
+//     better_pwm_init(A1,50,5);
+//     system_delay_ms(1000);
+//     better_pwm_set_duty(A1,10);
      // 此处编写用户代码 例如外设初始化代码等
      while(1)
      {
+
+//         test();
+         Image_Process();
+         menu_page();
 //         Camera_tracking();
 //         tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], image_w, image_h, image_w, image_h, 0);
 //         tft180_show_int(0, 8*line_unit, My_Threshold, 4);
-         if(mt9v03x_finish_flag==1)
-         {
-         timer_clear(TIM_3);
-         timer_start(TIM_3);
-         Image_Process();
-         timer_conter=timer_get(TIM_3);
-         timer_stop(TIM_3);
-         }
-         menu_page();
+
+//         if(mt9v03x_finish_flag==1)
+//         {
+//         timer_clear(TIM_3);
+//         timer_start(TIM_3);
+//         Image_Process();
+//         timer_conter=timer_get(TIM_3);
+//         timer_stop(TIM_3);
+//         }
+//         menu_page();
 
 
      }
@@ -73,9 +83,7 @@ int main (void)
 
  void pit_hander(void)
  {
-
-
-
+//     key_scanner();
  }
 
 

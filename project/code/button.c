@@ -133,20 +133,53 @@ const uint8 yu_zhi[8][16]=
 //--------------------------------------------------------------------------------------------------------------------------
 void line_visualization(void)
 {
-    uint8 left,mid,right;
+    uint8 left=0,mid=0,right=0,left_first=0,right_first=0,left_bound=0,right_bound=0;
     for (int i = 59; i > imagestatus.OFFLine; i--)
         {
             left=Sideline_status_array[i].leftline;
             mid=Sideline_status_array[i].midline;
             right=Sideline_status_array[i].rightline;
+            left_first=Sideline_status_array[i].LeftBoundary_First;
+            left_bound=Sideline_status_array[i].LeftBoundary;
+            right_first=Sideline_status_array[i].RightBoundary_First;
+            right_bound=Sideline_status_array[i].RightBoundary;
 
             if(left>6*column_unit)left=6*column_unit;
             if(right>6*column_unit)right=6*column_unit;
             if(mid>6*column_unit)mid=6*column_unit;
+            if(left_first>6*column_unit)left=6*column_unit;
+            if(left_bound>6*column_unit)right=6*column_unit;
+            if(right_first>6*column_unit)mid=6*column_unit;
+            if(right_bound>6*column_unit)left=6*column_unit;
 
-            tft180_draw_point(left, i, RGB565_RED);  // 绘制中线
-            tft180_draw_point(mid,i,RGB565_BLUE);
-            tft180_draw_point(right,i,RGB565_PURPLE);
+
+//            tft180_draw_point(left, i, RGB565_RED);  // 绘制中线
+//            tft180_draw_point(mid,i,RGB565_RED);
+//            tft180_draw_point(right,i,RGB565_RED);
+
+            if(!Button_mode)
+            {
+                tft180_draw_point(left_first,i,RGB565_RED);
+                tft180_draw_point(left_first+1,i,RGB565_RED);
+
+  //            tft180_draw_point(left_bound,i,RGB565_GREEN);
+                tft180_draw_point(right_first,i,RGB565_RED);
+                tft180_draw_point(right_first+1,i,RGB565_RED);
+
+  //            tft180_draw_point(right_bound,i,RGB565_GREEN);
+            }
+            else
+            {
+//                tft180_draw_point(left_first,i,RGB565_BLUE);
+              tft180_draw_point(left_bound,i,RGB565_RED);
+              tft180_draw_point(left_bound+1,i,RGB565_RED);
+
+//                tft180_draw_point(right_first,i,RGB565_BLUE);
+              tft180_draw_point(right_bound,i,RGB565_RED);
+              tft180_draw_point(right_bound+1,i,RGB565_RED);
+
+            }
+
         }
 }
 ////--------------------------------------------------------------------------------------------------------------------------
@@ -164,6 +197,8 @@ void status_show(void)
         if(imageflag.image_element_rings)tft180_show_string(0, 8*line_unit, "element");
     else if(imageflag.Zebra_Flag)tft180_show_string(0,8*line_unit,"_Zebra_");
     else if(imageflag.Bend_Road)tft180_show_string(0,8*line_unit,"_Bend__");
+    else if(imageflag.Out_Road){tft180_show_string(0,8*line_unit,"outroad");}
+    else if(imageflag.RoadBlock_Flag){tft180_show_string(0,8*line_unit,"road_BL");}
     else if(imagestatus.WhiteLine >= 8)tft180_show_string(0,8*line_unit,"cross__");
     else tft180_show_string(0,8*line_unit,"normal_");
 }

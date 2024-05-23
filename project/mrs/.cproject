@@ -187,7 +187,7 @@
 						<entry excluding="Camera_Process.h|Camera_Process.c|摄像头实验|failure" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="code"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="doc"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="sdk"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="user_c"/>
+						<entry excluding="user_h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="user_c"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="user_h"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="zf_common"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="zf_components"/>

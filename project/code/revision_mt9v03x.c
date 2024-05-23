@@ -1236,9 +1236,10 @@ void Search_Border_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col, uint
 //--------------------------------------------------------------
 void Element_Judgment_Left_Rings()
 {
-    if (   imagestatus.Miss_Right_lines > 3 || imagestatus.Miss_Left_lines < 13
-        || imagestatus.OFFLine > 5 || Straight_Judge(2, 5, 55) > 1
-        || imageflag.image_element_rings == 2 || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
+    if (   imagestatus.Miss_Right_lines > 5 || imagestatus.Miss_Left_lines < 10
+        || imagestatus.OFFLine > 20 || Straight_Judge(2, 15, 55) > 1
+        || imageflag.image_element_rings == 2
+        || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
         || Sideline_status_array[52].IsLeftFind == 'W'
         || Sideline_status_array[53].IsLeftFind == 'W'
         || Sideline_status_array[54].IsLeftFind == 'W'
@@ -1279,22 +1280,27 @@ void Element_Judgment_Left_Rings()
 //            && Sideline_status_array[Ysite].LeftBoundary_First > Sideline_status_array[Ysite - 1].LeftBoundary_First
 //            && Sideline_status_array[Ysite].LeftBoundary_First > Sideline_status_array[Ysite - 1].LeftBoundary_First
 //            )
-        if (   Sideline_status_array[Ysite + 6].leftline < Sideline_status_array[Ysite+3].leftline
-            && Sideline_status_array[Ysite + 5].leftline < Sideline_status_array[Ysite+3].leftline
-            && Sideline_status_array[Ysite + 3].leftline > Sideline_status_array[Ysite + 2].leftline
-            && Sideline_status_array[Ysite + 3].leftline > Sideline_status_array[Ysite + 1].leftline
+//        uint8 up_point=0,down_point=0;
+//        for(uint8 Ysite_2=Ysite;Ysite_2 < (Ysite+4);Ysite_2++)
+//        {
+//            if(Sideline_status_array[Ysite_2].)
+//        }
+        if (   Sideline_status_array[Ysite + 6].LeftBoundary < Sideline_status_array[Ysite+3].LeftBoundary
+            && Sideline_status_array[Ysite + 5].LeftBoundary < Sideline_status_array[Ysite+3].LeftBoundary
+            && Sideline_status_array[Ysite + 3].LeftBoundary > Sideline_status_array[Ysite + 2].LeftBoundary
+            && Sideline_status_array[Ysite + 3].LeftBoundary > Sideline_status_array[Ysite + 1].LeftBoundary
             )
         {
             Ring_Help_Flag = 1;
             break;
         }
     }
-    if(Left_RingsFlag_Point2_Ysite > Left_RingsFlag_Point1_Ysite+3 && Ring_Help_Flag == 0 && Left_Less_Num>7)
+    if(Left_RingsFlag_Point2_Ysite > Left_RingsFlag_Point1_Ysite+1 && Ring_Help_Flag == 0 && Left_Less_Num>7)
     {
         if(imagestatus.Miss_Left_lines > 10)
             Ring_Help_Flag = 1;
     }
-    if (Left_RingsFlag_Point2_Ysite > Left_RingsFlag_Point1_Ysite+3 && Ring_Help_Flag == 1 && Left_Less_Num>7)
+    if (Left_RingsFlag_Point2_Ysite > Left_RingsFlag_Point1_Ysite+1 && Ring_Help_Flag == 1 && Left_Less_Num>7)
     {
         imageflag.image_element_rings = 1;
         imageflag.image_element_rings_flag = 1;
@@ -1316,8 +1322,8 @@ void Element_Judgment_Left_Rings()
 //--------------------------------------------------------------
 void Element_Judgment_Right_Rings()
 {
-    if (   imagestatus.Miss_Left_lines > 3 || imagestatus.Miss_Right_lines < 15
-        || imagestatus.OFFLine > 5 || Straight_Judge(1, 5, 55) > 1
+    if (   imagestatus.Miss_Left_lines > 5 || imagestatus.Miss_Right_lines < 10
+        || imagestatus.OFFLine > 20 || Straight_Judge(1, 15, 55) > 1
         || imageflag.image_element_rings == 1 || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
         || Sideline_status_array[52].IsRightFind == 'W'
         || Sideline_status_array[53].IsRightFind == 'W'
@@ -1334,7 +1340,7 @@ void Element_Judgment_Right_Rings()
     Right_RingsFlag_Point2_Ysite = 0;
     for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
     {
-        if (Sideline_status_array[Ysite - 1].RightBoundary_First - Sideline_status_array[Ysite].RightBoundary_First > 4)
+        if (Sideline_status_array[Ysite - 2].RightBoundary_First - Sideline_status_array[Ysite].RightBoundary_First > 4)
         {
             Right_RingsFlag_Point1_Ysite = Ysite;
             break;
@@ -1342,7 +1348,7 @@ void Element_Judgment_Right_Rings()
     }
     for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
     {
-        if (Sideline_status_array[Ysite].RightBoundary - Sideline_status_array[Ysite + 1].RightBoundary > 4)
+        if (Sideline_status_array[Ysite].RightBoundary - Sideline_status_array[Ysite + 2].RightBoundary > 4)
         {
             Right_RingsFlag_Point2_Ysite = Ysite;
             break;
@@ -1361,10 +1367,10 @@ void Element_Judgment_Right_Rings()
 //            && Sideline_status_array[Ysite].RightBoundary_First < Sideline_status_array[Ysite - 1].RightBoundary_First
 //            && Sideline_status_array[Ysite].RightBoundary_First < Sideline_status_array[Ysite - 2].RightBoundary_First
 //           )
-        if (   Sideline_status_array[Ysite + 6].rightline > Sideline_status_array[Ysite + 3].rightline
-            && Sideline_status_array[Ysite + 5].rightline > Sideline_status_array[Ysite + 3].rightline
-            && Sideline_status_array[Ysite + 3].rightline < Sideline_status_array[Ysite + 2].rightline
-            && Sideline_status_array[Ysite + 3].rightline < Sideline_status_array[Ysite + 1].rightline
+        if (   Sideline_status_array[Ysite + 6].RightBoundary > Sideline_status_array[Ysite + 3].RightBoundary
+            && Sideline_status_array[Ysite + 5].RightBoundary > Sideline_status_array[Ysite + 3].RightBoundary
+            && Sideline_status_array[Ysite + 3].RightBoundary < Sideline_status_array[Ysite + 2].RightBoundary
+            && Sideline_status_array[Ysite + 3].RightBoundary < Sideline_status_array[Ysite + 1].RightBoundary
            )
         {
             Ring_Help_Flag = 1;
@@ -2814,7 +2820,7 @@ void Scan_Element()
             &&  imageflag.straight_long== 0  )
     {
 //        Element_Judgment_RoadBlock();       //路障
-        Element_Judgment_OutRoad();         //断路
+//        Element_Judgment_OutRoad();         //断路
         Element_Judgment_Left_Rings();      //左圆环
         Element_Judgment_Right_Rings();     //右圆环
         Element_Judgment_Zebra();           //斑马线

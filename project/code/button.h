@@ -51,7 +51,6 @@ extern int16 exposure_time;
 extern uint16 timer_conter;
 
 void menu_page(void);
-void button_status_get(uint8 interrupt_time);
 void line_visualization(void);
 
 
