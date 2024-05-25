@@ -1237,13 +1237,13 @@ void Search_Border_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col, uint
 void Element_Judgment_Left_Rings()
 {
     if (   imagestatus.Miss_Right_lines > 5 || imagestatus.Miss_Left_lines < 10
-        || imagestatus.OFFLine > 20 || Straight_Judge(2, 15, 55) > 1
+        || imagestatus.OFFLine > 20 || Straight_Judge(2, imagestatus.OFFLine, 55) > 1
         || imageflag.image_element_rings == 2
-        || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
-        || Sideline_status_array[52].IsLeftFind == 'W'
-        || Sideline_status_array[53].IsLeftFind == 'W'
-        || Sideline_status_array[54].IsLeftFind == 'W'
-        || Sideline_status_array[55].IsLeftFind == 'W'
+//        || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
+//        || Sideline_status_array[52].IsLeftFind == 'W'
+//        || Sideline_status_array[53].IsLeftFind == 'W'
+//        || Sideline_status_array[54].IsLeftFind == 'W'
+//        || Sideline_status_array[55].IsLeftFind == 'W'
         || Sideline_status_array[56].IsLeftFind == 'W'
         || Sideline_status_array[57].IsLeftFind == 'W'
         || Sideline_status_array[58].IsLeftFind == 'W')
@@ -1323,12 +1323,12 @@ void Element_Judgment_Left_Rings()
 void Element_Judgment_Right_Rings()
 {
     if (   imagestatus.Miss_Left_lines > 5 || imagestatus.Miss_Right_lines < 10
-        || imagestatus.OFFLine > 20 || Straight_Judge(1, 15, 55) > 1
+        || imagestatus.OFFLine > 20 || Straight_Judge(1,imagestatus.OFFLine, 55) > 1
         || imageflag.image_element_rings == 1 || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
-        || Sideline_status_array[52].IsRightFind == 'W'
-        || Sideline_status_array[53].IsRightFind == 'W'
-        || Sideline_status_array[54].IsRightFind == 'W'
-        || Sideline_status_array[55].IsRightFind == 'W'
+//        || Sideline_status_array[52].IsRightFind == 'W'
+//        || Sideline_status_array[53].IsRightFind == 'W'
+//        || Sideline_status_array[54].IsRightFind == 'W'
+//        || Sideline_status_array[55].IsRightFind == 'W'
         || Sideline_status_array[56].IsRightFind == 'W'
         || Sideline_status_array[57].IsRightFind == 'W'
         || Sideline_status_array[58].IsRightFind == 'W')

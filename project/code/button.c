@@ -7,7 +7,7 @@
 #include "zf_common_headfile.h"
 int page=0,line=1;
 uint8 Button_mode=0;
-uint8 mt9v034_mode=0,line_show_mode=0;
+uint8 mt9v034_mode=0;
 int16 exposure_time;
 uint16 timer_conter=0;
 const uint8 parameter_init[8][16]=
@@ -131,6 +131,7 @@ const uint8 yu_zhi[8][16]=
 //--------------------------------------------------------------------------------------------------------------------------
 // 函数简介     将寻线所得边线可视化显示
 //--------------------------------------------------------------------------------------------------------------------------
+uint8 line_show_mode=0;
 void line_visualization(void)
 {
     uint8 left=0,mid=0,right=0,left_first=0,right_first=0,left_bound=0,right_bound=0;
@@ -157,28 +158,32 @@ void line_visualization(void)
 //            tft180_draw_point(mid,i,RGB565_RED);
 //            tft180_draw_point(right,i,RGB565_RED);
 
-            if(!Button_mode)
+            switch(line_show_mode)
             {
+            case 0:
+                tft180_draw_point(left, i, RGB565_RED);  // 绘制中线
+                tft180_draw_point(mid,i,RGB565_RED);
+                tft180_draw_point(right,i,RGB565_RED);
+                break;
+            case 1:
                 tft180_draw_point(left_first,i,RGB565_RED);
                 tft180_draw_point(left_first+1,i,RGB565_RED);
-
-  //            tft180_draw_point(left_bound,i,RGB565_GREEN);
                 tft180_draw_point(right_first,i,RGB565_RED);
                 tft180_draw_point(right_first+1,i,RGB565_RED);
+                break;
+            case 2:
+                tft180_draw_point(left_bound,i,RGB565_RED);
+                tft180_draw_point(left_bound+1,i,RGB565_RED);
+                tft180_draw_point(right_bound,i,RGB565_RED);
+                tft180_draw_point(right_bound+1,i,RGB565_RED);
+                break;
+            case 3:
+                break;
 
-  //            tft180_draw_point(right_bound,i,RGB565_GREEN);
-            }
-            else
-            {
-//                tft180_draw_point(left_first,i,RGB565_BLUE);
-              tft180_draw_point(left_bound,i,RGB565_RED);
-              tft180_draw_point(left_bound+1,i,RGB565_RED);
-
-//                tft180_draw_point(right_first,i,RGB565_BLUE);
-              tft180_draw_point(right_bound,i,RGB565_RED);
-              tft180_draw_point(right_bound+1,i,RGB565_RED);
 
             }
+
+
 
         }
 }
@@ -245,13 +250,16 @@ void tft180show_better(uint8 mode)
        tft180_show_chinese(column_unit*2.5, mt9v034_21, 16, hui_du[0], 2, RGB565_BLACK);}
 
        //边线显示控制
-       if(!line_show_mode){line_visualization();
        tft180_show_chinese(0, line_show_21, 16, bian_xian[0], 2, RGB565_BLACK);
        tft180_show_string(2*line_unit,line_show_21,":");
-       tft180_show_chinese(2*line_unit+8, line_show_21, 16, xian_shi[0], 2, RGB565_BLACK);}
-       else{tft180_show_chinese(0, line_show_21, 16, bian_xian[0], 2, RGB565_BLACK);
-       tft180_show_string(2*line_unit,line_show_21,":");
-       tft180_show_chinese(2*line_unit+8, line_show_21, 16, yin_cang[0], 3, RGB565_BLACK);}
+       tft180_show_uint(2.5*line_unit,line_show_21,line_show_mode,1);
+       line_visualization();
+//       if(!line_show_mode){line_visualization();
+//
+//       tft180_show_chinese(2*line_unit+8, line_show_21, 16, xian_shi[0], 2, RGB565_BLACK);}
+//       else{tft180_show_chinese(0, line_show_21, 16, bian_xian[0], 2, RGB565_BLACK);
+//       tft180_show_string(2*line_unit,line_show_21,":");
+//       tft180_show_chinese(2*line_unit+8, line_show_21, 16, yin_cang[0], 3, RGB565_BLACK);}
 
            yu_zhi_show=Threshold;
 
@@ -329,7 +337,7 @@ void increase_reduce(void)
                     switch(line)
                     {
                     case (erzhi_21/line_unit):if(threshold_fix<=99)threshold_fix++;break;
-                    case (line_show_21/line_unit): line_show_mode=!line_show_mode; break;
+                    case (line_show_21/line_unit): if(line_show_mode<3)line_show_mode++; break;
                     case (mt9v034_21/line_unit): mt9v034_mode=!mt9v034_mode;tft180_clear();break;
                     case (runflag_21/line_unit): imageflag.run_flag=1;break;
                     }
@@ -342,7 +350,7 @@ void increase_reduce(void)
                     switch(line)
                     {
                     case (erzhi_21/line_unit):if(threshold_fix>=-99)threshold_fix--;break;
-                    case (line_show_21/line_unit): line_show_mode=!line_show_mode; break;
+                    case (line_show_21/line_unit): if(line_show_mode>0)line_show_mode--; break;
                     case (mt9v034_21/line_unit): mt9v034_mode=!mt9v034_mode;break;
                     }
                 }
