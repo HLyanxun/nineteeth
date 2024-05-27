@@ -78,10 +78,10 @@ void All_Init(void)
     Parameter_init();
     tft180_init();
     key_init(10);       //括号里是中断周期
-    mt9v03x_init();
+//    mt9v03x_init();
     pit_ms_init(TIM2_PIT,10);
-    Flag_init();
-//    timer_init(TIM_3,TIMER_MS);
+//    Flag_init();
+    timer_init(TIM_3,TIMER_MS);
 //    Flag_init();
 }
 //---------------------------

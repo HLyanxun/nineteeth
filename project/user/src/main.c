@@ -61,7 +61,11 @@ int main (void)
      {
 
 //         test();
+         timer_clear(TIM_3);
+         timer_start(TIM_3);
          Image_Process();
+         timer_conter=timer_get(TIM_3);
+         timer_stop(TIM_3);
          menu_page();
 //         Camera_tracking();
 //         tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], image_w, image_h, image_w, image_h, 0);
@@ -69,11 +73,9 @@ int main (void)
 
 //         if(mt9v03x_finish_flag==1)
 //         {
-//         timer_clear(TIM_3);
-//         timer_start(TIM_3);
+
 //         Image_Process();
-//         timer_conter=timer_get(TIM_3);
-//         timer_stop(TIM_3);
+
 //         }
 //         menu_page();
 

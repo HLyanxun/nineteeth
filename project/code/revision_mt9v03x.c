@@ -14,7 +14,7 @@ int ImageScanInterval=5;                        //扫边的范围
 static uint8* PicTemp;                          //一个保存单行图像的指针变量
 static int IntervalLow = 0, IntervalHigh = 0;   //扫描区间的上下限变量
 static int Ysite = 0, Xsite = 0;                //Ysite就是图像的行，Xsite就是图像的列。
-static int BottomBorderRight = 79,              //59行的右边界
+static int BottomBorderRight = 90,              //59行的右边界
 BottomBorderLeft = 0,                           //59行的左边界
 BottomCenter = 0;                               //59行的中点
 uint8 ExtenLFlag = 0;                           //左边线是否需要补线的标志变量
@@ -71,22 +71,7 @@ uint8 Half_Bend_Wide[60] =                      //弯道赛道半宽
     25,25,25,26,26,26,27,27,28,28,
     28,29,29,30,30,31,31,32,32,33,
 };
-/*uint8 Half_Bend_Wide[60] =                      //弯道赛道半宽+1
-{   33,33,33,33,33,33,33,33,33,33,
-    33,33,32,32,30,30,29,29,28,27,
-    29,28,28,27,27,26,26,25,25,24,
-    23,22,22,23,23,23,24,25,25,25,
-    26,26,26,27,27,27,28,28,29,29,
-    29,30,30,31,31,32,32,33,33,34,
-};*/
-/*uint8 Half_Bend_Wide[60] =                      //弯道赛道半宽-1
-{   33,33,33,33,33,33,33,33,33,33,
-    33,33,32,32,30,30,29,29,28,27,
-    27,26,26,25,25,24,24,23,23,22,
-    21,20,20,21,21,21,22,23,23,23,
-    25,25,25,26,26,26,27,27,28,28,
-    28,29,29,30,30,31,31,32,32,33,
-};*/
+
 /*****************直线判断******************/
 //--------------------------------------------------------------------------------------------------------
 // 函数简介     计算范围内边线的斜率，对是否为直线进行判断
@@ -491,7 +476,7 @@ void Get_BaseLine(void)
     /****************************************************Begin*****************************************************************************/
 
     PicTemp = ex_mt9v03x_binarizeImage[59];                                                //让PicTemp这个指针变量指向图像数组的Pixle[59]
-    for (Xsite = ImageSensorMid; Xsite < 79; Xsite++)                   //假设39是中心列，从中心列开始一列一列的往右边搜索右边线
+    for (Xsite = ImageSensorMid; Xsite < 90; Xsite++)                   //假设39是中心列，从中心列开始一列一列的往右边搜索右边线
     {
       if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
       {
@@ -500,7 +485,7 @@ void Get_BaseLine(void)
       }
       else if (Xsite == 78)                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
       {
-        BottomBorderRight = 79;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
+        BottomBorderRight = 90;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
         break;                                                          //跳出循环
       }
     }
@@ -541,7 +526,7 @@ void Get_BaseLine(void)
     for (Ysite = 58; Ysite > 54; Ysite--)
     {
         PicTemp = ex_mt9v03x_binarizeImage[Ysite];
-        for(Xsite = Sideline_status_array[Ysite + 1].midline; Xsite < 79;Xsite++)
+        for(Xsite = Sideline_status_array[Ysite + 1].midline; Xsite < 90;Xsite++)
         {
           if(*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)
           {
@@ -550,7 +535,7 @@ void Get_BaseLine(void)
           }
           else if (Xsite == 78)
           {
-            Sideline_status_array[Ysite].rightline = 79;
+            Sideline_status_array[Ysite].rightline = 90;
             break;
           }
         }
@@ -921,7 +906,7 @@ void Get_ExtensionLine(void)
           if (Sideline_status_array[Ysite].IsRightFind == 'T'
               &&Sideline_status_array[Ysite - 1].IsRightFind == 'T'
               &&Sideline_status_array[Ysite - 2].IsRightFind == 'T'
-              &&Sideline_status_array[Ysite - 2].rightline < 79
+              &&Sideline_status_array[Ysite - 2].rightline < 90
               &&Sideline_status_array[Ysite - 2].rightline > 10
               )
           {
@@ -1142,7 +1127,7 @@ void Search_Left_and_Right_Lines(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 
                     //方向不变  Right_Rirection
                     Right_Ysite = Right_Ysite + Right_Rule[0][2 * Right_Rirection + 1];
                     Right_Xsite = Right_Xsite + Right_Rule[0][2 * Right_Rirection];
-                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 79 )
+                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 90 )
                         Sideline_status_array[Right_Ysite].RightBoundary_First = Right_Xsite;
                     Sideline_status_array[Right_Ysite].RightBoundary = Right_Xsite;
                 }
@@ -1151,7 +1136,7 @@ void Search_Left_and_Right_Lines(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 
                     // 方向发生改变 Right_Rirection  逆时针90度
                     Right_Ysite = Right_Ysite + Right_Rule[1][2 * Right_Rirection + 1];
                     Right_Xsite = Right_Xsite + Right_Rule[1][2 * Right_Rirection];
-                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 79)
+                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 90)
                         Sideline_status_array[Right_Ysite].RightBoundary_First = Right_Xsite;
                     Sideline_status_array[Right_Ysite].RightBoundary = Right_Xsite;
                     if (Right_Rirection == 3)
@@ -1200,7 +1185,7 @@ void Search_Border_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col, uint
     for (int Ysite = 0; Ysite < LCDH; Ysite++)
     {
             Sideline_status_array[Ysite].LeftBoundary_First = 0;
-            Sideline_status_array[Ysite].RightBoundary_First = 79;
+            Sideline_status_array[Ysite].RightBoundary_First = 90;
 
             imageInput[Ysite][0] = 0;
             imageInput[Ysite][LCDW - 1] = 0;
@@ -1362,11 +1347,6 @@ void Element_Judgment_Right_Rings()
     //ips114_show_int(60,40, Right_Less_Num,3);
     for (int Ysite = Right_RingsFlag_Point1_Ysite; Ysite > imagestatus.OFFLine; Ysite--)
     {
-//        if (Sideline_status_array[Ysite + 3].RightBoundary_First > Sideline_status_array[Ysite].RightBoundary_First
-//            && Sideline_status_array[Ysite + 2].RightBoundary_First > Sideline_status_array[Ysite].RightBoundary_First
-//            && Sideline_status_array[Ysite].RightBoundary_First < Sideline_status_array[Ysite - 1].RightBoundary_First
-//            && Sideline_status_array[Ysite].RightBoundary_First < Sideline_status_array[Ysite - 2].RightBoundary_First
-//           )
         if (   Sideline_status_array[Ysite + 6].RightBoundary > Sideline_status_array[Ysite + 3].RightBoundary
             && Sideline_status_array[Ysite + 5].RightBoundary > Sideline_status_array[Ysite + 3].RightBoundary
             && Sideline_status_array[Ysite + 3].RightBoundary < Sideline_status_array[Ysite + 2].RightBoundary
@@ -1457,8 +1437,8 @@ int Out_Black_flag = 0;
 void Element_Judgment_OutRoad()
 {
     if( imageflag.RoadBlock_Flag == 1 || imageflag.Out_Road)   return;
-    int Right_Num=0,Left_Num=0;
-    if(imagestatus.OFFLine > 20)
+    uint8 Right_Num=0,Left_Num=0;
+    if(imagestatus.OFFLine > 30)
     {
         for(int Ysite = imagestatus.OFFLine + 1;Ysite < imagestatus.OFFLine + 11;Ysite++)
         {
@@ -1468,77 +1448,21 @@ void Element_Judgment_OutRoad()
                 Right_Num++;
         }
     }
+    uint8 W_Num=0;
+    for(uint i=58;i>48;i--)
+    {
+        if(Sideline_status_array[i].IsLeftFind=='W'&& Sideline_status_array[i].IsRightFind=='W')
+        {
+            W_Num++;
+        }
+    }
 //    ips114_show_int(20,0,Left_Num,5);
 //    ips114_show_int(20,20,Right_Num,5);
-    if(Left_Num > 7 && Right_Num > 7 && !imageflag.Out_Road)
+    if((Left_Num > 7 && Right_Num > 7 && !imageflag.Out_Road)|| (W_Num>7))
     {
         imageflag.Out_Road = 1;
     }
-//    if(duan_num==1)
-//        Stop=1;
-//
-//    for(int Xsite = 0;Xsite < 80;Xsite++)
-//        ImageDeal1[Xsite].TopBorder = 59;
-//    Start=0,End=0;
-//    for(int Xsite = 5;Xsite < 75;Xsite++)
-//    {
-//        for(int Ysite = 50;Ysite > 15;Ysite--)
-//        {
-//            if(ex_mt9v03x_binarizeImage[Ysite][Xsite] == 0)
-//                break;
-//            if(ex_mt9v03x_binarizeImage[Ysite][Xsite] == 1 && ex_mt9v03x_binarizeImage[Ysite-1][Xsite] == 0)
-//            {
-//                ImageDeal1[Xsite].TopBorder = Ysite;
-//                break;
-//            }
-//        }
-//    }
-//    for(int Xsite = 5;Xsite < 75;Xsite++)
-//    {
-//        if(ImageDeal1[Xsite].TopBorder != 79)
-//        {
-//            Start = Xsite;
-//            break;
-//        }
-//    }
-//    for(int Xsite = 74;Xsite >= 5;Xsite--)
-//    {
-//        if(ImageDeal1[Xsite].TopBorder != 79)
-//        {
-//            End = Xsite;
-//            break;
-//        }
-//    }
-//    for(int Xsite = Start+1;Xsite <= End;Xsite++)
-//    {
-//        if(ImageDeal1[Xsite].TopBorder < ImageDeal1[Xsite-1].TopBorder)
-//        {
-//            a = Xsite;
-//        }
-//    }
-//    End=a;
-//    if(End<39)
-//    {
-//        Start=End;
-//        End=End+20;
-//    }
-//
-//    else
-//        Start=End-20;
-//    S=0;
-//    float  Sum = 0, Err = 0, k = 0;
-//    k = (float)(ImageDeal1[Start].TopBorder - ImageDeal1[End].TopBorder) / (Start - End);
-//    for (int i = 0; i < 20; i++)
-//    {
-//        Err = (ImageDeal1[Start].TopBorder + k * i - ImageDeal1[i + Start].TopBorder) * (ImageDeal1[Start].TopBorder + k * i - ImageDeal1[i + Start].TopBorder);
-//        Sum += Err;
-//    }
-//    S = Sum / 20;
-//    if(S<1)
-//    {
-//        imageflag.Out_Road=1;
-//        gpio_set_level(B0, 1);
-//    }
+
 }
 //--------------------------------------------------------------
 //  @name           Element_Judgment_RoadBlock()
@@ -1925,6 +1849,33 @@ void Element_Handle_OutRoad()//断路处理
 //         Ramp_length = 0;
 //     }
 //}
+//--------------------------------------------------------------------
+// 函数简介     补线辅助函数
+// 参数说明     y_up        补线上点
+// 参数说明     y_down      补线下点
+// 参数说明     x_up        补线上点
+// 参数说明     x_down      补线下点
+// 参数说明     mode        0补左边线，1补右边线
+//---------------------------------------------------------------------
+void connect_line_subsidiary(uint8 y_up,uint8 y_down,uint8 x_up,uint8 x_down,uint8 mode)
+{
+
+    DetL =((float)(x_up-x_down)) /((float)(y_up - y_down));  //计算左边线的补线斜率
+        if(mode==0)
+        {
+            for (ytemp = y_down; ytemp >= y_up; ytemp--)               //那么我就从第一次扫到的左边界的下面第二行的位置开始往上一直补线，补到FTSite行。
+                   {
+                       Sideline_status_array[ytemp].leftline =(int)(DetL * ((float)(ytemp - y_down))) +Sideline_status_array[y_down].leftline;     //这里就是具体的补线操作了
+                   }
+        }
+        else
+        {
+            for (ytemp = y_down; ytemp >= y_up; ytemp--)               //那么我就从第一次扫到的左边界的下面第二行的位置开始往上一直补线，补到FTSite行。
+            {
+                Sideline_status_array[ytemp].rightline =(int)(DetL * ((float)(ytemp - y_down))) +Sideline_status_array[y_down].rightline;     //这里就是具体的补线操作了
+            }
+        }
+}
 
 
 //--------------------------------------------------------------
@@ -1935,6 +1886,91 @@ void Element_Handle_OutRoad()//断路处理
 //  @Author         MRCHEN
 //  Sample usage:   Element_Handle_Left_Rings();
 //-------------------------------------------------------------
+void Element_Handle_Left_Rings_Test(void)
+{
+    uint8 num = 0;
+//    uint8 line_right_point_Y=0,line_rightpoint
+    if(imageflag.image_element_rings_flag == 1)
+    {
+        for (int Ysite = 58; Ysite > imagestatus.OFFLine; Ysite--)
+        {
+
+            if(    Sideline_status_array[Ysite+3].IsLeftFind == 'W' && Sideline_status_array[Ysite+2].IsLeftFind == 'W'
+                       && Sideline_status_array[Ysite+1].IsLeftFind == 'W' && Sideline_status_array[Ysite].IsLeftFind == 'T')
+            {
+                break;
+            }
+
+               }
+        for(int Ysite = 58; Ysite > imagestatus.OFFLine; Ysite--)
+        {
+            Sideline_status_array[Ysite].midline=Sideline_status_array[Ysite].rightline-Half_Road_Wide[Ysite];
+        }
+        Point_Xsite=0;
+        Point_Ysite=0;
+        num=0;
+        for(uint8 i=55;i>imagestatus.OFFLine;i--)//寻找拐点
+        {
+            if(Sideline_status_array[i].LeftBoundary<5)num++;
+            if((num+5)>(55-imagestatus.OFFLine) && imageflag.image_element_rings_flag==2){imageflag.image_element_rings_flag=3;break;}
+            if((Sideline_status_array[i].LeftBoundary-Sideline_status_array[i+1].LeftBoundary)>10 && (Sideline_status_array[i-1].LeftBoundary-Sideline_status_array[i+1].LeftBoundary)>10)
+            {
+                Point_Ysite=i;
+                Point_Xsite=Sideline_status_array[i].LeftBoundary;
+                break;
+            }
+        }
+    }
+
+       if(imageflag.image_element_rings_flag == 1 && Point_Ysite > 30)//即将到达圆环中间段落的的时候，左边是大圆环
+       {
+           imageflag.image_element_rings_flag=2;
+       }
+
+       /*补线处理*/
+
+       if(imageflag.image_element_rings_flag == 2)
+       {
+           connect_line_subsidiary(Point_Ysite,59,Point_Xsite,90,1);
+       }
+       /*补线处理*/
+       /*圆环内处理*/
+       if(imageflag.image_element_rings_flag==2 )
+       {
+           for(uint8 i=55;i>imagestatus.OFFLine;i--)
+           {
+               Sideline_status_array[i].midline=Sideline_status_array[i].rightline-Half_Bend_Wide[i];
+           }
+
+       }
+       if( imageflag.image_element_rings_flag==3)
+       {
+           for(uint8 i=55;i>imagestatus.OFFLine;i--)
+           {
+               Sideline_status_array[i].midline=Sideline_status_array[i].rightline-Half_Road_Wide[i];
+           }
+       }
+       /*圆环内处理*/
+       /*出环岛*/
+       if(imageflag.image_element_rings_flag==3 && imagestatus.WhiteLine>20)
+       {
+           imageflag.image_element_rings_flag=4;
+       }
+       if(imageflag.image_element_rings_flag==4)
+       {
+           for(uint8 i=55;i>imagestatus.OFFLine;i--)
+           {
+               Sideline_status_array[i].midline=Sideline_status_array[i].rightline-Half_Bend_Wide[i];
+           }
+
+       }
+       if(imageflag.image_element_rings_flag==4 && Straight_Judge(2, (imagestatus.OFFLine+15), 50)<1)
+       {
+           imageflag.image_element_rings_flag = 0;
+           imageflag.image_element_rings = 0;
+           imageflag.ring_big_small = 0;
+       }
+}
 void Element_Handle_Left_Rings()
 {
     /****************大小圆环判断*****************/
@@ -2149,7 +2185,7 @@ void Element_Handle_Left_Rings()
                  {
                    flag_Ysite_1 = Ysite;
                    flag_Xsite_1 = Xsite;
-                   Slope_Rings=(float)(79-flag_Xsite_1)/(float)(59-flag_Ysite_1);
+                   Slope_Rings=(float)(90-flag_Xsite_1)/(float)(59-flag_Ysite_1);
                    break;
                  }
             }
@@ -2169,7 +2205,7 @@ void Element_Handle_Left_Rings()
                     flag_Ysite_1=Ysite;
                     flag_Xsite_1=Sideline_status_array[flag_Ysite_1].leftline;
                     imagestatus.OFFLine=Ysite;
-                    Slope_Rings=(float)(79-flag_Xsite_1)/(float)(59-flag_Ysite_1);
+                    Slope_Rings=(float)(90-flag_Xsite_1)/(float)(59-flag_Ysite_1);
                     break;
                 }
 
@@ -2537,8 +2573,8 @@ void Element_Handle_Right_Rings()
                 //    Sideline_status_array[Ysite].midline=Sideline_status_array[Ysite].leftline+Half_Bend_Wide[Ysite];//板块
 //              else//大圆环不加半宽
                     Sideline_status_array[Ysite].midline=(Sideline_status_array[Ysite].leftline+Sideline_status_array[Ysite].rightline)/2;//板块
-                //if(Sideline_status_array[Ysite].midline>79)
-                //    Sideline_status_array[Ysite].midline=79;
+                //if(Sideline_status_array[Ysite].midline>90)
+                //    Sideline_status_array[Ysite].midline=90;
             }
             Sideline_status_array[flag_Ysite_1].leftline=flag_Xsite_1;
             for(Ysite=flag_Ysite_1-1;Ysite>10;Ysite--) //A点上方进行扫线
@@ -2553,8 +2589,8 @@ void Element_Handle_Right_Rings()
                   //       Sideline_status_array[Ysite].midline=Sideline_status_array[Ysite].leftline+Half_Bend_Wide[Ysite];//板块
                    //  else//大圆环不加半宽
                          Sideline_status_array[Ysite].midline=(Sideline_status_array[Ysite].leftline+Sideline_status_array[Ysite].rightline)/2;//板块
-                   //  if(Sideline_status_array[Ysite].midline>79)
-                   //      Sideline_status_array[Ysite].midline=79;
+                   //  if(Sideline_status_array[Ysite].midline>90)
+                   //      Sideline_status_array[Ysite].midline=90;
                      break;
                     }
                 }
@@ -2579,9 +2615,9 @@ void Element_Handle_Right_Rings()
 //        {
 //            if(imageflag.ring_big_small==2)
 //                Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Bend_Wide[Ysite];
-//            if(Sideline_status_array[Ysite].midline >= 79)
+//            if(Sideline_status_array[Ysite].midline >= 90)
 //            {
-//                Sideline_status_array[Ysite].midline = 79;
+//                Sideline_status_array[Ysite].midline = 90;
 //                imagestatus.OFFLine=Ysite-1;
 //                break;
 //            }
@@ -2613,7 +2649,7 @@ void Element_Handle_Right_Rings()
         //小圆环出环 补线
     if (imageflag.image_element_rings_flag == 8 && imageflag.ring_big_small == 2)  //小圆环
     {
-        Repair_Point_Xsite = 79;
+        Repair_Point_Xsite = 90;
         Repair_Point_Ysite = 0;
         for (int Ysite = 40; Ysite > 5; Ysite--)
         {
@@ -2711,8 +2747,8 @@ void Element_Handle_Bend()
         for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
         {
             Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Bend_Wide[Ysite];
-            if(Sideline_status_array[Ysite].midline >= 79)
-                Sideline_status_array[Ysite].midline = 79;
+            if(Sideline_status_array[Ysite].midline >= 90)
+                Sideline_status_array[Ysite].midline = 90;
         }
     }
     if(imageflag.Bend_Road==2)
@@ -2725,92 +2761,9 @@ void Element_Handle_Bend()
         }
     }
 
-//    int Miss_Left_Num = 0 ;
-//    int Miss_Right_Num = 0;
-//    Miss_Left_Num=0;
-//    Miss_Right_Num=0;
-//    int Right_Num=0,Left_Num=0;
-//    if(imagestatus.OFFLineBoundary > 20)
-//    {
-//        for(int Ysite = imagestatus.OFFLineBoundary + 1;Ysite < imagestatus.OFFLineBoundary + 11;Ysite++)
-//        {
-//            if(Sideline_status_array[Ysite].LeftBoundary > 2)
-//                Left_Num++;
-//            if(Sideline_status_array[Ysite].RightBoundary < 77)
-//                Right_Num++;
-//        }
-//    }
-//    if(imageflag.Bend_Road == 1)
-//    {
-//        for (int Ysite = 58; Ysite > 30; Ysite--)
-//        {
-//            if(Sideline_status_array[Ysite].RightBoundary_First == 78 )
-//            {
-//                Miss_Right_Num++;
-//            }
-//        }
-//        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
-//        {
-//            Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Bend_Wide[Ysite];
-//            if(Sideline_status_array[Ysite].midline>79)
-//            {
-//                Sideline_status_array[Ysite].midline = 79;
-//            }
-//        }
-//    }
-//    if(imageflag.Bend_Road == 2)
-//    {
-//        for (int Ysite = 58; Ysite > 30; Ysite--)
-//        {
-//            if(Sideline_status_array[Ysite].LeftBoundary_First == 1)
-//            {
-//                Miss_Left_Num++;
-//            }
-//        }
-//        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
-//        {
-//            Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Bend_Wide[Ysite];
-//            if(Sideline_status_array[Ysite].midline < 0)
-//            {
-//                Sideline_status_array[Ysite].midline = 0;
-//            }
-//
-//        }
-//    }
-//    if((imagestatus.OFFLine < 12
-//      &&( (Miss_Right_Num < 20 && imageflag.Bend_Road == 1) ||( Miss_Left_Num < 20 && imageflag.Bend_Road == 2)))
-//      ||(Right_Num>3 && Left_Num>3)
-//       )
-//    {
-//        imageflag.Bend_Road = 0;
-//        gpio_set_level(C13, 0);
-//    }
+
 }
-//--------------------------------------------------------------
-//  @name           Element_GetStraightLine_Bend()
-//  @brief          整个图像处理的子函数，用来处理左右弯道
-//  @parameter      void
-//  @time
-//  @Author         MRCHEN
-//  Sample usage:   Element_Handle_Bend();
-//--------------------------------------------------------------
-//void Element_GetStraightLine_Bend()
-//{
-//    if(imagestatus.OFFLine < 4 && imagestatus.WhiteLine_R>10 && Straight_Judge(1, 20, 50)<1)
-//    {
-//        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
-//        {
-//            Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Road_Wide[Ysite];
-//        }
-//    }
-//    if(imagestatus.OFFLine < 4 && imagestatus.WhiteLine_L>10 && Straight_Judge(2, 20, 50)<1)
-//    {
-//        for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
-//        {
-//            Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Road_Wide[Ysite];
-//        }
-//    }
-//}
+
 /*元素判断函数*/
 void Scan_Element()
 {
@@ -2876,7 +2829,7 @@ void Element_Handle()
         if(imageflag.Out_Road !=0)
         Element_Handle_OutRoad();
     else if (imageflag.image_element_rings == 1)
-        Element_Handle_Left_Rings();
+        Element_Handle_Left_Rings_Test();
     else if (imageflag.image_element_rings == 2)
         Element_Handle_Right_Rings();
     else if (imageflag.Zebra_Flag != 0 )
@@ -2919,6 +2872,7 @@ void Init_overall(void)
 {
     Image_CompressInit();
     Flag_init();
+    mt9v03x_init();
 
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------

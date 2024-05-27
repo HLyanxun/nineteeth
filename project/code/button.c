@@ -59,20 +59,7 @@ const uint8 bian_xian[8][16]=
         {0x10,0x50,0x10,0x48,0x20,0x40,0x24,0x5C,0x45,0xE0,0xF8,0x40,0x10,0x5E,0x23,0xE0},
         {0x40,0x44,0xFC,0x48,0x40,0x30,0x00,0x22,0x1C,0x52,0xE0,0x8A,0x43,0x06,0x00,0x02},/*"线",1*/
 };
-const uint8 xian_shi[8][16]=
-{
-        {0x00,0x00,0x1F,0xF0,0x10,0x10,0x10,0x10,0x1F,0xF0,0x10,0x10,0x10,0x10,0x1F,0xF0},
-        {0x04,0x40,0x44,0x44,0x24,0x44,0x14,0x48,0x14,0x50,0x04,0x40,0xFF,0xFE,0x00,0x00},/*"显",0*/
-        {0x00,0x00,0x3F,0xF8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0xFE,0x01,0x00},
-        {0x01,0x00,0x11,0x10,0x11,0x08,0x21,0x04,0x41,0x02,0x81,0x02,0x05,0x00,0x02,0x00},/*"示",1*/
-};
-const uint8 yin_cang[8][16]=
-{
-        {0x00,0x80,0x78,0x80,0x49,0xF8,0x4A,0x08,0x54,0x10,0x53,0xFC,0x60,0x04,0x51,0xFC},
-        {0x48,0x04,0x4B,0xFC,0x48,0x04,0x68,0x40,0x51,0x24,0x45,0x2A,0x45,0x0A,0x48,0xF8},/*"隐",0*/
-        {0x04,0x40,0xFF,0xFE,0x04,0x48,0x00,0x24,0x1F,0xFE,0x50,0x20,0x57,0xA0,0x75,0x24},
-        {0x17,0xA4,0xF4,0xA8,0x57,0xA8,0x55,0x10,0x95,0x12,0x27,0xAA,0x20,0x46,0x40,0x82},/*"藏",1*/
-};
+
 const uint8 tu_xiang[8][16]=
 {
         {0x00,0x00,0x7F,0xFC,0x42,0x04,0x42,0x04,0x47,0xE4,0x4C,0x44,0x52,0x84,0x41,0x04},
@@ -136,42 +123,35 @@ void line_visualization(void)
 {
     uint8 left=0,mid=0,right=0,left_first=0,right_first=0,left_bound=0,right_bound=0;
     for (int i = 59; i > imagestatus.OFFLine; i--)
-        {
-            left=Sideline_status_array[i].leftline;
-            mid=Sideline_status_array[i].midline;
-            right=Sideline_status_array[i].rightline;
-            left_first=Sideline_status_array[i].LeftBoundary_First;
-            left_bound=Sideline_status_array[i].LeftBoundary;
-            right_first=Sideline_status_array[i].RightBoundary_First;
-            right_bound=Sideline_status_array[i].RightBoundary;
-
-            if(left>6*column_unit)left=6*column_unit;
-            if(right>6*column_unit)right=6*column_unit;
-            if(mid>6*column_unit)mid=6*column_unit;
-            if(left_first>6*column_unit)left=6*column_unit;
-            if(left_bound>6*column_unit)right=6*column_unit;
-            if(right_first>6*column_unit)mid=6*column_unit;
-            if(right_bound>6*column_unit)left=6*column_unit;
-
-
-//            tft180_draw_point(left, i, RGB565_RED);  // 绘制中线
-//            tft180_draw_point(mid,i,RGB565_RED);
-//            tft180_draw_point(right,i,RGB565_RED);
-
+    {
             switch(line_show_mode)
             {
             case 0:
+                left=Sideline_status_array[i].leftline;
+                mid=Sideline_status_array[i].midline;
+                right=Sideline_status_array[i].rightline;
+                if(left>6*column_unit)left=6*column_unit;
+                if(right>6*column_unit)right=6*column_unit;
+                if(mid>6*column_unit)mid=6*column_unit;
                 tft180_draw_point(left, i, RGB565_RED);  // 绘制中线
                 tft180_draw_point(mid,i,RGB565_RED);
                 tft180_draw_point(right,i,RGB565_RED);
                 break;
             case 1:
+                right_first=Sideline_status_array[i].RightBoundary_First;
+                left_first=Sideline_status_array[i].LeftBoundary_First;
+                if(left_first>6*column_unit)left_first=6*column_unit;
+                if(right_first>6*column_unit)right_first=6*column_unit;
                 tft180_draw_point(left_first,i,RGB565_RED);
                 tft180_draw_point(left_first+1,i,RGB565_RED);
                 tft180_draw_point(right_first,i,RGB565_RED);
                 tft180_draw_point(right_first+1,i,RGB565_RED);
                 break;
             case 2:
+                left_bound=Sideline_status_array[i].LeftBoundary;
+                right_bound=Sideline_status_array[i].RightBoundary;
+                if(left_bound>6*column_unit)left_bound=6*column_unit;
+                if(right_bound>6*column_unit)right_bound=6*column_unit;
                 tft180_draw_point(left_bound,i,RGB565_RED);
                 tft180_draw_point(left_bound+1,i,RGB565_RED);
                 tft180_draw_point(right_bound,i,RGB565_RED);
@@ -179,12 +159,7 @@ void line_visualization(void)
                 break;
             case 3:
                 break;
-
-
             }
-
-
-
         }
 }
 ////--------------------------------------------------------------------------------------------------------------------------
@@ -194,6 +169,8 @@ void status_show(void)
 {
 //    if(!zxy)tft180_show_string(70, 81, "loading");
 //    else
+    tft180_show_uint(4*column_unit, 8*line_unit, imageflag.image_element_rings_flag, 1);
+    tft180_show_uint(5*column_unit,8*line_unit,imageflag.image_element_rings,1);
     if(imageflag.run_flag==0)
     {
         tft180_show_string(0, 8*line_unit, "loading");

@@ -152,7 +152,7 @@
 #include "UART_Data_Unpacker.h"
 #include "swj.h"
 #include "revision_mt9v03x.h"
-
+#include "Camera_Processing.h"
 
 //===================================================用户自定义文件===================================================
 
