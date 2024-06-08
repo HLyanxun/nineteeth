@@ -28,19 +28,19 @@
 
 /*[  传图像    ]*/
 //灰度
-void sendimg(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height);
+void sendimg(uint8* image, uint8 width, uint8 height);
 //带校验的灰度
-void sendimg_A( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height);
+void sendimg_A( uint8* image, uint8 width, uint8 height);
 //尺寸压缩灰度
-void sendimg_zoom(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height, uint8 dis_width, uint8 dis_height);
+void sendimg_zoom(uint8* image, uint8 width, uint8 height, uint8 dis_width, uint8 dis_height);
 //二值化图传 (特色 串口能实现实时图传 比灰度快40倍)
-void sendimg_binary( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,uint8 otu);
+void sendimg_binary( uint8* image, uint8 width, uint8 height,uint8 otu);
 //尺寸压缩二值化图传
-void sendimg_binary_zoom( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height, uint8 dis_width, uint8 dis_height,uint8 otu);
+void sendimg_binary_zoom( uint8* image, uint8 width, uint8 height, uint8 dis_width, uint8 dis_height,uint8 otu);
 //带校验的压缩图传(*推荐)
-void sendimg_binary_CHK(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,uint8 otu,uint8 chk);
+void sendimg_binary_CHK(uint8* image, uint8 width, uint8 height,uint8 otu,uint8 chk);
 //传jpeg彩色图像
-void sendimg_JPEG(uint8* ex_mt9v03x_binarizeImage,int lon);
+void sendimg_JPEG(uint8* image,int lon);
 
 /*[  传边界    ]*/
 //清屏 图传边界前要清屏 不然线条会叠加
@@ -67,7 +67,7 @@ void sendimgAndLine( uint8 color,uint8 *buff, uint32 len);
 void sendimgAndLine_type(uint8 color,uint8 *buff, uint32 len,uint8 size_lon);
 void sendimgAndLine_point(uint8 color,uint8 x,uint8 y, uint8 type);
 //图像
-void sendimg_BinaryAndLine(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,uint8 otu);
+void sendimg_BinaryAndLine(uint8* image, uint8 width, uint8 height,uint8 otu);
 
 
 

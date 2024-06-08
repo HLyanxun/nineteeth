@@ -26,6 +26,10 @@ void ImagePerspective_Init(void);
 void Inflexion_Point(void);  //四个拐点  显示     (不可用状态)
 void xianshi_a(void);        //边线显示              (不可用状态)
 
+
+
+
+
 //tft180_show_gray_image(0, 0, ex_mt9v03x_binarizeImage[0], image_w, image_h, image_w, image_h, 0)//用来显示二值化后的图像
 
 //typedef struct {

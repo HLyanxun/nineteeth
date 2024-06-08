@@ -17,7 +17,7 @@
  * 四、数据标签（数据示波，数据颜色标定，数据监视，仪表盘）[强烈推荐]
  *                          更新时间：2022年12月9日
  */
-#include "swj.h"
+#include "zf_common_headfile.h"
 
 //需要修改的地方
 #define  sw_write_byte(dat)  uart_write_byte(UART_3,dat)//串口发送字节
@@ -38,18 +38,18 @@
 //*image图像地址 width图像宽 height图像高
 //例：sendimg(mt9v03x_image_dvp[0], MT9V03X_DVP_W, MT9V03X_DVP_H);
 //数据包大小:6+width * height(图传一帧的字节数)
-void sendimg(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height)
+void sendimg(uint8* image, uint8 width, uint8 height)
 {
     uint8 dat[6] = { 0x21, 0x7A, width, height, 0x21, 0x7A };
     sw_write_buffer(dat, 6);
-    sw_write_buffer(ex_mt9v03x_binarizeImage, width * height);
+    sw_write_buffer(image, width * height);
 }
 //--------------抗干扰灰度图传-------------------//
 //当丢失数据的情况下，该协议能重新定位行来实现一定程度抗干扰能力
 //*image图像地址 width图像宽 height图像高
 //例：sendimg(mt9v03x_image_dvp[0], MT9V03X_DVP_W, MT9V03X_DVP_H);
 //数据包大小:6+（width+3） * height(图传一帧的字节数)
-void sendimg_A( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height)
+void sendimg_A( uint8* image, uint8 width, uint8 height)
 {
 
     sw_write_byte(0x21); sw_write_byte(0x7A);
@@ -64,7 +64,7 @@ void sendimg_A( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height)
         sw_write_byte(133);
            for(col=0;col<height;col++)
            {
-               sw_write_byte(*(ex_mt9v03x_binarizeImage+line*height+col));
+               sw_write_byte(*(image+line*height+col));
 
            }
 
@@ -75,7 +75,7 @@ void sendimg_A( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height)
 //*image图像地址 width图像宽 height图像高dis_width压缩后的图像宽 dis_height压缩后的图像高
 //例：sendimg(mt9v03x_image_dvp[0], MT9V03X_DVP_W, MT9V03X_DVP_H,MT9V03X_DVP_W/2,MT9V03X_DVP_H/2);
 //数据包大小:6+dis_width * dis_height(图传一帧的字节数)
-void sendimg_zoom(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height, uint8 dis_width, uint8 dis_height)
+void sendimg_zoom(uint8* image, uint8 width, uint8 height, uint8 dis_width, uint8 dis_height)
 {
     uint8 dat[6] = { 0x21, 0x7A, dis_width, dis_height, 0x21, 0x7A };
     sw_write_buffer(dat, 6);
@@ -84,7 +84,7 @@ void sendimg_zoom(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height, ui
     {
     for(i=0;i<dis_width;i++)
     {
-       sw_write_byte(*(ex_mt9v03x_binarizeImage+(j*height/dis_height)*width+i*width/dis_width));//读取像素点
+       sw_write_byte(*(image+(j*height/dis_height)*width+i*width/dis_width));//读取像素点
 
     }
     }
@@ -93,7 +93,7 @@ void sendimg_zoom(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height, ui
 //--------------二值化图传-------------------//
 //image图像地址 width图像宽 height图像高 otu二值化阈值
 //例：sendimg_binary(mt9v03x_image_dvp[0], MT9V03X_DVP_W, MT9V03X_DVP_H,100);
-void sendimg_binary( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,uint8 otu)
+void sendimg_binary( uint8* image, uint8 width, uint8 height,uint8 otu)
 {
 
     uint8 dat[6]={0x7A,0x21,width,height,0x7A,0x21};
@@ -105,7 +105,7 @@ void sendimg_binary( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,
     {
         for(col=0;col<height;col++)
         {
-            if(*(ex_mt9v03x_binarizeImage+line*height+col)>otu)data=255;
+            if(*(image+line*height+col)>otu)data=255;
             else data=0;
             if(data==databool)
             {lon++;}else{sw_write_byte(lon);lon=1;}
@@ -116,7 +116,7 @@ void sendimg_binary( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,
 }
 //压缩二值图传
 //uint16 dis_width, uint16 dis_height 要压缩图像大小
-void sendimg_binary_zoom( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height, uint8 dis_width, uint8 dis_height,uint8 otu)
+void sendimg_binary_zoom( uint8* image, uint8 width, uint8 height, uint8 dis_width, uint8 dis_height,uint8 otu)
 {
 
     uint8 dat[6]={0x7A,0x21,dis_width,dis_height,0x7A,0x21};
@@ -127,7 +127,7 @@ void sendimg_binary_zoom( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 he
     {
     for(i=0;i<dis_width;i++)
     {
-    if(*(ex_mt9v03x_binarizeImage+(j*height/dis_height)*width+i*width/dis_width)>otu)//读取像素点
+    if(*(image+(j*height/dis_height)*width+i*width/dis_width)>otu)//读取像素点
     data=255;
     else data=0;
     if(data==databool)
@@ -142,7 +142,7 @@ void sendimg_binary_zoom( uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 he
 //带有校验的二值图传
 //chk值越大 抗干扰越强 值0-55
 //请根据实际使用情况进行调整
-void sendimg_binary_CHK(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,uint8 otu,uint8 chk)
+void sendimg_binary_CHK(uint8* image, uint8 width, uint8 height,uint8 otu,uint8 chk)
 {
     chk=chk>0?chk:0;
     chk=chk<56?chk:55;
@@ -158,7 +158,7 @@ void sendimg_binary_CHK(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 heig
              for(col=0;col<height;col++)
              {imglon++;
 
-                if(*(ex_mt9v03x_binarizeImage+line*height+col)>otu)data=255;
+                if(*(image+line*height+col)>otu)data=255;
                 else data=0;
                 if(data==databool)
                 {lon++;}
@@ -225,7 +225,7 @@ void sendimgAndLine_point(uint8 color,uint8 x,uint8 y, uint8 type)
     Line_Buffer[Line_lon++]=(255);
 }
 //图传
-void sendimg_BinaryAndLine(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,uint8 otu)
+void sendimg_BinaryAndLine(uint8* image, uint8 width, uint8 height,uint8 otu)
 {uint8 chk=50;
 uint8 dat2[6]={0x77,0x22,0x77,0x22,Line_lon/255%255,Line_lon%255};
 sw_write_buffer(dat2,6);
@@ -241,7 +241,7 @@ uint8 dat[7]={0x7A,0x21,width,height,0x7A,0x21,200+chk};
                for(col=0;col<height;col++)
                {imglon++;
 
-                  if(*(ex_mt9v03x_binarizeImage+line*height+col)>otu)data=255;
+                  if(*(image+line*height+col)>otu)data=255;
                   else data=0;
                   if(data==databool)
                   {lon++;}
@@ -260,19 +260,19 @@ uint8 dat[7]={0x7A,0x21,width,height,0x7A,0x21,200+chk};
 //待校验的wifi二值化图传 将7个二值化数据压缩成一个byte 适用于wifi二值化图传
 //出现丢包的情况用这个
 //与上面二值化图传相比 优点:数据包长度固定 (width*height/7+8+6+6+width*height/350+缓冲区数据长度) 但不如上面速度快
-void sendimg_7binaryTobyteANDline_CHK(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,uint8 otu)
+void sendimg_7binaryTobyteANDline_CHK(uint8* image, uint8 width, uint8 height,uint8 otu)
 {
     uint8 dat2[6]={0x77,0x22,0x77,0x22,Line_lon/255%255,Line_lon%255};
     sw_write_buffer(dat2,6);
     uint8 dat[8]={253,0x7A,0x21,width,height,0x7A,0x21,252};
     sw_write_buffer(dat, 8);
 
-    //sw_write_buffer(ex_mt9v03x_binarizeImage, width * height);
+    //sw_write_buffer(image, width * height);
     for (int i = 0; i < width * height; i += 7) {
         if(i%350==0)sw_write_byte(128+i/350);
         uint8 image_dat = 0;
         for (int j = 0; j < 7; j++) {
-            uint8 image_byte = *(ex_mt9v03x_binarizeImage + i + j);
+            uint8 image_byte = *(image + i + j);
             image_dat = image_dat << 1;
             if (image_byte > otu) {
                             image_dat |= 1;
@@ -287,17 +287,17 @@ void sendimg_7binaryTobyteANDline_CHK(uint8* ex_mt9v03x_binarizeImage, uint8 wid
 }
 //将8个二值化数据压缩成一个byte 适用于wifi二值化图传(WIFI环境非常好用这个 否则还是用上面带校验的)
 //与上面二值化图传相比 优点:数据包长度固定 (width*height/8+8+6+6+缓冲区数据长度) 但不如上面速度快
-void sendimg_8binaryTobyteANDline(uint8* ex_mt9v03x_binarizeImage, uint8 width, uint8 height,uint8 otu)
+void sendimg_8binaryTobyteANDline(uint8* image, uint8 width, uint8 height,uint8 otu)
 {
     uint8 dat2[6]={0x77,0x22,0x77,0x22,Line_lon/255%255,Line_lon%255};
     sw_write_buffer(dat2,6);
     uint8 dat[8]={253,0x7A,0x21,width,height,0x7A,0x21,254};
     sw_write_buffer(dat, 8);
-    //sw_write_buffer(ex_mt9v03x_binarizeImage, width * height);
+    //sw_write_buffer(image, width * height);
     for (int i = 0; i < width * height; i += 8) {
         uint8 image_dat = 0;
         for (int j = 0; j < 7; j++) {
-            uint8 image_byte = *(ex_mt9v03x_binarizeImage + i + j);
+            uint8 image_byte = *(image + i + j);
             image_dat = image_dat << 1;
             if (image_byte > otu) {
                             image_dat |= 1;
@@ -310,10 +310,10 @@ void sendimg_8binaryTobyteANDline(uint8* ex_mt9v03x_binarizeImage, uint8 width, 
     sw_write_buffer(Line_Buffer,Line_lon);Line_lon=0;
 }
 //彩色图传 image图像地址 lon数据长
-void sendimg_JPEG(uint8* ex_mt9v03x_binarizeImage,int lon)
+void sendimg_JPEG(uint8* image,int lon)
 {
     uint8_t dat[7] = { 0x21,0xFE, 0x7A, lon/255, lon%255, 0x21, 0x7A };
-    sw_write_buffer(dat,7);sw_write_buffer(ex_mt9v03x_binarizeImage,lon);
+    sw_write_buffer(dat,7);sw_write_buffer(image,lon);
 }
 //--------------数据标签（数据示波，数据颜色标定，数据监视，仪表盘）-------------------//
 //一个数据占一个地址,会直接出现在图传页面的右栏 点一下可以示波，右键可以设置颜色标定 设定好

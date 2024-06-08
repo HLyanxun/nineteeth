@@ -184,7 +184,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="zf_components|components|code|user_h|user_c|user|zf_driver|zf_device|zf_common|sdk|doc|Libraries" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="Camera_Process.h|Camera_Process.c|摄像头实验|failure" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="code"/>
+						<entry excluding="remake_mt9v03x.h|remake_mt9v03x.c|revision_mt9v03x.h|revision_mt9v03x.c|flash.h|flash.c|control.h|control.c|button.h|button.c|better_pwm.h|better_pwm.c|better_pid.h|better_pid.c|better_mpu6050.h|better_mpu6050.c|UART_Data_Unpacker.c|UART_Data_Unpacker.h|Camera_Process.h|Camera_Process.c|摄像头实验|failure" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="code"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="doc"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="sdk"/>
 						<entry excluding="user_h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="user_c"/>
@@ -215,5 +215,4 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	
 </cproject>

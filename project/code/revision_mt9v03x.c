@@ -14,7 +14,7 @@ int ImageScanInterval=5;                        //扫边的范围
 static uint8* PicTemp;                          //一个保存单行图像的指针变量
 static int IntervalLow = 0, IntervalHigh = 0;   //扫描区间的上下限变量
 static int Ysite = 0, Xsite = 0;                //Ysite就是图像的行，Xsite就是图像的列。
-static int BottomBorderRight = 90,              //59行的右边界
+static int BottomBorderRight = 79,              //59行的右边界
 BottomBorderLeft = 0,                           //59行的左边界
 BottomCenter = 0;                               //59行的中点
 uint8 ExtenLFlag = 0;                           //左边线是否需要补线的标志变量
@@ -476,7 +476,7 @@ void Get_BaseLine(void)
     /****************************************************Begin*****************************************************************************/
 
     PicTemp = ex_mt9v03x_binarizeImage[59];                                                //让PicTemp这个指针变量指向图像数组的Pixle[59]
-    for (Xsite = ImageSensorMid; Xsite < 90; Xsite++)                   //假设39是中心列，从中心列开始一列一列的往右边搜索右边线
+    for (Xsite = ImageSensorMid; Xsite < 79; Xsite++)                   //假设39是中心列，从中心列开始一列一列的往右边搜索右边线
     {
       if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
       {
@@ -485,7 +485,7 @@ void Get_BaseLine(void)
       }
       else if (Xsite == 78)                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
       {
-        BottomBorderRight = 90;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
+        BottomBorderRight = 79;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
         break;                                                          //跳出循环
       }
     }
@@ -526,7 +526,7 @@ void Get_BaseLine(void)
     for (Ysite = 58; Ysite > 54; Ysite--)
     {
         PicTemp = ex_mt9v03x_binarizeImage[Ysite];
-        for(Xsite = Sideline_status_array[Ysite + 1].midline; Xsite < 90;Xsite++)
+        for(Xsite = Sideline_status_array[Ysite + 1].midline; Xsite < 79;Xsite++)
         {
           if(*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)
           {
@@ -535,7 +535,7 @@ void Get_BaseLine(void)
           }
           else if (Xsite == 78)
           {
-            Sideline_status_array[Ysite].rightline = 90;
+            Sideline_status_array[Ysite].rightline = 79;
             break;
           }
         }
@@ -906,7 +906,7 @@ void Get_ExtensionLine(void)
           if (Sideline_status_array[Ysite].IsRightFind == 'T'
               &&Sideline_status_array[Ysite - 1].IsRightFind == 'T'
               &&Sideline_status_array[Ysite - 2].IsRightFind == 'T'
-              &&Sideline_status_array[Ysite - 2].rightline < 90
+              &&Sideline_status_array[Ysite - 2].rightline < 79
               &&Sideline_status_array[Ysite - 2].rightline > 10
               )
           {
@@ -1127,7 +1127,7 @@ void Search_Left_and_Right_Lines(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 
                     //方向不变  Right_Rirection
                     Right_Ysite = Right_Ysite + Right_Rule[0][2 * Right_Rirection + 1];
                     Right_Xsite = Right_Xsite + Right_Rule[0][2 * Right_Rirection];
-                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 90 )
+                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 79 )
                         Sideline_status_array[Right_Ysite].RightBoundary_First = Right_Xsite;
                     Sideline_status_array[Right_Ysite].RightBoundary = Right_Xsite;
                 }
@@ -1136,7 +1136,7 @@ void Search_Left_and_Right_Lines(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 
                     // 方向发生改变 Right_Rirection  逆时针90度
                     Right_Ysite = Right_Ysite + Right_Rule[1][2 * Right_Rirection + 1];
                     Right_Xsite = Right_Xsite + Right_Rule[1][2 * Right_Rirection];
-                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 90)
+                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == 79)
                         Sideline_status_array[Right_Ysite].RightBoundary_First = Right_Xsite;
                     Sideline_status_array[Right_Ysite].RightBoundary = Right_Xsite;
                     if (Right_Rirection == 3)
@@ -1185,7 +1185,7 @@ void Search_Border_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col, uint
     for (int Ysite = 0; Ysite < LCDH; Ysite++)
     {
             Sideline_status_array[Ysite].LeftBoundary_First = 0;
-            Sideline_status_array[Ysite].RightBoundary_First = 90;
+            Sideline_status_array[Ysite].RightBoundary_First = 79;
 
             imageInput[Ysite][0] = 0;
             imageInput[Ysite][LCDW - 1] = 0;
@@ -1931,7 +1931,7 @@ void Element_Handle_Left_Rings_Test(void)
 
        if(imageflag.image_element_rings_flag == 2)
        {
-           connect_line_subsidiary(Point_Ysite,59,Point_Xsite,90,1);
+           connect_line_subsidiary(Point_Ysite,59,Point_Xsite,79,1);
        }
        /*补线处理*/
        /*圆环内处理*/
@@ -2185,7 +2185,7 @@ void Element_Handle_Left_Rings()
                  {
                    flag_Ysite_1 = Ysite;
                    flag_Xsite_1 = Xsite;
-                   Slope_Rings=(float)(90-flag_Xsite_1)/(float)(59-flag_Ysite_1);
+                   Slope_Rings=(float)(79-flag_Xsite_1)/(float)(59-flag_Ysite_1);
                    break;
                  }
             }
@@ -2205,7 +2205,7 @@ void Element_Handle_Left_Rings()
                     flag_Ysite_1=Ysite;
                     flag_Xsite_1=Sideline_status_array[flag_Ysite_1].leftline;
                     imagestatus.OFFLine=Ysite;
-                    Slope_Rings=(float)(90-flag_Xsite_1)/(float)(59-flag_Ysite_1);
+                    Slope_Rings=(float)(79-flag_Xsite_1)/(float)(59-flag_Ysite_1);
                     break;
                 }
 
@@ -2573,8 +2573,8 @@ void Element_Handle_Right_Rings()
                 //    Sideline_status_array[Ysite].midline=Sideline_status_array[Ysite].leftline+Half_Bend_Wide[Ysite];//板块
 //              else//大圆环不加半宽
                     Sideline_status_array[Ysite].midline=(Sideline_status_array[Ysite].leftline+Sideline_status_array[Ysite].rightline)/2;//板块
-                //if(Sideline_status_array[Ysite].midline>90)
-                //    Sideline_status_array[Ysite].midline=90;
+                //if(Sideline_status_array[Ysite].midline>79)
+                //    Sideline_status_array[Ysite].midline=79;
             }
             Sideline_status_array[flag_Ysite_1].leftline=flag_Xsite_1;
             for(Ysite=flag_Ysite_1-1;Ysite>10;Ysite--) //A点上方进行扫线
@@ -2589,8 +2589,8 @@ void Element_Handle_Right_Rings()
                   //       Sideline_status_array[Ysite].midline=Sideline_status_array[Ysite].leftline+Half_Bend_Wide[Ysite];//板块
                    //  else//大圆环不加半宽
                          Sideline_status_array[Ysite].midline=(Sideline_status_array[Ysite].leftline+Sideline_status_array[Ysite].rightline)/2;//板块
-                   //  if(Sideline_status_array[Ysite].midline>90)
-                   //      Sideline_status_array[Ysite].midline=90;
+                   //  if(Sideline_status_array[Ysite].midline>79)
+                   //      Sideline_status_array[Ysite].midline=79;
                      break;
                     }
                 }
@@ -2615,9 +2615,9 @@ void Element_Handle_Right_Rings()
 //        {
 //            if(imageflag.ring_big_small==2)
 //                Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Bend_Wide[Ysite];
-//            if(Sideline_status_array[Ysite].midline >= 90)
+//            if(Sideline_status_array[Ysite].midline >= 79)
 //            {
-//                Sideline_status_array[Ysite].midline = 90;
+//                Sideline_status_array[Ysite].midline = 79;
 //                imagestatus.OFFLine=Ysite-1;
 //                break;
 //            }
@@ -2649,7 +2649,7 @@ void Element_Handle_Right_Rings()
         //小圆环出环 补线
     if (imageflag.image_element_rings_flag == 8 && imageflag.ring_big_small == 2)  //小圆环
     {
-        Repair_Point_Xsite = 90;
+        Repair_Point_Xsite = 79;
         Repair_Point_Ysite = 0;
         for (int Ysite = 40; Ysite > 5; Ysite--)
         {
@@ -2747,8 +2747,8 @@ void Element_Handle_Bend()
         for (int Ysite = 59; Ysite > imagestatus.OFFLine; Ysite--)
         {
             Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].leftline + Half_Bend_Wide[Ysite];
-            if(Sideline_status_array[Ysite].midline >= 90)
-                Sideline_status_array[Ysite].midline = 90;
+            if(Sideline_status_array[Ysite].midline >= 79)
+                Sideline_status_array[Ysite].midline = 79;
         }
     }
     if(imageflag.Bend_Road==2)

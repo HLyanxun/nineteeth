@@ -18,9 +18,9 @@ uint8 centre_line=34;
 float track_width=26;//赛道宽度
 //大津法---------------------------------------------------------------------------------------------------------------
 uint8  My_Threshold = 0, My_Threshold_1 = 0; //二值化之后的阈值
-float  My_Threshold_cha = 0;//阈值补偿 之后扔到ui里面可以进行调节
+float  My_Threshold_cha = -2;//阈值补偿 之后扔到ui里面可以进行调节
 //逆透视---------------------------------------------------------------------------------------------------------------
-uint8 *PerImg_ip[RESULT_ROW][RESULT_COL]={{0}};//存储图像地址
+uint8_t *PerImg_ip[RESULT_ROW][RESULT_COL]={{0}};//存储图像地址
 //八邻域---------------------------------------------------------------------------------------------------------------
 
 #define USE_num image_h*3   //定义找点的数组成员个数按理说300个点能放下，但是有些特殊情况确实难顶，多定义了一点
@@ -44,7 +44,7 @@ uint8 ramp_flag=0,ramp_widch[4]={0};
 double curvature_l_l=0;
 
 //十字----------------------------------------------------------------------------------------------------------------
-uint8 l_Down[4]={0},l_on[4]={0},r_Down[4]={0},r_on[4]={0}; //十字的四个拐点 0y1x
+uint8 l_Down[4]={0},l_on[4]={0},r_Down[4]={0},r_on[4]={0}; //十字的四个拐点 0y1x2flag
 int cross_flag=0;  //十字标志位
 
 
@@ -59,6 +59,7 @@ uint8 is_L_down[3]={0},is_R_down[3]={0};  //环岛 左下 右下 两个拐点0y1x
 uint32 island_length=0;
 int island_big=0;
 //直线加速---------------------------------------------------------------------------------------------------------------
+int run_flag=0,out_flag=0;
 int speed_flag=0,speed_in_flag=0;
 int check_flag = 0;//发车检查
 float speed_increase=0; //直线加速
@@ -73,26 +74,14 @@ PID Motor_pid_l;
 PID Motor_pid_r;
 
 
+//--------------------------------------------------------------------------------------
+// 函数简介     去畸变+逆透视处理初始化
+// 备注信息     只需调用一次即可，随后使用ImageUsed指针即可
+//--------------------------------------------------------------------------------------
+void ImagePerspective_Init(void) {
 
-
-
-int32 meanCurvatureApprox=0;
-
-//-------------------------------------------------------------------------------------------------------------------
-// 函数简介     ImagePerspective_Init 逆透视初始化 初始运行一次就可以了
-// 参数说明
-// 返回参数
-// 使用示例
-// 备注信息  /*完成摄像头初始化后，调用一次ImagePerspective_Init，此后，直接调用ImageUsed   即为透视结果*/
-//-------------------------------------------------------------------------------------------------------------------
-void ImagePerspective_Init(void)
-{
-
-    static uint8 BlackColor = 0;
-    double change_un_Mat[3][3] ={{0.588870,-0.660767,54.049404},{-0.000000,0.346768,8.682904},{-0.000000,-0.007336,0.816300}};
-//    double change_un_Mat[3][3] ={{0.651993,-0.669770,56.195344},{0.000000,0.410437,8.050314},{0.000000,-0.007320,0.856428}};
-//    double change_un_Mat[3][3] ={{0.588870,-0.681798,55.290238},{0.000000,0.346768,8.682904},{0.000000,-0.007336,0.816300}};
-
+    static uint8_t BlackColor = 0;
+    double change_un_Mat[3][3] ={{0.413333,-0.328182,19.332744},{-0.000000,0.033988,5.827233},{-0.000000,-0.003472,0.404745}};
     for (int i = 0; i < RESULT_COL ;i++) {
         for (int j = 0; j < RESULT_ROW ;j++) {
             int local_x = (int) ((change_un_Mat[0][0] * i
@@ -115,6 +104,11 @@ void ImagePerspective_Init(void)
     }
 
 }
+
+
+/*ImageUsed[0][0]代表图像左上角的值*/
+
+/*完成摄像头初始化后，调用一次ImagePerspective_Init，此后，直接调用ImageUsed   即为去畸变结果*/
 
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介
@@ -371,10 +365,10 @@ void Binaryzation(void)
    //双阈值处理法  先处理出来一次阈值,把阈值之下的变为黑色再进行一次
    //优点  加偏振片处理出来的效果比较不错
    //缺点  费时间
-
     My_Threshold_1 = (int)my_adapt_threshold(mt9v03x_image[0],180, 248 ) ;  //1ms
 
-    My_Threshold   = (int)my_adapt_threshold_2(mt9v03x_image[0],180, 248 )  + (int)My_Threshold_cha;  //1ms
+    My_Threshold   = (int)my_adapt_threshold_2(mt9v03x_image[0],180, 248 )  + (uint8)My_Threshold_cha;  //1ms
+
 
 }
 
@@ -2258,10 +2252,10 @@ void xianshi_a(void)
             break;
         }
 
-         ips200_draw_point( Find_Boundary_l[i][1] + 15+2, Find_Boundary_l[i][0] +100,RGB565_RED);
-         ips200_draw_point( Find_Boundary_l[i][1] + 15+ 3, Find_Boundary_l[i][0] +100,RGB565_RED);
-         ips200_draw_point( Find_Boundary_l[i][1] + 15 + 1, Find_Boundary_l[i][0] +100,RGB565_RED);
-         ips200_draw_point( Find_Boundary_l[i][1] + 15 +4, Find_Boundary_l[i][0] +100 ,RGB565_RED);
+         tft180_draw_point( Find_Boundary_l[i][1] +2, Find_Boundary_l[i][0] ,RGB565_RED);
+         tft180_draw_point( Find_Boundary_l[i][1] + 3, Find_Boundary_l[i][0] ,RGB565_RED);
+         tft180_draw_point( Find_Boundary_l[i][1] + 1, Find_Boundary_l[i][0] ,RGB565_RED);
+         tft180_draw_point( Find_Boundary_l[i][1]  +4, Find_Boundary_l[i][0]  ,RGB565_RED);
 
 
        }
@@ -2271,10 +2265,10 @@ void xianshi_a(void)
          {
              break;
          }
-         ips200_draw_point( Find_Boundary_r[i][1] + 15-2 , Find_Boundary_r[i][0] +100 ,RGB565_BLUE);
-         ips200_draw_point( Find_Boundary_r[i][1] + 15-3, Find_Boundary_r[i][0]+100,RGB565_BLUE);
-         ips200_draw_point( Find_Boundary_r[i][1] + 15-4, Find_Boundary_r[i][0]+100 ,RGB565_BLUE);
-         ips200_draw_point( Find_Boundary_r[i][1] + 15-1, Find_Boundary_r[i][0] +100,RGB565_BLUE);
+         tft180_draw_point( Find_Boundary_r[i][1] -2 , Find_Boundary_r[i][0]  ,RGB565_BLUE);
+         tft180_draw_point( Find_Boundary_r[i][1] -3, Find_Boundary_r[i][0],RGB565_BLUE);
+         tft180_draw_point( Find_Boundary_r[i][1] -4, Find_Boundary_r[i][0],RGB565_BLUE);
+         tft180_draw_point( Find_Boundary_r[i][1] -1, Find_Boundary_r[i][0] ,RGB565_BLUE);
 
 
 
@@ -2284,8 +2278,8 @@ void xianshi_a(void)
        for(int i=0;i<=(r_data_statics+l_data_statics)/2;i++)
        {
 
-           ips200_draw_point( Find_Boundary_z[i][1] + 15 , Find_Boundary_z[i][0] + 100 ,RGB565_PURPLE);
-           ips200_draw_point( Find_Boundary_z[i][1] + 15+1 , Find_Boundary_z[i][0] + 100+1 ,RGB565_PURPLE);
+           tft180_draw_point( Find_Boundary_z[i][1]  , Find_Boundary_z[i][0]  ,RGB565_PURPLE);
+           tft180_draw_point( Find_Boundary_z[i][1]+1 , Find_Boundary_z[i][0]  + 1,RGB565_PURPLE);
        }
 }
 
@@ -2449,7 +2443,7 @@ void pit_dispose(void)
          }
 //         if(check_flag == 0)
 //         Motor_Control((int16)Motor_pid_l.Out,(int16)Motor_pid_r.Out);
-     }
+//     }
 //     else if(run_flag==0)
 //     {
 //        Motor_Control(0,0);

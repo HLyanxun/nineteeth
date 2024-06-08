@@ -11,15 +11,20 @@
 
 
 //逆透视
-#define RESULT_ROW  90           //Y
-#define RESULT_COL  68           //X
-#define         USED_ROW                248  //用于透视图的行列
-#define         USED_COL                180
+//#define RESULT_ROW  90           //Y
+//#define RESULT_COL  68           //X
+//#define         USED_ROW                248  //用于透视图的行列
+//#define         USED_COL                180
+//#define PER_IMG     mt9v03x_image//SimBinImage:用于透视变换的图像
+//#define ImageUsed   *PerImg_ip//*PerImg_ip定义使用的图像，ImageUsed为用于巡线和识别的图像
+#define RESULT_ROW 90//结果图行列
+#define RESULT_COL 90//于透视图的行列
+#define         USED_COL                188
+#define         USED_ROW                120  //用
 #define PER_IMG     mt9v03x_image//SimBinImage:用于透视变换的图像
 #define ImageUsed   *PerImg_ip//*PerImg_ip定义使用的图像，ImageUsed为用于巡线和识别的图像
-
 //总图像
-#define image_w  (70)
+#define image_w  (92)
 #define image_h  (92)
 extern float track_width;//赛道宽度
 #define image_xl  ((image_w-track_width)/2)  //白色赛道左侧边界点
@@ -66,6 +71,8 @@ extern int island_big;
 extern int speed_flag,speed_in_flag;
 extern float speed_increase;
 extern int32 meanCurvatureApprox;
+
+
 
 extern int run_flag ;//发车
 extern int out_flag ;//出界
