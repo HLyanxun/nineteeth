@@ -103,6 +103,7 @@ extern PID Motor_pid_r;
 extern attitude_t g_attitude;
 extern attitude_t angle;  //ª∑µ∫ π”√
 
+uint8 get_Threshold(void);
 void ImagePerspective_Init(void);
 void empty_flag(void);
 uint8 my_adapt_threshold(uint8 *image, uint16 col, uint16 row);
