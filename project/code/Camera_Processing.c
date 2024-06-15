@@ -16,6 +16,7 @@ uint8 image[image_h][image_w]={{0}};  //使用的图像
 uint8 l_shade_255=0,r_shade_255=0; //左侧右侧阴影  也就是 白色方块
 uint8 centre_line=34;
 float track_width=26;//赛道宽度
+uint8 midline[92];
 //大津法---------------------------------------------------------------------------------------------------------------
 uint8  My_Threshold = 0, My_Threshold_1 = 0; //二值化之后的阈值
 float  My_Threshold_cha = 10;//阈值补偿 之后扔到ui里面可以进行调节
@@ -2218,29 +2219,56 @@ void ramp_find(void)
 
 
 //-------------------------------------------------------------------------------------------------------------------
-// 函数简介
-// 参数说明
-// 返回参数
-// 使用示例
+// 函数简介     中线数据记录与返回车身角度调整
+// 参数说明     mode 返回数据的类型  0-船体与中线偏差，正车在道路左侧，负数车在道路右侧 1-车身角度偏移
+// 返回参数     巡线角度及车身角度修正
+// 使用示例     int angle = midline_and_anglereturn();
 // 备注信息
 //-------------------------------------------------------------------------------------------------------------------
-//void speed_change(void)
-//{
-//    if(straight_r==3 && straight_l==3){
-//        speed_flag+=4;
-//    }
-//    else if(straight_r>=2 && straight_l>=2){
-//        speed_flag+=2;
-//    }
-//
-//    else
-//        speed_flag-=10;
-//    if(speed_flag >= 20)speed_flag=20;
-//    else if(speed_flag <= 0)speed_flag=0;
-//}
 
+float midline_and_anglereturn(uint8 mode)
+{
+    uint8 OFFLine=60;
+    uint8 check_num=3;
+    uint8 save=0;
+    int point1,point2,point3;
 
+    for(uint8 i=OFFLine;i<75;i++)
+    {
+        for(uint8 j=1;j<=check_num;j++)
+        {
+            if(midline[OFFLine]-j==0)save++;
+            if(midline[OFFLine]+j==0)save++;
+        }
+        if(save < check_num){break;}
+        else {OFFLine++;}
+    }
+    tft180_draw_line(0, OFFLine, 90, OFFLine, RGB565_GREEN);
+    tft180_draw_line(0, 80, 90, 80, RGB565_GREEN);
+    point1=midline[80];
+    point2=midline[(uint8)(80+OFFLine)/2]-45 ;
+    point3=midline[OFFLine];
+    if(mode==0){return point2;}
+    if(mode==1)
+    {
 
+         float angle = angle_compute(point3,OFFLine,point1,80);
+        if(point3<=point1)angle=-angle;
+        return angle;
+    }
+    return 999.999;
+
+}
+float angle_compute(uint x1,uint y1,uint x2,uint y2)
+{
+    double c,a;
+    float angle;
+    if(x1==x2)return 0;
+    a=abs(x1-x2);
+    c=pi/180;
+    angle=atan2(a,(y2-y1))/c;
+    return angle;
+}
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     midline_scan()   中线扫描
 // 参数说明
@@ -2255,6 +2283,7 @@ void midline_scan(void)
            Find_Boundary_z[i][1]=Find_Boundary_l[i][1]+track_width/2/sin((float)curvature_l[0]/180.0*M_PI);
            Find_Boundary_z[i][0]=Find_Boundary_l[i][0];
            image[Find_Boundary_z[i][0]][Find_Boundary_z[i][1]]=0;
+           midline[Find_Boundary_z[i][0]]=Find_Boundary_z[i][1];
         }
     }
     else if(straight_r>=2 && R_island_flag != 3 && L_island_flag != 3){
@@ -2262,6 +2291,7 @@ void midline_scan(void)
            Find_Boundary_z[i][1]=Find_Boundary_r[i][1]-track_width/2/sin((float)curvature_r[0]/180.0*M_PI);
            Find_Boundary_z[i][0]=Find_Boundary_r[i][0];
            image[Find_Boundary_z[i][0]][Find_Boundary_z[i][1]]=0;
+           midline[Find_Boundary_z[i][0]]=Find_Boundary_z[i][1];
         }
     }
     else{
@@ -2269,6 +2299,7 @@ void midline_scan(void)
            Find_Boundary_z[i][1]=(Find_Boundary_r[i][1]+Find_Boundary_l[i][1])/2;
            Find_Boundary_z[i][0]=(Find_Boundary_r[i][0]+Find_Boundary_l[i][0])/2;
            image[Find_Boundary_z[i][0]][Find_Boundary_z[i][1]]=0;
+           midline[Find_Boundary_z[i][0]]=Find_Boundary_z[i][1];
         }
     }
 

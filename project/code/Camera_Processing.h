@@ -103,7 +103,12 @@ extern PID Motor_pid_r;
 extern attitude_t g_attitude;
 extern attitude_t angle;  //环岛使用
 
+extern uint8 midline[92];//巡线外接使用
+
 uint8 get_Threshold(void);
+float midline_and_anglereturn(uint8 mode);
+float angle_compute(uint x1,uint y1,uint x2,uint y2);
+
 void ImagePerspective_Init(void);
 void empty_flag(void);
 uint8 my_adapt_threshold(uint8 *image, uint16 col, uint16 row);
@@ -131,6 +136,7 @@ void cross_dispose(void);
 void Inflexion_Point(void);
 void xianshi_a(void);
 void Camera_tracking(void);
+
 //void analyzeCurvatureWithInterval(uint8(*points)[300], uint16 n, int interval);
 
 #endif /* CODE_CAMERA_PROCESSING_H_ */
