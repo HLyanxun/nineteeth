@@ -74,6 +74,7 @@ attitude_t angle;  //环岛使用
 PID Motor_pid_l;
 PID Motor_pid_r;
 
+uint8 ex_outflag=0;
 
 //--------------------------------------------------------------------------------------
 // 函数简介     去畸变+逆透视处理初始化
@@ -485,7 +486,7 @@ void image_draw(void)
         {
             if(a>65)
             {
-             out_flag=1; run_flag=0;
+             out_flag=1; run_flag=0;ex_outflag=1;
             }
             a=0;
         }
@@ -2278,6 +2279,10 @@ float angle_compute(uint x1,uint y1,uint x2,uint y2)
 //-------------------------------------------------------------------------------------------------------------------
 void midline_scan(void)
 {
+    for(uint8 i=0;i<92;i++)
+    {
+        midline[i]=0;
+    }
     if(straight_l>=2 && R_island_flag != 3 && L_island_flag != 3){
         for(int i=0;i<=l_data_statics;i++){
            Find_Boundary_z[i][1]=Find_Boundary_l[i][1]+track_width/2/sin((float)curvature_l[0]/180.0*M_PI);
@@ -2404,7 +2409,7 @@ void xianshi_a(void)
 //-------------------------------------------------------------------------------------------------------------------
 void Camera_tracking(void)
 {
-
+    out_checking();//出界保护
     empty_flag(); //标志位清除
     Binaryzation(); //大津法求阈值
     image_draw();  //二值化 画框 去噪点
@@ -2570,4 +2575,16 @@ void pit_dispose(void)
 //         if( buzzer % 2 == 0)   gpio_set_level(P33_10, 1);
 //     }
 //     else if(buzzer==0)         gpio_set_level(P33_10, 0);   //蜂鸣器 停止鸣响
+}
+//---------------------------------------------------------------------------
+//  函数简介        出界保护
+//---------------------------------------------------------------------------
+void out_checking(void)
+{
+    uint8 bit=0;
+    for(uint8 i=90;i<80;i--)
+    {
+        if(midline[i]==0)bit++;
+    }
+    if(bit>5)ex_outflag=1;
 }

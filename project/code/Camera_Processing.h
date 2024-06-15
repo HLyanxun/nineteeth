@@ -83,6 +83,9 @@ extern int16 l_en_speed_last,r_en_speed_last; //左 右 编码器上一次的值
 extern float speed_l,speed_r; //速度
 extern float Servos_out; //舵机输出值
 
+extern uint8 ex_outflag;
+
+
 typedef struct _attitude_t   // 需要对每个数值录入相应角度
 {
     float roll;
@@ -136,6 +139,7 @@ void cross_dispose(void);
 void Inflexion_Point(void);
 void xianshi_a(void);
 void Camera_tracking(void);
+void out_checking(void);
 
 //void analyzeCurvatureWithInterval(uint8(*points)[300], uint16 n, int interval);
 
