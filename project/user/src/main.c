@@ -69,6 +69,9 @@ int main (void)
              float b = midline_and_anglereturn(1);
 //             tft180_show_int(0, 91, a, 3);
                       tft180_show_float(0, 107, b, 3, 3);
+                      tft180_draw_line(30, 0, 30, 90, RGB565_RED);
+                      tft180_draw_line(70, 0, 70, 90, RGB565_RED);
+
                      //             mt9v03x_finish_flag=0;
 //         }
 //         float c,d;
