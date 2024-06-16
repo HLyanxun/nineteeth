@@ -2233,7 +2233,7 @@ float midline_and_anglereturn(uint8 mode)
     uint8 OFFLine=60;
     uint8 check_num=3;
     uint8 save=0;
-    int point1,point2,point3;
+    int point2,point4;
 
     for(uint8 i=OFFLine;i<75;i++)
     {
@@ -2245,19 +2245,18 @@ float midline_and_anglereturn(uint8 mode)
         if(save < check_num){break;}
         else {OFFLine++;}
     }
-    tft180_draw_line(0, OFFLine, 90, OFFLine, RGB565_GREEN);
-    tft180_draw_line(0, 80, 90, 80, RGB565_GREEN);
-    point1=midline[80];
-    point2=midline[(uint8)(80+OFFLine)/2]-45 ;
-    point3=midline[OFFLine];
-    if(mode==0){return point2;}
-    if(mode==1)
-    {
+//    tft180_draw_line(0, OFFLine, 90, OFFLine, RGB565_GREEN);
+//    tft180_draw_line(0, 80, 90, 80, RGB565_GREEN);
+    if(mode==1){point2=midline[(uint8)(80+OFFLine)/2]-45 ;return point2;}
+    if(mode==0){
+        for(uint8 j=80;j>70;j--)
+        {
+            point4+=midline[j];
+        }
+        point4=((point4/10)-45);
 
-         float angle = angle_compute(point3,OFFLine,point1,80);
-        if(point3<=point1)angle=-angle;
-        return angle;
-    }
+        return point4;}
+
     return 999.999;
 
 }
