@@ -82,7 +82,7 @@ PID Motor_pid_r;
 void ImagePerspective_Init(void) {
 
     static uint8_t BlackColor = 0;
-    double change_un_Mat[3][3] ={{-0.665414,0.876223,-62.464261},{0.000000,0.126916,-27.000158},{0.000000,0.009322,-0.983062}};
+    double change_un_Mat[3][3] ={{0.352632,-0.375449,32.890155},{0.000000,0.050538,6.153515},{0.000000,-0.003960,0.517822}};
     for (int i = 0; i < RESULT_COL ;i++) {
         for (int j = 0; j < RESULT_ROW ;j++) {
             int local_x = (int) ((change_un_Mat[0][0] * i
@@ -558,12 +558,7 @@ int Find_Boundary(void)
 
      if (zebra_crossing_flag!=1)  {//当未出现斑马线时候就从中间向两侧扫描 为啥 是i = 2 因为一圈是个黑框 最底下搜不出来边界线
          for (uint8 i = 3; i < 4; i++){// Y
-             uint8 bit=0;
-             for(uint8 u=(image_w-i);u>=0;u--)
-             {
-                 if(image[image_h - i][u]==0)bit++;
-             }
-             if(bit>(image_w*4/5))out_flag=1;
+
              if(out_flag==0){//如果out_flag拉起那么，退出巡线
              for (uint8 j = centre_line ; j >= 0; j--){//左边线  X
                  if (image[image_h - i][j] == 0
@@ -2421,6 +2416,7 @@ void Camera_tracking(void)
     image_draw();  //二值化 画框 去噪点
     shade_compute();//看左下角阴影
     search((uint16)USE_num,image,&hight_image);
+    out_checking();//出界保护
 //判断本帧是否有问题 如果有问题 就不进行元素判断
     if(image_ok == 1){
 //直道 弯道 判断-----------------------------
@@ -2481,7 +2477,7 @@ void Camera_tracking(void)
         }
         centre_s=a;
     }
-    out_checking();//出界保护
+
 }
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     定时器获取电机速度（左侧占用定时器5，右侧占用定时器4）
@@ -2595,6 +2591,18 @@ void out_checking(void)
         if(kbit>20)bit++;
     }
     if(bit>5)out_flag=1;
+//    for(uint8 i=0;i<3;i++)
+//    {
+//        bit=0;
+//        kbit=0;
+//        for(uint8 u=image_w;u>0;u--)
+//           {
+//               if(image[image_h - i][u]==255)bit++;
+//               if(image[image_h - i][u]==0)kbit++;
+//           }
+//           if(bit<7 && kbit>(image_w-7)){out_flag=1;break;}
+//    }
+
 //    if(bit>5)out_flag=1;
 //    bit=0;
 //

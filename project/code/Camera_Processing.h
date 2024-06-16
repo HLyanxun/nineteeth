@@ -24,8 +24,8 @@
 #define PER_IMG     mt9v03x_image//SimBinImage:用于透视变换的图像
 #define ImageUsed   *PerImg_ip//*PerImg_ip定义使用的图像，ImageUsed为用于巡线和识别的图像
 //总图像
-#define image_w  (92)
-#define image_h  (92)
+#define image_w  (90)
+#define image_h  (90)
 extern float track_width;//赛道宽度
 #define image_xl  ((image_w-track_width)/2)  //白色赛道左侧边界点
 #define image_xr  ((image_w+track_width)/2)  //白色赛道左侧边界点
