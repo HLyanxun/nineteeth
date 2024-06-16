@@ -74,7 +74,6 @@ attitude_t angle;  //环岛使用
 PID Motor_pid_l;
 PID Motor_pid_r;
 
-uint8 ex_outflag=0;
 
 //--------------------------------------------------------------------------------------
 // 函数简介     去畸变+逆透视处理初始化
@@ -479,45 +478,44 @@ void image_draw(void)
                 image[i+1][j+1]=255;
             else{
                 image[i+1][j+1]=0;
-                if(i < 88 && i > 86)a++;
+                if(i < 88 && i > 80)a++;
             }
         }
-        if(run_flag==1)
-        {
-            if(a>65)
+
+            if(a>65 && a<10)
             {
-             out_flag=1; run_flag=0;ex_outflag=1;
+             out_flag=1;
             }
             a=0;
-        }
+
     }
 
-//    uint16 N_zaoddian=0;
-//    for(int i=0;i<89;i++)       //白噪点 去除
-//        for(int j=1;j<70;j++)
-//        {
-//            if( image[90-i][j] == 255 )
-//            {
-//                N_zaoddian =                 image[90-i-1][j]
-//                           + image[90-i][j-1]               + image[90-i]  [j+1]
-//                                            +image[90-i+1][j] ;
-//                if( N_zaoddian <  255 * 2 )
-//                {
-//                    image[90-i][j] = 0 ;
-//                }
-//            }
-//            else
-//            {
-//                N_zaoddian =                 image[90-i-1][j]
-//                           + image[90-i][j-1]               + image[90-i]  [j+1]
-//                                            +image[90-i+1][j] ;
-//                if( N_zaoddian >  255 * 2 )
-//                {
-//                    image[90-i][j] = 255 ;
-//                }
-//            }
-//
-//        }
+    uint16 N_zaoddian=0;
+    for(int i=0;i<89;i++)       //白噪点 去除
+        for(int j=1;j<70;j++)
+        {
+            if( image[90-i][j] == 255 )
+            {
+                N_zaoddian =                 image[90-i-1][j]
+                           + image[90-i][j-1]               + image[90-i]  [j+1]
+                                            +image[90-i+1][j] ;
+                if( N_zaoddian <  255 * 2 )
+                {
+                    image[90-i][j] = 0 ;
+                }
+            }
+            else
+            {
+                N_zaoddian =                 image[90-i-1][j]
+                           + image[90-i][j-1]               + image[90-i]  [j+1]
+                                            +image[90-i+1][j] ;
+                if( N_zaoddian >  255 * 2 )
+                {
+                    image[90-i][j] = 255 ;
+                }
+            }
+
+        }
 
 }
 
@@ -2409,7 +2407,7 @@ void xianshi_a(void)
 //-------------------------------------------------------------------------------------------------------------------
 void Camera_tracking(void)
 {
-    out_checking();//出界保护
+
     empty_flag(); //标志位清除
     Binaryzation(); //大津法求阈值
     image_draw();  //二值化 画框 去噪点
@@ -2475,6 +2473,7 @@ void Camera_tracking(void)
         }
         centre_s=a;
     }
+    out_checking();//出界保护
 }
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     定时器获取电机速度（左侧占用定时器5，右侧占用定时器4）
@@ -2581,10 +2580,22 @@ void pit_dispose(void)
 //---------------------------------------------------------------------------
 void out_checking(void)
 {
-    uint8 bit=0;
-    for(uint8 i=90;i<80;i--)
+    uint8 bit=0,kbit=0;
+    for(uint8 i=90;i>80;i--)
     {
-        if(midline[i]==0)bit++;
+        kbit=abs(midline[i]-45);
+        if(kbit>20)bit++;
     }
-    if(bit>5)ex_outflag=1;
+    if(bit>5)out_flag=1;
+//    if(bit>5)out_flag=1;
+//    bit=0;
+//
+//    for(uint8 i=85;i>75;i--)
+//    {
+//        for(uint8 j=50;j>40;j--)
+//        {
+//            if(image[i][j]==0)bit++;
+//        }
+//    }
+//    if(bit>75&& bit<25)out_flag=1;
 }

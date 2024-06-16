@@ -83,7 +83,7 @@ extern int16 l_en_speed_last,r_en_speed_last; //左 右 编码器上一次的值
 extern float speed_l,speed_r; //速度
 extern float Servos_out; //舵机输出值
 
-extern uint8 ex_outflag;
+
 
 
 typedef struct _attitude_t   // 需要对每个数值录入相应角度
