@@ -2253,9 +2253,9 @@ float midline_and_anglereturn(uint8 mode)
 //            point4+=midline[j];
 //        }
 //        point4=((point4/10)-45);
-        point1=midline[OFFLine];
+        point1=midline[(uint8)(80+OFFLine)/2];
         point3=midline[80];
-        angle=angle_compute(point1,OFFLine,point3,80);
+        angle=angle_compute(point1,((uint8)(80+OFFLine)/2),point3,80);
         return angle;}
 
     return 999.999;
@@ -2263,11 +2263,13 @@ float midline_and_anglereturn(uint8 mode)
 }
 float angle_compute(uint x1,uint y1,uint x2,uint y2)
 {
-    double c;
+    double c,a;
     float angle;
     if(x1==x2)return 0;
+    a=abs(x1-x2);
     c=pi/180;
-    angle=atan2((x1-x2),(y2-y1))/c;
+    angle=atan2(a,(y2-y1))/c;
+    if(x2>x1){angle=-angle;}
     return angle;
 }
 //-------------------------------------------------------------------------------------------------------------------
