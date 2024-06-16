@@ -557,7 +557,14 @@ int Find_Boundary(void)
 
 
      if (zebra_crossing_flag!=1)  {//当未出现斑马线时候就从中间向两侧扫描 为啥 是i = 2 因为一圈是个黑框 最底下搜不出来边界线
-         for (uint8 i = 2; i < 3; i++){// Y
+         for (uint8 i = 3; i < 4; i++){// Y
+             uint8 bit=0;
+             for(uint8 u=(image_w-i);u>=0;u--)
+             {
+                 if(image[image_h - i][u]==0)bit++;
+             }
+             if(bit>(image_w*4/5))out_flag=1;
+             if(out_flag==0){//如果out_flag拉起那么，退出巡线
              for (uint8 j = centre_line ; j >= 0; j--){//左边线  X
                  if (image[image_h - i][j] == 0
                          && image[image_h - i][j + 1] == 255
@@ -582,6 +589,7 @@ int Find_Boundary(void)
 
                  }
              }
+           }
          }
      }
 
