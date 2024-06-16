@@ -557,34 +557,32 @@ int Find_Boundary(void)
 
 
      if (zebra_crossing_flag!=1)  {//当未出现斑马线时候就从中间向两侧扫描 为啥 是i = 2 因为一圈是个黑框 最底下搜不出来边界线
-         for (uint8 i = 3; i < 4; i++){// Y
-
-             if(out_flag==0){//如果out_flag拉起那么，退出巡线
-             for (uint8 j = centre_line ; j >= 0; j--){//左边线  X
-                 if (image[image_h - i][j] == 0
-                         && image[image_h - i][j + 1] == 255
-                         && image[image_h - i][j + 2] == 255){
-                     Find_Boundary_l[i-2][0] = image_h - i;
-                     Find_Boundary_l[i-2][1] = j;
+         for (int i = 0; i < 5; i++)// Y
+         {
+             for (int j = centre_line ; j >= 1; j--)   //左边线  X
+             {
+                 if (image[90 - i][j-1] == 0 &&image[90 - i][j] == 0 && image[90 - i][j + 1] == 255 && image[90 - i][j + 2] == 255)
+                 {
+                     Find_Boundary_l[i][0] = 90 - i;
+                     Find_Boundary_l[i][1] = (uint8)j;
                      l_data_statics++;
                      find_Boundary_flag++;
                      break;
+
                  }
              }
 
-             for (uint8 j = centre_line ; j <= image_w - 1; j++){ //右边线   X
-                 if (image[image_h - i][j] == 0
-                         && image[image_h - i][j - 1] == 255
-                         && image[image_h - i][j - 2] == 255){
-                     Find_Boundary_r[i-2][0] = image_h - i;
-                     Find_Boundary_r[i-2][1] = j;
+             for (int j = centre_line ; j <= image_w - 1; j++)   //右边线   X                                                                                                                                                                                              边线
+             {
+                 if (image[90 - i][j+1] == 0 &&image[90 - i][j] == 0 && image[90 - i][j - 1] == 255 && image[90 - i][j - 2] == 255)
+                 {
+                     Find_Boundary_r[i][0] = 90 - i;
+                     Find_Boundary_r[i][1] = (uint8)j;
                      r_data_statics++;
                      find_Boundary_flag++;
                      break;
-
                  }
              }
-           }
          }
      }
 
@@ -2249,7 +2247,7 @@ float midline_and_anglereturn(uint8 mode)
 //    tft180_draw_line(0, 80, 90, 80, RGB565_GREEN);
     if(mode==1){point2=midline[(uint8)(80+OFFLine)/2]-45 ;return point2;}
     if(mode==0){
-        for(uint8 j=80;j>70;j--)
+        for(uint8 j=85;j>75;j--)
         {
             point4+=midline[j];
         }
@@ -2415,7 +2413,7 @@ void Camera_tracking(void)
     image_draw();  //二值化 画框 去噪点
     shade_compute();//看左下角阴影
     search((uint16)USE_num,image,&hight_image);
-    out_checking();//出界保护
+//    out_checking();//出界保护
 //判断本帧是否有问题 如果有问题 就不进行元素判断
     if(image_ok == 1){
 //直道 弯道 判断-----------------------------
@@ -2583,13 +2581,13 @@ void pit_dispose(void)
 //---------------------------------------------------------------------------
 void out_checking(void)
 {
-    uint8 bit=0,kbit=0;
-    for(uint8 i=90;i>80;i--)
-    {
-        kbit=abs(midline[i]-45);
-        if(kbit>20)bit++;
-    }
-    if(bit>5)out_flag=1;
+//    uint8 bit=0,kbit=0;
+//    for(uint8 i=90;i>80;i--)
+//    {
+//        kbit=abs(midline[i]-45);
+//        if(kbit>20)bit++;
+//    }
+//    if(bit>5)out_flag=1;
 //    for(uint8 i=0;i<3;i++)
 //    {
 //        bit=0;
