@@ -24,16 +24,16 @@ Idx Name           Size      VMA       LMA       File off  Algn  Flags
   6 .data          000002b8  20000040  0001a91c  0001c040  2**2  CONTENTS, ALLOC, LOAD, DATA
   7 .bss           00010260  200002f8  0001abd4  0001c2f8  2**2  ALLOC
   8 .stack         00000800  2001f440  2001f440  0001c440  2**0  ALLOC
-  9 .debug_info    0001fdcd  00000000  00000000  0001c2f8  2**0  CONTENTS, READONLY, DEBUGGING
- 10 .debug_abbrev  0000472f  00000000  00000000  0003c0c5  2**0  CONTENTS, READONLY, DEBUGGING
- 11 .debug_aranges 000011d8  00000000  00000000  000407f8  2**3  CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges  00001050  00000000  00000000  000419d0  2**3  CONTENTS, READONLY, DEBUGGING
- 13 .debug_line    0001e47e  00000000  00000000  00042a20  2**0  CONTENTS, READONLY, DEBUGGING
- 14 .debug_str     000077e1  00000000  00000000  00060e9e  2**0  CONTENTS, READONLY, DEBUGGING
- 15 .comment       00000033  00000000  00000000  0006867f  2**0  CONTENTS, READONLY
- 16 .debug_frame   00006c64  00000000  00000000  000686b4  2**2  CONTENTS, READONLY, DEBUGGING
- 17 .stab          00000084  00000000  00000000  0006f318  2**2  CONTENTS, READONLY, DEBUGGING
- 18 .stabstr       00000117  00000000  00000000  0006f39c  2**0  CONTENTS, READONLY, DEBUGGING
+  9 .debug_info    0001fdc3  00000000  00000000  0001c2f8  2**0  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_abbrev  0000472f  00000000  00000000  0003c0bb  2**0  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_aranges 000011d8  00000000  00000000  000407f0  2**3  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges  00001050  00000000  00000000  000419c8  2**3  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_line    0001e44e  00000000  00000000  00042a18  2**0  CONTENTS, READONLY, DEBUGGING
+ 14 .debug_str     000077e8  00000000  00000000  00060e66  2**0  CONTENTS, READONLY, DEBUGGING
+ 15 .comment       00000033  00000000  00000000  0006864e  2**0  CONTENTS, READONLY
+ 16 .debug_frame   00006c70  00000000  00000000  00068684  2**2  CONTENTS, READONLY, DEBUGGING
+ 17 .stab          00000084  00000000  00000000  0006f2f4  2**2  CONTENTS, READONLY, DEBUGGING
+ 18 .stabstr       00000117  00000000  00000000  0006f378  2**0  CONTENTS, READONLY, DEBUGGING
 SYMBOL TABLE:
 00000000 l    d  .init	00000000 .init
 00000038 l    d  .vector	00000000 .vector
@@ -31178,7 +31178,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
 
 0000f150 <midline_scan>:
 midline_scan():
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2279
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2281
 // 返回参数
 // 使用示例
 // 备注信息
@@ -31193,11 +31193,11 @@ void midline_scan(void)
     f15a:	ce52                	sw	s4,28(sp)
     f15c:	cc56                	sw	s5,24(sp)
     f15e:	1800                	addi	s0,sp,48
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2280
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2282
     for(uint8 i=0;i<92;i++)
     f160:	fc040fa3          	sb	zero,-33(s0)
     f164:	a839                	j	f182 <midline_scan+0x32>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2282 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2284 (discriminator 3)
     {
         midline[i]=0;
     f166:	fdf44703          	lbu	a4,-33(s0)
@@ -31205,34 +31205,34 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f16e:	f3878793          	addi	a5,a5,-200 # 20007f38 <midline>
     f172:	97ba                	add	a5,a5,a4
     f174:	00078023          	sb	zero,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2280 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2282 (discriminator 3)
     for(uint8 i=0;i<92;i++)
     f178:	fdf44783          	lbu	a5,-33(s0)
     f17c:	0785                	addi	a5,a5,1
     f17e:	fcf40fa3          	sb	a5,-33(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2280 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2282 (discriminator 1)
     f182:	fdf44703          	lbu	a4,-33(s0)
     f186:	05b00793          	li	a5,91
     f18a:	fce7fee3          	bgeu	a5,a4,f166 <midline_scan+0x16>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2284
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2286
     }
     if(straight_l>=2 && R_island_flag != 3 && L_island_flag != 3){
     f18e:	8da1c703          	lbu	a4,-1830(gp) # 20000372 <straight_l>
     f192:	4785                	li	a5,1
     f194:	18e7fc63          	bgeu	a5,a4,f32c <midline_scan+0x1dc>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2284 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2286 (discriminator 1)
     f198:	8fc1a703          	lw	a4,-1796(gp) # 20000394 <R_island_flag>
     f19c:	478d                	li	a5,3
     f19e:	18f70763          	beq	a4,a5,f32c <midline_scan+0x1dc>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2284 (discriminator 2)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2286 (discriminator 2)
     f1a2:	8f81a703          	lw	a4,-1800(gp) # 20000390 <L_island_flag>
     f1a6:	478d                	li	a5,3
     f1a8:	18f70263          	beq	a4,a5,f32c <midline_scan+0x1dc>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2285
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2287
         for(int i=0;i<=l_data_statics;i++){
     f1ac:	fc042c23          	sw	zero,-40(s0)
     f1b0:	a2b5                	j	f31c <midline_scan+0x1cc>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2286 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2288 (discriminator 3)
            Find_Boundary_z[i][1]=Find_Boundary_l[i][1]+track_width/2/sin((float)curvature_l[0]/180.0*M_PI);
     f1b2:	200107b7          	lui	a5,0x20010
     f1b6:	fd842703          	lw	a4,-40(s0)
@@ -31300,7 +31300,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f264:	2d478793          	addi	a5,a5,724 # 200102d4 <Find_Boundary_z>
     f268:	97b6                	add	a5,a5,a3
     f26a:	00e780a3          	sb	a4,1(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2287 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2289 (discriminator 3)
            Find_Boundary_z[i][0]=Find_Boundary_l[i][0];
     f26e:	200107b7          	lui	a5,0x20010
     f272:	fd842703          	lw	a4,-40(s0)
@@ -31314,7 +31314,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f28c:	2d478793          	addi	a5,a5,724 # 200102d4 <Find_Boundary_z>
     f290:	97b6                	add	a5,a5,a3
     f292:	00e78023          	sb	a4,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2288 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2290 (discriminator 3)
            image[Find_Boundary_z[i][0]][Find_Boundary_z[i][1]]=0;
     f296:	200107b7          	lui	a5,0x20010
     f29a:	fd842703          	lw	a4,-40(s0)
@@ -31337,7 +31337,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f2d2:	97ba                	add	a5,a5,a4
     f2d4:	97b6                	add	a5,a5,a3
     f2d6:	00078023          	sb	zero,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2289 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2291 (discriminator 3)
            midline[Find_Boundary_z[i][0]]=Find_Boundary_z[i][1];
     f2da:	200107b7          	lui	a5,0x20010
     f2de:	fd842703          	lw	a4,-40(s0)
@@ -31356,38 +31356,38 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f308:	f3878793          	addi	a5,a5,-200 # 20007f38 <midline>
     f30c:	97b6                	add	a5,a5,a3
     f30e:	00e78023          	sb	a4,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2285 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2287 (discriminator 3)
         for(int i=0;i<=l_data_statics;i++){
     f312:	fd842783          	lw	a5,-40(s0)
     f316:	0785                	addi	a5,a5,1
     f318:	fcf42c23          	sw	a5,-40(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2285 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2287 (discriminator 1)
     f31c:	8c21d783          	lhu	a5,-1854(gp) # 2000035a <l_data_statics>
     f320:	873e                	mv	a4,a5
     f322:	fd842783          	lw	a5,-40(s0)
     f326:	e8f756e3          	bge	a4,a5,f1b2 <midline_scan+0x62>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2285
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2287
     f32a:	a4cd                	j	f60c <midline_scan+0x4bc>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2292
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2294
         }
     }
     else if(straight_r>=2 && R_island_flag != 3 && L_island_flag != 3){
     f32c:	8db1c703          	lbu	a4,-1829(gp) # 20000373 <straight_r>
     f330:	4785                	li	a5,1
     f332:	18e7fc63          	bgeu	a5,a4,f4ca <midline_scan+0x37a>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2292 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2294 (discriminator 1)
     f336:	8fc1a703          	lw	a4,-1796(gp) # 20000394 <R_island_flag>
     f33a:	478d                	li	a5,3
     f33c:	18f70763          	beq	a4,a5,f4ca <midline_scan+0x37a>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2292 (discriminator 2)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2294 (discriminator 2)
     f340:	8f81a703          	lw	a4,-1800(gp) # 20000390 <L_island_flag>
     f344:	478d                	li	a5,3
     f346:	18f70263          	beq	a4,a5,f4ca <midline_scan+0x37a>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2293
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2295
         for(int i=0;i<=r_data_statics;i++){
     f34a:	fc042a23          	sw	zero,-44(s0)
     f34e:	a2b5                	j	f4ba <midline_scan+0x36a>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2294 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2296 (discriminator 3)
            Find_Boundary_z[i][1]=Find_Boundary_r[i][1]-track_width/2/sin((float)curvature_r[0]/180.0*M_PI);
     f350:	200107b7          	lui	a5,0x20010
     f354:	fd442703          	lw	a4,-44(s0)
@@ -31455,7 +31455,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f402:	2d478793          	addi	a5,a5,724 # 200102d4 <Find_Boundary_z>
     f406:	97b6                	add	a5,a5,a3
     f408:	00e780a3          	sb	a4,1(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2295 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2297 (discriminator 3)
            Find_Boundary_z[i][0]=Find_Boundary_r[i][0];
     f40c:	200107b7          	lui	a5,0x20010
     f410:	fd442703          	lw	a4,-44(s0)
@@ -31469,7 +31469,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f42a:	2d478793          	addi	a5,a5,724 # 200102d4 <Find_Boundary_z>
     f42e:	97b6                	add	a5,a5,a3
     f430:	00e78023          	sb	a4,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2296 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2298 (discriminator 3)
            image[Find_Boundary_z[i][0]][Find_Boundary_z[i][1]]=0;
     f434:	200107b7          	lui	a5,0x20010
     f438:	fd442703          	lw	a4,-44(s0)
@@ -31492,7 +31492,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f470:	97ba                	add	a5,a5,a4
     f472:	97b6                	add	a5,a5,a3
     f474:	00078023          	sb	zero,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2297 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2299 (discriminator 3)
            midline[Find_Boundary_z[i][0]]=Find_Boundary_z[i][1];
     f478:	200107b7          	lui	a5,0x20010
     f47c:	fd442703          	lw	a4,-44(s0)
@@ -31511,26 +31511,26 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f4a6:	f3878793          	addi	a5,a5,-200 # 20007f38 <midline>
     f4aa:	97b6                	add	a5,a5,a3
     f4ac:	00e78023          	sb	a4,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2293 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2295 (discriminator 3)
         for(int i=0;i<=r_data_statics;i++){
     f4b0:	fd442783          	lw	a5,-44(s0)
     f4b4:	0785                	addi	a5,a5,1
     f4b6:	fcf42a23          	sw	a5,-44(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2293 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2295 (discriminator 1)
     f4ba:	8c41d783          	lhu	a5,-1852(gp) # 2000035c <r_data_statics>
     f4be:	873e                	mv	a4,a5
     f4c0:	fd442783          	lw	a5,-44(s0)
     f4c4:	e8f756e3          	bge	a4,a5,f350 <midline_scan+0x200>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2293
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2295
     f4c8:	a291                	j	f60c <midline_scan+0x4bc>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2301
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2303
         }
     }
     else{
         for(int i=0;i<=(r_data_statics+l_data_statics)/2;i++){
     f4ca:	fc042823          	sw	zero,-48(s0)
     f4ce:	a205                	j	f5ee <midline_scan+0x49e>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2302 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2304 (discriminator 3)
            Find_Boundary_z[i][1]=(Find_Boundary_r[i][1]+Find_Boundary_l[i][1])/2;
     f4d0:	200107b7          	lui	a5,0x20010
     f4d4:	fd042703          	lw	a4,-48(s0)
@@ -31556,7 +31556,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f512:	2d478793          	addi	a5,a5,724 # 200102d4 <Find_Boundary_z>
     f516:	97b6                	add	a5,a5,a3
     f518:	00e780a3          	sb	a4,1(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2303 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2305 (discriminator 3)
            Find_Boundary_z[i][0]=(Find_Boundary_r[i][0]+Find_Boundary_l[i][0])/2;
     f51c:	200107b7          	lui	a5,0x20010
     f520:	fd042703          	lw	a4,-48(s0)
@@ -31582,7 +31582,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f55e:	2d478793          	addi	a5,a5,724 # 200102d4 <Find_Boundary_z>
     f562:	97b6                	add	a5,a5,a3
     f564:	00e78023          	sb	a4,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2304 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2306 (discriminator 3)
            image[Find_Boundary_z[i][0]][Find_Boundary_z[i][1]]=0;
     f568:	200107b7          	lui	a5,0x20010
     f56c:	fd042703          	lw	a4,-48(s0)
@@ -31605,7 +31605,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f5a4:	97ba                	add	a5,a5,a4
     f5a6:	97b6                	add	a5,a5,a3
     f5a8:	00078023          	sb	zero,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2305 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2307 (discriminator 3)
            midline[Find_Boundary_z[i][0]]=Find_Boundary_z[i][1];
     f5ac:	200107b7          	lui	a5,0x20010
     f5b0:	fd042703          	lw	a4,-48(s0)
@@ -31624,12 +31624,12 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f5da:	f3878793          	addi	a5,a5,-200 # 20007f38 <midline>
     f5de:	97b6                	add	a5,a5,a3
     f5e0:	00e78023          	sb	a4,0(a5)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2301 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2303 (discriminator 3)
         for(int i=0;i<=(r_data_statics+l_data_statics)/2;i++){
     f5e4:	fd042783          	lw	a5,-48(s0)
     f5e8:	0785                	addi	a5,a5,1
     f5ea:	fcf42823          	sw	a5,-48(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2301 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2303 (discriminator 1)
     f5ee:	8c41d783          	lhu	a5,-1852(gp) # 2000035c <r_data_statics>
     f5f2:	873e                	mv	a4,a5
     f5f4:	8c21d783          	lhu	a5,-1854(gp) # 2000035a <l_data_statics>
@@ -31640,7 +31640,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f602:	873e                	mv	a4,a5
     f604:	fd042783          	lw	a5,-48(s0)
     f608:	ecf754e3          	bge	a4,a5,f4d0 <midline_scan+0x380>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2311
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2313
         }
     }
 
@@ -31659,7 +31659,7 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
 
 0000f61e <Camera_tracking>:
 Camera_tracking():
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2409
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2411
 // 返回参数
 // 使用示例
 // 备注信息
@@ -31670,157 +31670,157 @@ void Camera_tracking(void)
     f620:	ce06                	sw	ra,28(sp)
     f622:	cc22                	sw	s0,24(sp)
     f624:	1000                	addi	s0,sp,32
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2411
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2413
 
     empty_flag(); //标志位清除
     f626:	e2bf90ef          	jal	ra,9450 <empty_flag>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2412
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2414
     Binaryzation(); //大津法求阈值
     f62a:	a1cfa0ef          	jal	ra,9846 <Binaryzation>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2413
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2415
     image_draw();  //二值化 画框 去噪点
     f62e:	a48fa0ef          	jal	ra,9876 <image_draw>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2414
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2416
     shade_compute();//看左下角阴影
     f632:	dbefa0ef          	jal	ra,9bf0 <shade_compute>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2415
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2417
     search((uint16)USE_num,image,&hight_image);
     f636:	8c618613          	addi	a2,gp,-1850 # 2000035e <hight_image>
     f63a:	200067b7          	lui	a5,0x20006
     f63e:	e2878593          	addi	a1,a5,-472 # 20005e28 <image>
     f642:	11400513          	li	a0,276
     f646:	987fa0ef          	jal	ra,9fcc <search>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2418
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2420
 //    out_checking();//出界保护
 //判断本帧是否有问题 如果有问题 就不进行元素判断
     if(image_ok == 1){
     f64a:	8bc1a703          	lw	a4,-1860(gp) # 20000354 <image_ok>
     f64e:	4785                	li	a5,1
     f650:	18f71063          	bne	a4,a5,f7d0 <Camera_tracking+0x1b2>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2420
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2422
 //直道 弯道 判断-----------------------------
         curvature_judge();
     f654:	ecffa0ef          	jal	ra,a522 <curvature_judge>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2423
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2425
 //        curvature_l_l=calculateAverageCurvature(Find_Boundary_l,l_data_statics,20,10);
 //左右丢线判断-----------------------------
         lost_line_judge();
     f658:	e0ffa0ef          	jal	ra,a466 <lost_line_judge>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2425
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2427
 //元素判断-----------------------------------
         if(zebra_crossing_flag==0 && L_island_flag==0 && R_island_flag == 0 && ramp_flag==0 ){
     f65c:	8f41a783          	lw	a5,-1804(gp) # 2000038c <zebra_crossing_flag>
     f660:	efa9                	bnez	a5,f6ba <Camera_tracking+0x9c>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2425 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2427 (discriminator 1)
     f662:	8f81a783          	lw	a5,-1800(gp) # 20000390 <L_island_flag>
     f666:	ebb1                	bnez	a5,f6ba <Camera_tracking+0x9c>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2425 (discriminator 2)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2427 (discriminator 2)
     f668:	8fc1a783          	lw	a5,-1796(gp) # 20000394 <R_island_flag>
     f66c:	e7b9                	bnez	a5,f6ba <Camera_tracking+0x9c>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2425 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2427 (discriminator 3)
     f66e:	8de1c783          	lbu	a5,-1826(gp) # 20000376 <ramp_flag>
     f672:	e7a1                	bnez	a5,f6ba <Camera_tracking+0x9c>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2426
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2428
             if(cross_flag == 0 && lostline_flag_l == 1 && lostline_flag_r == 1){//正入十字
     f674:	8f01a783          	lw	a5,-1808(gp) # 20000388 <cross_flag>
     f678:	ef89                	bnez	a5,f692 <Camera_tracking+0x74>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2426 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2428 (discriminator 1)
     f67a:	8c01c703          	lbu	a4,-1856(gp) # 20000358 <lostline_flag_l>
     f67e:	4785                	li	a5,1
     f680:	00f71963          	bne	a4,a5,f692 <Camera_tracking+0x74>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2426 (discriminator 2)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2428 (discriminator 2)
     f684:	8c11c703          	lbu	a4,-1855(gp) # 20000359 <lostline_flag_r>
     f688:	4785                	li	a5,1
     f68a:	00f71463          	bne	a4,a5,f692 <Camera_tracking+0x74>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2427
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2429
                 cross_judgment_positive();
     f68e:	fd6fd0ef          	jal	ra,ce64 <cross_judgment_positive>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2429
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2431
             }
             if(cross_flag == 0 && lostline_flag_l == 1 && lostline_flag_r == 1){//斜入十字
     f692:	8f01a783          	lw	a5,-1808(gp) # 20000388 <cross_flag>
     f696:	ef89                	bnez	a5,f6b0 <Camera_tracking+0x92>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2429 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2431 (discriminator 1)
     f698:	8c01c703          	lbu	a4,-1856(gp) # 20000358 <lostline_flag_l>
     f69c:	4785                	li	a5,1
     f69e:	00f71963          	bne	a4,a5,f6b0 <Camera_tracking+0x92>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2429 (discriminator 2)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2431 (discriminator 2)
     f6a2:	8c11c703          	lbu	a4,-1855(gp) # 20000359 <lostline_flag_r>
     f6a6:	4785                	li	a5,1
     f6a8:	00f71463          	bne	a4,a5,f6b0 <Camera_tracking+0x92>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2430
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2432
                 cross_judgment_slanting();
     f6ac:	99dfd0ef          	jal	ra,d048 <cross_judgment_slanting>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2432
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2434
             }
             if(cross_flag !=0){ //这个标志位代表十字不同的过程
     f6b0:	8f01a783          	lw	a5,-1808(gp) # 20000388 <cross_flag>
     f6b4:	c399                	beqz	a5,f6ba <Camera_tracking+0x9c>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2433
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2435
                 cross_dispose();
     f6b6:	d51fd0ef          	jal	ra,d406 <cross_dispose>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2437
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2439
             }
         }
 
         if(cross_flag == 0 && zebra_crossing_flag==0 && ramp_flag==0) {
     f6ba:	8f01a783          	lw	a5,-1808(gp) # 20000388 <cross_flag>
     f6be:	e3a5                	bnez	a5,f71e <Camera_tracking+0x100>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2437 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2439 (discriminator 1)
     f6c0:	8f41a783          	lw	a5,-1804(gp) # 2000038c <zebra_crossing_flag>
     f6c4:	efa9                	bnez	a5,f71e <Camera_tracking+0x100>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2437 (discriminator 2)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2439 (discriminator 2)
     f6c6:	8de1c783          	lbu	a5,-1826(gp) # 20000376 <ramp_flag>
     f6ca:	ebb1                	bnez	a5,f71e <Camera_tracking+0x100>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2438
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2440
             if(L_island_flag == 0 && R_island_flag == 0
     f6cc:	8f81a783          	lw	a5,-1800(gp) # 20000390 <L_island_flag>
     f6d0:	e795                	bnez	a5,f6fc <Camera_tracking+0xde>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2438 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2440 (discriminator 1)
     f6d2:	8fc1a783          	lw	a5,-1796(gp) # 20000394 <R_island_flag>
     f6d6:	e39d                	bnez	a5,f6fc <Camera_tracking+0xde>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2439
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2441
                     && ((lostline_flag_l == 1 && lostline_flag_r == 0) || (lostline_flag_l == 0 && lostline_flag_r == 1))){
     f6d8:	8c01c703          	lbu	a4,-1856(gp) # 20000358 <lostline_flag_l>
     f6dc:	4785                	li	a5,1
     f6de:	00f71563          	bne	a4,a5,f6e8 <Camera_tracking+0xca>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2439 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2441 (discriminator 1)
     f6e2:	8c11c783          	lbu	a5,-1855(gp) # 20000359 <lostline_flag_r>
     f6e6:	cb89                	beqz	a5,f6f8 <Camera_tracking+0xda>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2439 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2441 (discriminator 3)
     f6e8:	8c01c783          	lbu	a5,-1856(gp) # 20000358 <lostline_flag_l>
     f6ec:	eb81                	bnez	a5,f6fc <Camera_tracking+0xde>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2439 (discriminator 4)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2441 (discriminator 4)
     f6ee:	8c11c703          	lbu	a4,-1855(gp) # 20000359 <lostline_flag_r>
     f6f2:	4785                	li	a5,1
     f6f4:	00f71463          	bne	a4,a5,f6fc <Camera_tracking+0xde>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2440
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2442
                 island_judgment();
     f6f8:	d49fe0ef          	jal	ra,e440 <island_judgment>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2442
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2444
             }
             if(L_island_flag != 0 && R_island_flag == 0){
     f6fc:	8f81a783          	lw	a5,-1800(gp) # 20000390 <L_island_flag>
     f700:	c799                	beqz	a5,f70e <Camera_tracking+0xf0>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2442 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2444 (discriminator 1)
     f702:	8fc1a783          	lw	a5,-1796(gp) # 20000394 <R_island_flag>
     f706:	e781                	bnez	a5,f70e <Camera_tracking+0xf0>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2443
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2445
                 island_dispose_L();
     f708:	f31fe0ef          	jal	ra,e638 <island_dispose_L>
     f70c:	a809                	j	f71e <Camera_tracking+0x100>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2445
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2447
             }
             else if(L_island_flag == 0 && R_island_flag != 0 ){
     f70e:	8f81a783          	lw	a5,-1800(gp) # 20000390 <L_island_flag>
     f712:	e791                	bnez	a5,f71e <Camera_tracking+0x100>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2445 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2447 (discriminator 1)
     f714:	8fc1a783          	lw	a5,-1796(gp) # 20000394 <R_island_flag>
     f718:	c399                	beqz	a5,f71e <Camera_tracking+0x100>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2446
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2448
                 island_dispose_R();
     f71a:	ca8ff0ef          	jal	ra,ebc2 <island_dispose_R>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2461
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2463
     //           ;
     //   }
 
@@ -31832,24 +31832,24 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f726:	e2878593          	addi	a1,a5,-472 # 20005e28 <image>
     f72a:	11400513          	li	a0,276
     f72e:	89ffa0ef          	jal	ra,9fcc <search>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2463
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2465
 
         curvature_judge();
     f732:	df1fa0ef          	jal	ra,a522 <curvature_judge>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2464
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2466
         midline_scan();
     f736:	a1bff0ef          	jal	ra,f150 <midline_scan>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2467
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2469
 
 
         uint16 a=0;
     f73a:	fe041723          	sh	zero,-18(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2468
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2470
         for(int i=14;i<24;i++){
     f73e:	47b9                	li	a5,14
     f740:	fef42423          	sw	a5,-24(s0)
     f744:	a805                	j	f774 <Camera_tracking+0x156>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2469 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2471 (discriminator 3)
             a += Find_Boundary_z[i][1];
     f746:	200107b7          	lui	a5,0x20010
     f74a:	fe842703          	lw	a4,-24(s0)
@@ -31862,26 +31862,26 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f760:	fee45783          	lhu	a5,-18(s0)
     f764:	97ba                	add	a5,a5,a4
     f766:	fef41723          	sh	a5,-18(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2468 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2470 (discriminator 3)
         for(int i=14;i<24;i++){
     f76a:	fe842783          	lw	a5,-24(s0)
     f76e:	0785                	addi	a5,a5,1
     f770:	fef42423          	sw	a5,-24(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2468 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2470 (discriminator 1)
     f774:	fe842703          	lw	a4,-24(s0)
     f778:	47dd                	li	a5,23
     f77a:	fce7d6e3          	bge	a5,a4,f746 <Camera_tracking+0x128>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2471
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2473
         }
         centre=a;
     f77e:	fee45703          	lhu	a4,-18(s0)
     f782:	8ce19423          	sh	a4,-1848(gp) # 20000360 <centre>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2472
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2474
         for(int i=24;i<40;i++){
     f786:	47e1                	li	a5,24
     f788:	fef42223          	sw	a5,-28(s0)
     f78c:	a805                	j	f7bc <Camera_tracking+0x19e>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2473 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2475 (discriminator 3)
             a += Find_Boundary_z[i][1];
     f78e:	200107b7          	lui	a5,0x20010
     f792:	fe442703          	lw	a4,-28(s0)
@@ -31894,21 +31894,21 @@ F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V
     f7a8:	fee45783          	lhu	a5,-18(s0)
     f7ac:	97ba                	add	a5,a5,a4
     f7ae:	fef41723          	sh	a5,-18(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2472 (discriminator 3)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2474 (discriminator 3)
         for(int i=24;i<40;i++){
     f7b2:	fe442783          	lw	a5,-28(s0)
     f7b6:	0785                	addi	a5,a5,1
     f7b8:	fef42223          	sw	a5,-28(s0)
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2472 (discriminator 1)
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2474 (discriminator 1)
     f7bc:	fe442703          	lw	a4,-28(s0)
     f7c0:	02700793          	li	a5,39
     f7c4:	fce7d5e3          	bge	a5,a4,f78e <Camera_tracking+0x170>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2475
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2477
         }
         centre_s=a;
     f7c8:	fee45703          	lhu	a4,-18(s0)
     f7cc:	8ce19523          	sh	a4,-1846(gp) # 20000362 <centre_s>
-F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2478
+F:/H/desktop/document/CHV307_Library-master/CHV307_Library-master/Seekfree_CH32V307VCT6_Opensource_Library/project/code/Camera_Processing.c:2480
     }
 
 }
