@@ -23,6 +23,9 @@
 #define         USED_ROW                120  //用
 #define PER_IMG     mt9v03x_image//SimBinImage:用于透视变换的图像
 #define ImageUsed   *PerImg_ip//*PerImg_ip定义使用的图像，ImageUsed为用于巡线和识别的图像
+
+#define Test_L                  (45-track_width/2)
+#define Test_R                  (45+track_width/2)
 //总图像
 #define image_w  (92)
 #define image_h  (92)
@@ -83,7 +86,12 @@ extern int16 l_en_speed_last,r_en_speed_last; //左 右 编码器上一次的值
 extern float speed_l,speed_r; //速度
 extern float Servos_out; //舵机输出值
 
-
+typedef struct  Flag_DLC
+{
+    uint8 cross_flag;
+    uint8 ring_flag;
+    uint8 ring_stituation;
+} Flag_DLC;
 
 
 typedef struct _attitude_t   // 需要对每个数值录入相应角度

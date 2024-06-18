@@ -15,7 +15,7 @@
 uint8 image[image_h][image_w]={{0}};  //使用的图像
 uint8 l_shade_255=0,r_shade_255=0; //左侧右侧阴影  也就是 白色方块
 uint8 centre_line=45;
-float track_width=40;//赛道宽度
+float track_width=42;//赛道宽度
 uint8 midline[92];
 //大津法---------------------------------------------------------------------------------------------------------------
 uint8  My_Threshold = 0, My_Threshold_1 = 0; //二值化之后的阈值
@@ -74,7 +74,8 @@ attitude_t angle;  //环岛使用
 PID Motor_pid_l;
 PID Motor_pid_r;
 
-
+//DLC--------------------------------------------
+Flag_DLC flag_dlc;
 //--------------------------------------------------------------------------------------
 // 函数简介     去畸变+逆透视处理初始化
 // 备注信息     只需调用一次即可，随后使用ImageUsed指针即可
@@ -82,7 +83,7 @@ PID Motor_pid_r;
 void ImagePerspective_Init(void) {
 
     static uint8_t BlackColor = 0;
-    double change_un_Mat[3][3] ={{0.352632,-0.375449,32.890155},{0.000000,0.050538,6.153515},{0.000000,-0.003960,0.517822}};
+    double change_un_Mat[3][3] ={{0.430435,-0.459130,40.776522},{0.000000,0.078913,6.162391},{0.000000,-0.004783,0.626522}};
     for (int i = 0; i < RESULT_COL ;i++) {
         for (int j = 0; j < RESULT_ROW ;j++) {
             int local_x = (int) ((change_un_Mat[0][0] * i
@@ -2616,3 +2617,5 @@ void out_checking(void)
 //    }
 //    if(bit>75&& bit<25)out_flag=1;
 }
+//----------------------------------------------------------------------------
+// 函数简介     十字巡线补线重置版

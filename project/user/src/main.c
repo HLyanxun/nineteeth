@@ -63,14 +63,20 @@ int main (void)
 //             {
 //                 image[i][45]=255;
 //             }
+
+
              tft180_show_gray_image(0, 0, image[0], image_w, image_h, image_w, image_h, 0);
+             tft180_draw_line(Test_L, 0, Test_L, 90, RGB565_RED);
+             tft180_draw_line(Test_R, 0, Test_R, 90, RGB565_RED);
+
+
 //             tft180_show_uint(0,92,out_flag,2);
 //             int a = (int)midline_and_anglereturn(0);
-             float b = midline_and_anglereturn(1);
+//             float b = midline_and_anglereturn(1);
 //             tft180_show_int(0, 91, a, 3);
-                      tft180_show_float(0, 107, b, 3, 3);
-                      tft180_draw_line(30, 0, 30, 90, RGB565_RED);
-                      tft180_draw_line(70, 0, 70, 90, RGB565_RED);
+//                      tft180_show_float(0, 107, b, 3, 3);
+//                      tft180_draw_line(30, 0, 30, 90, RGB565_RED);
+//                      tft180_draw_line(70, 0, 70, 90, RGB565_RED);
 
                      //             mt9v03x_finish_flag=0;
 //         }
