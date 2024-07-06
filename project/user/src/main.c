@@ -66,8 +66,9 @@ int main (void)
 
 
              tft180_show_gray_image(0, 0, image[0], image_w, image_h, image_w, image_h, 0);
-             tft180_draw_line(Test_L, 0, Test_L, 90, RGB565_RED);
-             tft180_draw_line(Test_R, 0, Test_R, 90, RGB565_RED);
+             test_show_midline();
+//             tft180_draw_line(Test_L, 0, Test_L, 90, RGB565_RED);
+//             tft180_draw_line(Test_R, 0, Test_R, 90, RGB565_RED);
 
 
 //             tft180_show_uint(0,92,out_flag,2);

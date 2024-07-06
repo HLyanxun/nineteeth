@@ -13,4 +13,4 @@ MCU=CH32V307VCT6
 Mcu Type=CH32V30x
 Link=WCH-Link
 CLKSpeed=1
-Target Path=obj\Seekfree_CH32V307VCT6_Opensource_Library.hex
+Target Path=obj/Seekfree_CH32V307VCT6.hex

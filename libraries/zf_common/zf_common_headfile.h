@@ -152,6 +152,7 @@
 #include "UART_Data_Unpacker.h"
 #include "swj.h"
 //#include "revision_mt9v03x.h"
+//#include "remake_camera.h"
 #include "Camera_Processing.h"
 //#include "remake_mt9v03x.h"
 

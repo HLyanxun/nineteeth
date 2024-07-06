@@ -147,6 +147,7 @@ void cross_dispose(void);
 void Inflexion_Point(void);
 void xianshi_a(void);
 void Camera_tracking(void);
+void test_show_midline(void);
 void out_checking(void);
 
 //void analyzeCurvatureWithInterval(uint8(*points)[300], uint16 n, int interval);
