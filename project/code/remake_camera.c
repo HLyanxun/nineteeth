@@ -11,7 +11,7 @@
 uint8_t *PerImg_ip[RESULT_ROW][RESULT_COL]={{0}};//存储图像地址
 //二值化---------------------------------------------------------------------------------------------------------------
 uint8 My_Threshold;
-int My_Threshold_cha=10;  //二值化阈值补偿值
+int My_Threshold_cha=20;  //二值化阈值补偿值
 //处理用图像及处理相关------------------------------------------------------------------------------------------------------
 uint8 image[image_h][image_w]={{0}};  //使用的图像
 static uint8* PicTemp;                          //一个保存单行图像的指针变量
@@ -21,11 +21,16 @@ BottomBorderLeft = 0,                           //89行的左边界
 BottomCenter = 0;                               //89行的中点
 uint8 ExtenLFlag = 0;                           //左边线是否需要补线的标志变量
 uint8 ExtenRFlag = 0;                           //右边线是否需要补线的标志变量
+int Right_RingsFlag_Point1_Ysite, Right_RingsFlag_Point2_Ysite; //右圆环判断的两点纵坐标
+int Left_RingsFlag_Point1_Ysite, Left_RingsFlag_Point2_Ysite;   //左圆环判断的两点纵坐标
+uint8 Ring_Help_Flag = 0;                       //进环辅助标志
 
 //图像参数--------------------------------------------------------------------------------------------------------------
 Sideline_status Sideline_status_array[90];
 Image_Status imagestatus;
 ImageFlagtypedef imageflag;
+
+
 
 //--------------------------------------------------------------------------------------
 // 函数简介     判断范围内的边线是否为直线
@@ -116,20 +121,55 @@ void ImagePerspective_Init(void)
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 void camera_tft180show(void)
 {
-    tft180_show_gray_image(0, 0, image[0], image_w, image_h, image_w, image_h, 0);
+    if(image_type)
+    {
+        tft180_show_gray_image(0, 0, mt9v03x_image[0], MT9V03X_W, MT9V03X_H, MT9V03X_W/2, MT9V03X_H/2, 0);
+
+    }else {
+        tft180_show_gray_image(0, 0, image[0], image_w, image_h, image_w, image_h, 0);
+    }
+    tft180_show_int(0,92, imagestatus.OFFLine, 3);
     if(track_show)
     {
         for(uint8 i=imagestatus.OFFLine;i<=image_bottom_value;i++)
             {
-                LimitL(Sideline_status_array[Ysite].rightline);  //限幅
-                LimitH(Sideline_status_array[Ysite].rightline);  //限幅
-                LimitL(Sideline_status_array[Ysite].leftline);  //限幅
-                LimitH(Sideline_status_array[Ysite].leftline);  //限幅
-                LimitL(Sideline_status_array[Ysite].midline);  //限幅
-                LimitH(Sideline_status_array[Ysite].midline);  //限幅
+
+//            xx=Sideline_status_array[Ysite].midline;
+//            LimitL(Sideline_status_array[Ysite].midline);  //限幅
+//            LimitH(Sideline_status_array[Ysite].midline);  //限幅
+////            xx=Sideline_status_array[Ysite].leftline;
+//            LimitL( Sideline_status_array[Ysite].leftline);
+//            LimitH( Sideline_status_array[Ysite].leftline);
+//
+//            LimitL(Sideline_status_array[Ysite].rightline);
+//            LimitH(Sideline_status_array[Ysite].rightline);
+//
+//            LimitL(Sideline_status_array[Ysite].LeftBoundary);  //限幅
+//            LimitH(Sideline_status_array[Ysite].LeftBoundary);  //限幅
+//
+//
+//            LimitL(Sideline_status_array[Ysite].LeftBoundary_First);  //限幅
+//            LimitH(Sideline_status_array[Ysite].LeftBoundary_First);  //限幅
+//
+//
+//            LimitL(Sideline_status_array[Ysite].RightBoundary);  //限幅
+//            LimitH(Sideline_status_array[Ysite].RightBoundary);  //限幅
+//
+//
+//            LimitL(Sideline_status_array[Ysite].RightBoundary_First);  //限幅
+//            LimitH(Sideline_status_array[Ysite].RightBoundary_First);  //限幅
+
+                /*边线巡线结果*/
                 tft180_draw_point(Sideline_status_array[i].leftline, i, RGB565_RED);
                 tft180_draw_point(Sideline_status_array[i].rightline, i, RGB565_RED);
                 tft180_draw_point(Sideline_status_array[i].midline, i, RGB565_RED);
+
+                /*八邻域巡线结果*/
+                tft180_draw_point(Sideline_status_array[i].LeftBoundary, i, RGB565_GREEN);
+                tft180_draw_point(Sideline_status_array[i].LeftBoundary_First, i, RGB565_BLUE);
+                tft180_draw_point(Sideline_status_array[i].RightBoundary, i, RGB565_GREEN);
+                tft180_draw_point(Sideline_status_array[i].RightBoundary_First, i, RGB565_BLUE);
+
                 if(track_width_debug)
                 {
                     tft180_draw_line((line_midpoint-track_width/2), 0, (line_midpoint-track_width/2), 90, RGB565_YELLOW);
@@ -371,136 +411,42 @@ void Get_BaseLine(void)
     /**************************************遍历搜索图像最底行（59行）左右边线从而确定中线的过程 ********************************************************************/
     /****************************************************Begin*****************************************************************************/
 
-    PicTemp = image[image_bottom_value];                                                //让PicTemp这个指针变量指向图像数组的Pixle[image_bottom_value]
-//    for (Xsite = line_midpoint; Xsite < image_side_width; Xsite++)                   //假设line_midpoint是中心列，从中心列开始一列一列的往右边搜索右边线
-//    {
-//      if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
-//      {
-//        BottomBorderRight = Xsite;                                      //把这一列记录下来作为这一行的右边线
-//        break;                                                          //跳出循环
-//      }
-//      else if (Xsite == (image_side_width-1))                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
-//      {
-//        BottomBorderRight = (image_side_width-1);                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
-//        break;                                                          //跳出循环
-//      }
-//    }
-//
-//    for (Xsite = line_midpoint; Xsite > 0; Xsite--)                    //假设39是中心列，从中心列开始一列一列的往左边搜索左边线
-//    {
-//      if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite - 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
-//      {
-//        BottomBorderLeft = Xsite;                                       //把这一列记录下来作为这一行的左边线
-//        break;                                                          //跳出循环
-//      }
-//      else if (Xsite == 1)                                              //如果找到了第1列都还没出现黑点，说明这一行的边线有问题。
-//      {
-//        BottomBorderLeft = 0;                                           //所以我这里的处理就是，直接假设图像最左边的那一列（第0列）就是这一行的左边线。
-//        break;                                                          //跳出循环
-//      }
-//    }
-    /*确定左边线*/
-    uint8 temp_min=(line_midpoint-track_width/2)-ImageScanInterval;
-    uint8 temp_max=(line_midpoint-track_width/2)+ImageScanInterval;
-    for (uint8 i = temp_min; i <=temp_max ; i++)                    //从左往右扫
+    PicTemp = image[image_bottom_value];                                                //让PicTemp这个指针变量指向图像数组的Pixle[59]
+    for (Xsite = line_midpoint; Xsite < image_side_width; Xsite++)                   //假设39是中心列，从中心列开始一列一列的往右边搜索右边线
+    {
+      if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
       {
-        if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
-        {
-            BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
-          break;                                  //找到了就跳出循环不找了
-        }
-        else if (i == temp_max)                    //要是扫到最后都没找到
-        {
-          if (*(PicTemp + (temp_min + temp_max) / 2) != 0)            //并且扫描区间的中间是白像素点
-          {
-              for(uint8 j=(temp_min-1);j>0;j--)
-              {
-                  if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                  {
-                      BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
-                      break;                                  //找到了就跳出循环不找了
-                  }
-                  if(j == 1)
-                  {
-                      BottomBorderLeft = 0;
-                      break;
-                  }
-              }
-              break;
-          }
-          else                                    //要是扫到最后都没找到，并且扫描区间的中间是黑像素点
-          {
-              for(uint8 j=(temp_max+1);j<line_midpoint;j++)
-              {
-                  if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                  {
-                      BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
-                      break;                                  //找到了就跳出循环不找了
-                  }
-                  if(j == (line_midpoint-1))
-                  {
-                      BottomBorderLeft = (line_midpoint-1);
-                      break;
-                  }
-              }
-          }
-        }
+        BottomBorderRight = Xsite;                                      //把这一列记录下来作为这一行的右边线
+        break;                                                          //跳出循环
       }
-    /*确定右边线*/
-    temp_min=(line_midpoint+track_width/2)-ImageScanInterval;
-    temp_max=(line_midpoint+track_width/2)+ImageScanInterval;
-    for (uint8 i = temp_max; i <=temp_min ; i--)                    //从右往左扫
-          {
-            if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
-            {
-                BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
-              break;                                  //找到了就跳出循环不找了
-            }
-            else if (i == temp_min)                    //要是扫到最后都没找到
-            {
-              if (*(PicTemp + (temp_min + temp_max) / 2) != 0)            //并且扫描区间的中间是白像素点
-              {
-                  for(uint8 j=(temp_max+1);j<=image_side_width;j++)
-                  {
-                      if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                      {
-                          BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
-                          break;                                  //找到了就跳出循环不找了
-                      }
-                      if(j == image_side_width)
-                      {
-                          BottomBorderRight = image_side_width;
-                          break;
-                      }
-                  }
-                  break;
-              }
-              else                                    //要是扫到最后都没找到，并且扫描区间的中间是黑像素点
-              {
-                  for(uint8 j=(temp_min-1);j>line_midpoint;j++)
-                  {
-                      if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                      {
-                          BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
-                          break;                                  //找到了就跳出循环不找了
-                      }
-                      if(j == (line_midpoint+1))
-                      {
-                          BottomBorderRight = (line_midpoint+1);
-                          break;
-                      }
-                  }
-              }
-            }
-          }
+      else if (Xsite == (image_side_width-1))                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
+      {
+        BottomBorderRight = image_side_width;                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
+        break;                                                          //跳出循环
+      }
+    }
 
-    BottomCenter =(BottomBorderLeft + BottomBorderRight) / 2;           //根据左右边界计算出第89行的中线
-    Sideline_status_array[image_bottom_value].leftline = BottomBorderLeft;                        //把第89行的左边界存储进数组，注意看ImageDeal这个数字的下标，是不是正好对应89。
-    Sideline_status_array[image_bottom_value].rightline = BottomBorderRight;                      //把第89行的右边界存储进数组，注意看ImageDeal这个数字的下标，是不是正好对应89。
-    Sideline_status_array[image_bottom_value].midline = BottomCenter;                                //把第89行的中线存储进数组，    注意看ImageDeal这个数字的下标，是不是正好对应89。
-    Sideline_status_array[image_bottom_value].wide = BottomBorderRight - BottomBorderLeft;          //把第89行的赛道宽度存储数组，注意看ImageDeal这个数字的下标，是不是正好对应89。
-    Sideline_status_array[image_bottom_value].IsLeftFind = 'T';                                     //记录第89行的左边线类型为T，即正常找到左边线。
-    Sideline_status_array[image_bottom_value].IsRightFind = 'T';                                    //记录第89行的右边线类型为T，即正常找到右边线。
+    for (Xsite = line_midpoint; Xsite > 0; Xsite--)                    //假设39是中心列，从中心列开始一列一列的往左边搜索左边线
+    {
+      if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite - 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
+      {
+        BottomBorderLeft = Xsite;                                       //把这一列记录下来作为这一行的左边线
+        break;                                                          //跳出循环
+      }
+      else if (Xsite == 1)                                              //如果找到了第1列都还没出现黑点，说明这一行的边线有问题。
+      {
+        BottomBorderLeft = 0;                                           //所以我这里的处理就是，直接假设图像最左边的那一列（第0列）就是这一行的左边线。
+        break;                                                          //跳出循环
+      }
+    }
+
+    BottomCenter =(BottomBorderLeft + BottomBorderRight) / 2;           //根据左右边界计算出第59行的中线
+    Sideline_status_array[image_bottom_value].leftline = BottomBorderLeft;                          //把第59行的左边界存储进数组，注意看ImageDeal这个数字的下标，是不是正好对应59。
+    Sideline_status_array[image_bottom_value].rightline = BottomBorderRight;                      //把第59行的右边界存储进数组，注意看ImageDeal这个数字的下标，是不是正好对应59。
+    Sideline_status_array[image_bottom_value].midline = BottomCenter;                                //把第59行的中线存储进数组，    注意看ImageDeal这个数字的下标，是不是正好对应59。
+    Sideline_status_array[image_bottom_value].wide = BottomBorderRight - BottomBorderLeft;          //把第59行的赛道宽度存储数组，注意看ImageDeal这个数字的下标，是不是正好对应59。
+    Sideline_status_array[image_bottom_value].IsLeftFind = 'T';                                     //记录第59行的左边线类型为T，即正常找到左边线。
+    Sideline_status_array[image_bottom_value].IsRightFind = 'T';                                    //记录第59行的右边线类型为T，即正常找到右边线。
 
     /****************************************************End*******************************************************************************/
     /**************************************遍历搜索图像最底行（59行）左右边线从而确定中线的过程 ********************************************************************/
@@ -510,133 +456,39 @@ void Get_BaseLine(void)
     /**************************************在第59行中线已经确定的情况下确定58-54这四行中线的过程 ******************************************/
     /****************************************************Begin*****************************************************************************/
     /*
-         * 下面几行的的搜线过程我就不再赘述了，根据我的注释把第89行的搜线过程理解好，
-         * 那么88到84行的搜线就完全没问题，是一模一样的逻辑和过程。
+         * 下面几行的的搜线过程我就不再赘述了，根据我的注释把第59行的搜线过程理解好，
+         * 那么58到54行的搜线就完全没问题，是一模一样的逻辑和过程。
      */
-    for (Ysite = (image_side_width-1); Ysite > (image_side_width-5); Ysite--)
+    for (Ysite = (image_bottom_value-1); Ysite > (image_bottom_value-5); Ysite--)
     {
         PicTemp = image[Ysite];
-//        for(Xsite = Sideline_status_array[Ysite + 1].midline; Xsite < image_side_width;Xsite++)
-//        {
-//          if(*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)
-//          {
-//            Sideline_status_array[Ysite].rightline = Xsite;
-//            break;
-//          }
-//          else if (Xsite == (image_side_width-1))
-//          {
-//            Sideline_status_array[Ysite].rightline = image_side_width;
-//            break;
-//          }
-//        }
-//
-//        for (Xsite = Sideline_status_array[Ysite + 1].midline; Xsite > 0;Xsite--)
-//        {
-//          if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite - 1) == 0)
-//          {
-//            Sideline_status_array[Ysite].leftline = Xsite;
-//            break;
-//          }
-//          else if (Xsite == 1)
-//          {
-//            Sideline_status_array[Ysite].leftline = 0;
-//            break;
-//          }
-//        }
-        /*确定左边线*/
-         temp_min=(Sideline_status_array[Ysite + 1].midline-track_width/2)-ImageScanInterval;
-         temp_max=(Sideline_status_array[Ysite + 1].midline-track_width/2)+ImageScanInterval;
-            for (uint8 i = temp_min; i <=temp_max ; i++)                    //从左往右扫
-              {
-                if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                {
-                    BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
-                  break;                                  //找到了就跳出循环不找了
-                }
-                else if (i == temp_max)                    //要是扫到最后都没找到
-                {
-                  if (*(PicTemp + (temp_min + temp_max) / 2) != 0)            //并且扫描区间的中间是白像素点
-                  {
-                      for(uint8 j=(temp_min-1);j>0;j--)
-                      {
-                          if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                          {
-                              BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
-                              break;                                  //找到了就跳出循环不找了
-                          }
-                          if(j == 1)
-                          {
-                              BottomBorderLeft = 0;
-                              break;
-                          }
-                      }
-                      break;
-                  }
-                  else                                    //要是扫到最后都没找到，并且扫描区间的中间是黑像素点
-                  {
-                      for(uint8 j=(temp_max+1);j<line_midpoint;j++)
-                      {
-                          if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                          {
-                              BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
-                              break;                                  //找到了就跳出循环不找了
-                          }
-                          if(j == (line_midpoint-1))
-                          {
-                              BottomBorderLeft = (line_midpoint-1);
-                              break;
-                          }
-                      }
-                  }
-                }
-              }
-            /*确定右边线*/
-            temp_min=(Sideline_status_array[Ysite + 1].midline+track_width/2)-ImageScanInterval;
-            temp_max=(Sideline_status_array[Ysite + 1].midline+track_width/2)+ImageScanInterval;
-            for (uint8 i = temp_max; i <=temp_min ; i--)                    //从右往左扫
-                  {
-                    if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                    {
-                        BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
-                      break;                                  //找到了就跳出循环不找了
-                    }
-                    else if (i == temp_min)                    //要是扫到最后都没找到
-                    {
-                      if (*(PicTemp + (temp_min + temp_max) / 2) != 0)            //并且扫描区间的中间是白像素点
-                      {
-                          for(uint8 j=(temp_max+1);j<=image_side_width;j++)
-                          {
-                              if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                              {
-                                  BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
-                                  break;                                  //找到了就跳出循环不找了
-                              }
-                              if(j == image_side_width)
-                              {
-                                  BottomBorderRight = image_side_width;
-                                  break;
-                              }
-                          }
-                          break;
-                      }
-                      else                                    //要是扫到最后都没找到，并且扫描区间的中间是黑像素点
-                      {
-                          for(uint8 j=(temp_min-1);j>line_midpoint;j++)
-                          {
-                              if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
-                              {
-                                  BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
-                                  break;                                  //找到了就跳出循环不找了
-                              }
-                              if(j == (line_midpoint+1))
-                              {
-                                  BottomBorderRight = (line_midpoint+1);
-                                  break;
-                              }
-                          }
-                      }
-                    }
-                  }
+        for(Xsite = Sideline_status_array[Ysite + 1].midline; Xsite < image_side_width;Xsite++)
+        {
+          if(*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)
+          {
+              Sideline_status_array[Ysite].rightline = Xsite;
+            break;
+          }
+          else if (Xsite == (image_side_width-1))
+          {
+              Sideline_status_array[Ysite].rightline = image_side_width;
+            break;
+          }
+        }
+
+        for (Xsite = Sideline_status_array[Ysite + 1].midline; Xsite > 0;Xsite--)
+        {
+          if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite - 1) == 0)
+          {
+              Sideline_status_array[Ysite].leftline = Xsite;
+            break;
+          }
+          else if (Xsite == 1)
+          {
+              Sideline_status_array[Ysite].leftline = 0;
+            break;
+          }
+        }
 
         Sideline_status_array[Ysite].IsLeftFind  = 'T';
         Sideline_status_array[Ysite].IsRightFind = 'T';
@@ -647,6 +499,290 @@ void Get_BaseLine(void)
     /****************************************************End*****************************************************************************/
     /**************************************在第59行中线已经确定的情况下确定58-54这四行中线的过程 ****************************************/
 }
+
+//void Get_BaseLine(void)
+//{
+//    /**************************************遍历搜索图像最底行（59行）左右边线从而确定中线的过程 ********************************************************************/
+//    /****************************************************Begin*****************************************************************************/
+//
+//    PicTemp = image[image_bottom_value];                                                //让PicTemp这个指针变量指向图像数组的Pixle[image_bottom_value]
+////    for (Xsite = line_midpoint; Xsite < image_side_width; Xsite++)                   //假设line_midpoint是中心列，从中心列开始一列一列的往右边搜索右边线
+////    {
+////      if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
+////      {
+////        BottomBorderRight = Xsite;                                      //把这一列记录下来作为这一行的右边线
+////        break;                                                          //跳出循环
+////      }
+////      else if (Xsite == (image_side_width-1))                                             //如果找到了第58列都还没出现黑点，说明这一行的边线有问题。
+////      {
+////        BottomBorderRight = (image_side_width-1);                                         //所以我这里的处理就是，直接假设图像最右边的那一列（第79列）就是这一行的右边线。
+////        break;                                                          //跳出循环
+////      }
+////    }
+////
+////    for (Xsite = line_midpoint; Xsite > 0; Xsite--)                    //假设39是中心列，从中心列开始一列一列的往左边搜索左边线
+////    {
+////      if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite - 1) == 0)       //如果连续出现了两个黑点，说没找到了边线。
+////      {
+////        BottomBorderLeft = Xsite;                                       //把这一列记录下来作为这一行的左边线
+////        break;                                                          //跳出循环
+////      }
+////      else if (Xsite == 1)                                              //如果找到了第1列都还没出现黑点，说明这一行的边线有问题。
+////      {
+////        BottomBorderLeft = 0;                                           //所以我这里的处理就是，直接假设图像最左边的那一列（第0列）就是这一行的左边线。
+////        break;                                                          //跳出循环
+////      }
+////    }
+//    /*确定左边线*/
+//    uint8 temp_min=(line_midpoint-track_width/2)-ImageScanInterval;
+//    uint8 temp_max=(line_midpoint-track_width/2)+ImageScanInterval;
+//    for (uint8 i = temp_min; i <=temp_max ; i++)                    //从左往右扫
+//      {
+//        if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//        {
+//            BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
+//          break;                                  //找到了就跳出循环不找了
+//        }
+//        else if (i == temp_max)                    //要是扫到最后都没找到
+//        {
+//          if (*(PicTemp + (temp_min + temp_max) / 2) != 0)            //并且扫描区间的中间是白像素点
+//          {
+//              for(uint8 j=(temp_min-1);j>0;j--)
+//              {
+//                  if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                  {
+//                      BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
+//                      break;                                  //找到了就跳出循环不找了
+//                  }
+//                  if(j == 1)
+//                  {
+//                      BottomBorderLeft = 0;
+//                      break;
+//                  }
+//              }
+//              break;
+//          }
+//          else                                    //要是扫到最后都没找到，并且扫描区间的中间是黑像素点
+//          {
+//              for(uint8 j=(temp_max+1);j<line_midpoint;j++)
+//              {
+//                  if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                  {
+//                      BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
+//                      break;                                  //找到了就跳出循环不找了
+//                  }
+//                  if(j == (line_midpoint-1))
+//                  {
+//                      BottomBorderLeft = (line_midpoint-1);
+//                      break;
+//                  }
+//              }
+//          }
+//        }
+//      }
+//    /*确定右边线*/
+//    temp_min=(line_midpoint+track_width/2)-ImageScanInterval;
+//    temp_max=(line_midpoint+track_width/2)+ImageScanInterval;
+//    for (uint8 i = temp_max; i <=temp_min ; i--)                    //从右往左扫
+//          {
+//            if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//            {
+//                BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
+//              break;                                  //找到了就跳出循环不找了
+//            }
+//            else if (i == temp_min)                    //要是扫到最后都没找到
+//            {
+//              if (*(PicTemp + (temp_min + temp_max) / 2) != 0)            //并且扫描区间的中间是白像素点
+//              {
+//                  for(uint8 j=(temp_max+1);j<=image_side_width;j++)
+//                  {
+//                      if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                      {
+//                          BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
+//                          break;                                  //找到了就跳出循环不找了
+//                      }
+//                      if(j == image_side_width)
+//                      {
+//                          BottomBorderRight = image_side_width;
+//                          break;
+//                      }
+//                  }
+//                  break;
+//              }
+//              else                                    //要是扫到最后都没找到，并且扫描区间的中间是黑像素点
+//              {
+//                  for(uint8 j=(temp_min-1);j>line_midpoint;j++)
+//                  {
+//                      if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                      {
+//                          BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
+//                          break;                                  //找到了就跳出循环不找了
+//                      }
+//                      if(j == (line_midpoint+1))
+//                      {
+//                          BottomBorderRight = (line_midpoint+1);
+//                          break;
+//                      }
+//                  }
+//              }
+//            }
+//          }
+//
+//    BottomCenter =(BottomBorderLeft + BottomBorderRight) / 2;           //根据左右边界计算出第89行的中线
+//    Sideline_status_array[image_bottom_value].leftline = BottomBorderLeft;                        //把第89行的左边界存储进数组，注意看ImageDeal这个数字的下标，是不是正好对应89。
+//    Sideline_status_array[image_bottom_value].rightline = BottomBorderRight;                      //把第89行的右边界存储进数组，注意看ImageDeal这个数字的下标，是不是正好对应89。
+//    Sideline_status_array[image_bottom_value].midline = BottomCenter;                                //把第89行的中线存储进数组，    注意看ImageDeal这个数字的下标，是不是正好对应89。
+//    Sideline_status_array[image_bottom_value].wide = BottomBorderRight - BottomBorderLeft;          //把第89行的赛道宽度存储数组，注意看ImageDeal这个数字的下标，是不是正好对应89。
+//    Sideline_status_array[image_bottom_value].IsLeftFind = 'T';                                     //记录第89行的左边线类型为T，即正常找到左边线。
+//    Sideline_status_array[image_bottom_value].IsRightFind = 'T';                                    //记录第89行的右边线类型为T，即正常找到右边线。
+//
+//    /****************************************************End*******************************************************************************/
+//    /**************************************遍历搜索图像最底行（59行）左右边线从而确定中线的过程 ********************************************************************/
+//
+//
+//
+//    /**************************************在第59行中线已经确定的情况下确定58-54这四行中线的过程 ******************************************/
+//    /****************************************************Begin*****************************************************************************/
+//    /*
+//         * 下面几行的的搜线过程我就不再赘述了，根据我的注释把第89行的搜线过程理解好，
+//         * 那么88到84行的搜线就完全没问题，是一模一样的逻辑和过程。
+//     */
+//    for (Ysite = (image_side_width-1); Ysite > (image_side_width-5); Ysite--)
+//    {
+//        PicTemp = image[Ysite];
+////        for(Xsite = Sideline_status_array[Ysite + 1].midline; Xsite < image_side_width;Xsite++)
+////        {
+////          if(*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)
+////          {
+////            Sideline_status_array[Ysite].rightline = Xsite;
+////            break;
+////          }
+////          else if (Xsite == (image_side_width-1))
+////          {
+////            Sideline_status_array[Ysite].rightline = image_side_width;
+////            break;
+////          }
+////        }
+////
+////        for (Xsite = Sideline_status_array[Ysite + 1].midline; Xsite > 0;Xsite--)
+////        {
+////          if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite - 1) == 0)
+////          {
+////            Sideline_status_array[Ysite].leftline = Xsite;
+////            break;
+////          }
+////          else if (Xsite == 1)
+////          {
+////            Sideline_status_array[Ysite].leftline = 0;
+////            break;
+////          }
+////        }
+//        /*确定左边线*/
+//         temp_min=(Sideline_status_array[Ysite + 1].midline-track_width/2)-ImageScanInterval;
+//         temp_max=(Sideline_status_array[Ysite + 1].midline-track_width/2)+ImageScanInterval;
+//            for (uint8 i = temp_min; i <=temp_max ; i++)                    //从左往右扫
+//              {
+//                if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                {
+//                    BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
+//                  break;                                  //找到了就跳出循环不找了
+//                }
+//                else if (i == temp_max)                    //要是扫到最后都没找到
+//                {
+//                  if (*(PicTemp + (temp_min + temp_max) / 2) != 0)            //并且扫描区间的中间是白像素点
+//                  {
+//                      for(uint8 j=(temp_min-1);j>0;j--)
+//                      {
+//                          if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                          {
+//                              BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
+//                              break;                                  //找到了就跳出循环不找了
+//                          }
+//                          if(j == 1)
+//                          {
+//                              BottomBorderLeft = 0;
+//                              break;
+//                          }
+//                      }
+//                      break;
+//                  }
+//                  else                                    //要是扫到最后都没找到，并且扫描区间的中间是黑像素点
+//                  {
+//                      for(uint8 j=(temp_max+1);j<line_midpoint;j++)
+//                      {
+//                          if (*(PicTemp + i) != 0 && *(PicTemp + i - 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                          {
+//                              BottomBorderLeft = i;                           //那就把这个列记录下来作为左边线
+//                              break;                                  //找到了就跳出循环不找了
+//                          }
+//                          if(j == (line_midpoint-1))
+//                          {
+//                              BottomBorderLeft = (line_midpoint-1);
+//                              break;
+//                          }
+//                      }
+//                  }
+//                }
+//              }
+//            /*确定右边线*/
+//            temp_min=(Sideline_status_array[Ysite + 1].midline+track_width/2)-ImageScanInterval;
+//            temp_max=(Sideline_status_array[Ysite + 1].midline+track_width/2)+ImageScanInterval;
+//            for (uint8 i = temp_max; i <=temp_min ; i--)                    //从右往左扫
+//                  {
+//                    if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                    {
+//                        BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
+//                      break;                                  //找到了就跳出循环不找了
+//                    }
+//                    else if (i == temp_min)                    //要是扫到最后都没找到
+//                    {
+//                      if (*(PicTemp + (temp_min + temp_max) / 2) != 0)            //并且扫描区间的中间是白像素点
+//                      {
+//                          for(uint8 j=(temp_max+1);j<=image_side_width;j++)
+//                          {
+//                              if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                              {
+//                                  BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
+//                                  break;                                  //找到了就跳出循环不找了
+//                              }
+//                              if(j == image_side_width)
+//                              {
+//                                  BottomBorderRight = image_side_width;
+//                                  break;
+//                              }
+//                          }
+//                          break;
+//                      }
+//                      else                                    //要是扫到最后都没找到，并且扫描区间的中间是黑像素点
+//                      {
+//                          for(uint8 j=(temp_min-1);j>line_midpoint;j++)
+//                          {
+//                              if (*(PicTemp + i) != 0 && *(PicTemp + i + 1) == 0)   //如果有黑白跳变    1是白 0是黑
+//                              {
+//                                  BottomBorderRight = i;                           //那就把这个列记录下来作为左边线
+//                                  break;                                  //找到了就跳出循环不找了
+//                              }
+//                              if(j == (line_midpoint+1))
+//                              {
+//                                  BottomBorderRight = (line_midpoint+1);
+//                                  break;
+//                              }
+//                          }
+//                      }
+//                    }
+//                  }
+//
+//        Sideline_status_array[Ysite].IsLeftFind  = 'T';
+//        Sideline_status_array[Ysite].IsRightFind = 'T';
+//        Sideline_status_array[Ysite].midline =(Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
+//        Sideline_status_array[Ysite].wide   = Sideline_status_array[Ysite].rightline - Sideline_status_array[Ysite].leftline;
+//    }
+//
+//    /****************************************************End*****************************************************************************/
+//    /**************************************在第59行中线已经确定的情况下确定58-54这四行中线的过程 ****************************************/
+//}
+
+
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
 //  @name           Get_AllLine
 //  @brief          在Get_BaseLine的基础上，针对部分特殊情况，利用一些特殊的处理算法得到剩余行的边线和中线信息。
@@ -703,7 +839,16 @@ void Get_AllLine(void)
         尤其是在这个函数里面，“T”、“W”、“H”三个标志代表什么，
         一定要搞懂!!!不然的话，建议不要往下看了，不要折磨自己!!!
   */
-    if(JumpPoint[0].type != 'T' || JumpPoint[1].type!= 'T')mid_choose_value++;
+    if(default_side_choose)
+       {
+           if(JumpPoint[1].type!= 'T' || JumpPoint[1].point > (image_side_width-5))mid_choose_value++;
+//           if(JumpPoint[1].type!= 'T' )mid_choose_value++;
+       }
+       else {
+           if(JumpPoint[0].type != 'T' || JumpPoint[0].point < 5)mid_choose_value++;
+//           if(JumpPoint[0].type != 'T')mid_choose_value++;
+       }
+
     if (JumpPoint[0].type =='W')                                                     //如果本行的左边线属于不正常跳变，即这10个点都是白点。
     {
       Sideline_status_array[Ysite].leftline =Sideline_status_array[Ysite + 1].leftline;                  //那么本行的左边线就采用上一行的边线。
@@ -721,8 +866,8 @@ void Get_AllLine(void)
     {
       Sideline_status_array[Ysite].rightline = JumpPoint[1].point;                             //那么扫描到的边线是多少，我就记录下来是多少。
     }
-    if(mid_choose_value>10)imageflag.mid_choose=1;
-//    if(Sideline_status_array[Ysite].wide< track_width)imageflag.mid_choose=1;
+        if(mid_choose_value>10)imageflag.mid_choose=1;
+//        if(Sideline_status_array[Ysite].wide< track_width/2)imageflag.mid_choose=1;
     Sideline_status_array[Ysite].IsLeftFind =JumpPoint[0].type;                                  //记录本行找到的左边线类型，是T？是W？还是H？这个类型后面是有用的，因为我还要进一步处理。
     Sideline_status_array[Ysite].IsRightFind = JumpPoint[1].type;                                //记录本行找到的右边线类型，是T？是W？还是H？这个类型后面是有用的，因为我还要进一步处理。
 
@@ -794,8 +939,8 @@ void Get_AllLine(void)
     int ysite = 0;
     uint8 L_found_point = 0;
     uint8 R_found_point = 0;
-    /**************************处理右边线的无边行***************************/
-    if (Sideline_status_array[Ysite].IsRightFind == 'W' && Ysite > 10 && Ysite < (image_side_width-10))
+    /**************************处理左边线的无边行***************************/
+    if (Sideline_status_array[Ysite].IsRightFind == 'W'&&Ysite > 10&&Ysite < (image_bottom_value-9))
     {
       if (Get_R_line == 'F')
       {
@@ -818,10 +963,10 @@ void Get_AllLine(void)
           else
           {
             R_Found_T = 'F';
-//            if (D_R < 0)
-//            {
-//                ExtenRFlag = 'F';
-//            }
+            if (D_R < 0)
+            {
+                ExtenRFlag = 'F';
+            }
           }
         }
       }
@@ -832,12 +977,11 @@ void Get_AllLine(void)
       LimitL(Sideline_status_array[Ysite].rightline);  //限幅
       LimitH(Sideline_status_array[Ysite].rightline);  //限幅
     }
+    /**************************处理左边线的无边行***************************/
+
 
     /**************************处理右边线的无边行***************************/
-
-
-    /**************************处理左边线的无边行***************************/
-    if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite > 10 && Ysite < (image_side_width-10) )
+    if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite > 10 && Ysite < (image_bottom_value-9) )
     {
       if (Get_L_line == 'F')
       {
@@ -860,10 +1004,10 @@ void Get_AllLine(void)
           else
           {
             L_Found_T = 'F';
-//            if (D_L < 0)
-//            {
-//                ExtenLFlag = 'F';
-//            }
+            if (D_L < 0)
+            {
+                ExtenLFlag = 'F';
+            }
           }
         }
       }
@@ -877,7 +1021,7 @@ void Get_AllLine(void)
       LimitH(Sideline_status_array[Ysite].leftline);  //限幅
     }
 
-    /**************************处理左边线的无边行***************************/
+    /**************************处理右边线的无边行***************************/
     /************************************重新确定无边行（即W类）的边界****************************************************************/
 
 
@@ -886,130 +1030,886 @@ void Get_AllLine(void)
       {
           imagestatus.WhiteLine++;  //要是左右都无边，丢边数+1
       }
-     if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite < (image_bottom_value-4) )
+     if (Sideline_status_array[Ysite].IsLeftFind == 'W'&&Ysite<55)
      {
           imagestatus.Miss_Left_lines++;
      }
-     if (Sideline_status_array[Ysite].IsRightFind == 'W'&& Ysite < (image_bottom_value-4) )
+     if (Sideline_status_array[Ysite].IsRightFind == 'W'&&Ysite<55)
      {
           imagestatus.Miss_Right_lines++;
      }
 
-      LimitL(Sideline_status_array[Ysite].leftline);   //限幅
+     LimitL(Sideline_status_array[Ysite].leftline);   //限幅
       LimitH(Sideline_status_array[Ysite].leftline);   //限幅
-      LimitL(Sideline_status_array[Ysite].rightline);  //限幅
+     LimitL(Sideline_status_array[Ysite].rightline);  //限幅
       LimitH(Sideline_status_array[Ysite].rightline);  //限幅
 
       Sideline_status_array[Ysite].wide =Sideline_status_array[Ysite].rightline - Sideline_status_array[Ysite].leftline;
 //      Sideline_status_array[Ysite].midline =(Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline) / 2;
 
-      if (Sideline_status_array[Ysite].wide <= 7 )
+      if (Sideline_status_array[Ysite].wide <= 7)
       {
           imagestatus.OFFLine = Ysite + 1;
           break;
       }
-      else if (Sideline_status_array[Ysite].rightline <= 10||Sideline_status_array[Ysite].leftline >= (image_bottom_value-10))
+      else if (Sideline_status_array[Ysite].rightline <= 10||Sideline_status_array[Ysite].leftline >= 80)
       {
           imagestatus.OFFLine = Ysite + 1;
           break;
       }
       /************************************都处理完之后，其他的一些数据整定操作*************************************************/
   }
-  for (Ysite = imagestatus.OFFLine ; Ysite <= (image_bottom_value-5); Ysite++){
-      int ysite = 0;
-      uint8 L_found_point = 0;
-      uint8 R_found_point = 0;
-      /*左边线无边行的标定*/
-      if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite < 10)
-      {
-          ytemp_W_L = Ysite - 2;
-                  for (ysite = Ysite - 1; ysite < Ysite - 15; ysite--)
-                  {
-                    if (Sideline_status_array[ysite].IsLeftFind == 'T')
-                      {
-                        L_found_point++;
-                      }
-                  }
-                  if (L_found_point > 8)              //找到基准斜率边  做延长线重新确定无边
-                  {
-                    D_L = ((float)(Sideline_status_array[Ysite - 3].leftline -Sideline_status_array[Ysite - L_found_point].leftline)) /((float)(L_found_point - 3));
-                    if (D_L > 0)
-                    {
-                      L_Found_T = 'T';
-                    }
-                    else
-                    {
-                      L_Found_T = 'F';
-          //            if (D_L < 0)
-          //            {
-          //                ExtenLFlag = 'F';
-          //            }
-                    }
-                  }
-                  if (L_Found_T == 'T')
-                       {
-                           Sideline_status_array[Ysite].leftline =Sideline_status_array[ytemp_W_L].leftline + D_L * (ytemp_W_L - Ysite);
-                       }
+      for (Ysite = imagestatus.OFFLine ; Ysite <= (image_bottom_value-5); Ysite++){
+            int ysite = 0;
+            uint8 L_found_point = 0;
+            uint8 R_found_point = 0;
+            /*左边线无边行的标定*/
+            if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite < 10)
+            {
+                ytemp_W_L = Ysite - 2;
+                        for (ysite = Ysite - 1; ysite < Ysite - 15; ysite--)
+                        {
+                          if (Sideline_status_array[ysite].IsLeftFind == 'T')
+                            {
+                              L_found_point++;
+                            }
+                        }
+                        if (L_found_point > 8)              //找到基准斜率边  做延长线重新确定无边
+                        {
+                          D_L = ((float)(Sideline_status_array[Ysite - 3].leftline -Sideline_status_array[Ysite - L_found_point].leftline)) /((float)(L_found_point - 3));
+                          if (D_L > 0)
+                          {
+                            L_Found_T = 'T';
+                          }
+                          else
+                          {
+                            L_Found_T = 'F';
+                //            if (D_L < 0)
+                //            {
+                //                ExtenLFlag = 'F';
+                //            }
+                          }
+                        }
+                        if (L_Found_T == 'T')
+                             {
+                                 Sideline_status_array[Ysite].leftline =Sideline_status_array[ytemp_W_L].leftline + D_L * (ytemp_W_L - Ysite);
+                             }
 
-                       LimitL(Sideline_status_array[Ysite].leftline);  //限幅
-                       LimitH(Sideline_status_array[Ysite].leftline);  //限幅
-      }
-      /*右边线无边行的标定*/
-      if (Sideline_status_array[Ysite].IsRightFind == 'W' &&  Ysite > (image_side_width-10))
-         {
-             ytemp_W_R = Ysite - 2;
-             for (ysite = Ysite - 1; ysite < Ysite - 15; ysite--)
-             {
-               if (Sideline_status_array[ysite].IsRightFind =='T')
-               {
-                   R_found_point++;
-               }
-             }
-             if (R_found_point >8)
-             {
-               D_R = ((float)(Sideline_status_array[Ysite - R_found_point].rightline - Sideline_status_array[Ysite - 3].rightline)) /((float)(R_found_point - 3));
-               if (D_R > 0)
-               {
-                 R_Found_T ='T';
-               }
-               else
-               {
-                 R_Found_T = 'F';
-     //            if (D_R < 0)
-     //            {
-     //                ExtenRFlag = 'F';
-     //            }
-               }
-             }
+                        LimitL(Sideline_status_array[Ysite].leftline);  //限幅
+                        LimitH(Sideline_status_array[Ysite].leftline);  //限幅
 
-           if (R_Found_T == 'T')
-           {
-             Sideline_status_array[Ysite].rightline =Sideline_status_array[ytemp_W_R].rightline -D_R * (ytemp_W_R - Ysite);  //如果找到了 那么以基准行做延长线
-           }
-           LimitL(Sideline_status_array[Ysite].rightline);  //限幅
-           LimitH(Sideline_status_array[Ysite].rightline);  //限幅
-         }
+            }
+            /*右边线无边行的标定*/
+            if (Sideline_status_array[Ysite].IsRightFind == 'W' &&  Ysite > (image_side_width-10))
+               {
+                   ytemp_W_R = Ysite - 2;
+                   for (ysite = Ysite - 1; ysite < Ysite - 15; ysite--)
+                   {
+                     if (Sideline_status_array[ysite].IsRightFind =='T')
+                     {
+                         R_found_point++;
+                     }
+                   }
+                   if (R_found_point >8)
+                   {
+                     D_R = ((float)(Sideline_status_array[Ysite - R_found_point].rightline - Sideline_status_array[Ysite - 3].rightline)) /((float)(R_found_point - 3));
+                     if (D_R > 0)
+                     {
+                       R_Found_T ='T';
+                     }
+                     else
+                     {
+                       R_Found_T = 'F';
+           //            if (D_R < 0)
+           //            {
+           //                ExtenRFlag = 'F';
+           //            }
+                     }
+                   }
+
+                 if (R_Found_T == 'T')
+                 {
+                   Sideline_status_array[Ysite].rightline =Sideline_status_array[ytemp_W_R].rightline -D_R * (ytemp_W_R - Ysite);  //如果找到了 那么以基准行做延长线
+                 }
+                 LimitL(Sideline_status_array[Ysite].rightline);  //限幅
+                 LimitH(Sideline_status_array[Ysite].rightline);  //限幅
+
+
+               }
       /*中线的标定*/
-      if(imageflag.mid_choose)
-      {
-          if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
-          else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
-      }
-      else {
-          if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
-          else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
-    }
+       if(imageflag.mid_choose)
+       {
+           if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
+           else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
+       }
+       else {
+           if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
+           else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
   }
+       LimitH(Sideline_status_array[Ysite].midline);
+       LimitL(Sideline_status_array[Ysite].midline);
+}
 }
 
-//------------------------------------------------------------------------------------------------------
-// 函数简介     环岛检测
-//------------------------------------------------------------------------------------------------------
-void Element_Judgment(void)
+//void Get_AllLine(void)
+//{
+//  uint8 L_Found_T  = 'F';    //确定无边斜率的基准有边行是否被找到的标志
+//  uint8 Get_L_line = 'F';    //找到这一帧图像的基准左斜率，为什么这里要置为F，看了下面的代码就知道了。
+//  uint8 R_Found_T  = 'F';    //确定无边斜率的基准有边行是否被找到的标志
+//  uint8 Get_R_line = 'F';    //找到这一帧图像的基准右斜率，为什么这里要置为F，看了下面的代码就知道了。
+//  float D_L = 0;             //左边线延长线的斜率
+//  float D_R = 0;             //右边线延长线的斜率
+//  int ytemp_W_L;             //记住首次左丢边行
+//  int ytemp_W_R;             //记住首次右丢边行
+//  ExtenRFlag = 0;            //标志位清0
+//  ExtenLFlag = 0;            //标志位清0
+//  imagestatus.OFFLine=2;     //这个结构体成员我之所以在这里赋值，是因为我ImageStatus结构体里面的成员太多了，但是暂时又只用到了OFFLine，所以我在哪用到它就在哪赋值。
+//  imagestatus.Miss_Right_lines = 0;
+//  imagestatus.WhiteLine = 0;
+//  imagestatus.Miss_Left_lines = 0;
+//  imageflag.mid_choose=0;
+//  uint8 mid_choose_value=0;
+//  for (Ysite = (image_bottom_value-5) ; Ysite > imagestatus.OFFLine; Ysite--)                            //前5行在Get_BaseLine()中已经处理过了，现在从55行处理到自己设定的不处理行OFFLine。
+//  {                                                                                  //因为太前面的图像可靠性不搞，所以OFFLine的设置很有必要，没必要一直往上扫到第0行。
+//    PicTemp = image[Ysite];
+//    JumpPointtypedef JumpPoint[2];                                                   // JumpPoint[0]代表左边线，JumpPoint[1]代表右边线。
+//
+//  /******************************扫描本行的右边线******************************/
+//    int IntervalLow  = Sideline_status_array[Ysite + 1].rightline  - ImageScanInterval;               //从上一行的右边线加减Interval对应的列开始扫描本行，Interval一般取5，当然你为了保险起见可以把这个值改的大一点。
+//    int IntervalHigh = Sideline_status_array[Ysite + 1].rightline + ImageScanInterval;              //正常情况下只需要在上行边线左右5的基础上（差不多10列的这个区间）去扫线，一般就能找到本行的边线了，所以这个值其实不用太大。
+//    IntervalLow= (IntervalLow);                                                             //这里就是对传给GetJumpPointFromDet()函数的扫描区间进行一个限幅操作。
+//    IntervalHigh=LimitL(IntervalHigh);                                                            //假如上一行的边线是第2列，那你2-5=-3，-3是不是就没有实际意义了？怎么会有-3列呢？
+//    Get_Border_And_SideType(PicTemp, 'R', IntervalLow, IntervalHigh,&JumpPoint[1]);  //扫线用的一个子函数，自己跳进去看明白逻辑。
+//  /******************************扫描本行的右边线******************************/
+//
+//  /******************************扫描本行的左边线******************************/
+//    IntervalLow =Sideline_status_array[Ysite + 1].leftline  -ImageScanInterval;                //从上一行的左边线加减Interval对应的列开始扫描本行，Interval一般取5，当然你为了保险起见可以把这个值改的大一点。
+//    IntervalHigh =Sideline_status_array[Ysite + 1].leftline +ImageScanInterval;                //正常情况下只需要在上行边线左右5的基础上（差不多10列的这个区间）去扫线，一般就能找到本行的边线了，所以这个值其实不用太大。
+//    IntervalLow=LimitL(IntervalLow);                                                             //这里就是对传给GetJumpPointFromDet()函数的扫描区间进行一个限幅操作。
+//    IntervalHigh= LimitL(IntervalHigh);                                                            //假如上一行的边线是第2列，那你2-5=-3，-3是不是就没有实际意义了？怎么会有-3列呢？
+//    Get_Border_And_SideType(PicTemp, 'L', IntervalLow, IntervalHigh,&JumpPoint[0]);  //扫线用的一个子函数，自己跳进去看明白逻辑。
+//  /******************************扫描本行的左边线******************************/
+//
+//  /*
+//       下面的代码要是想看懂，想搞清楚我到底在赣神魔的话，
+//        请务必把GetJumpPointFromDet()这个函数的逻辑看懂，
+//        尤其是在这个函数里面，“T”、“W”、“H”三个标志代表什么，
+//        一定要搞懂!!!不然的话，建议不要往下看了，不要折磨自己!!!
+//  */
+//
+//    if(default_side_choose)
+//    {
+//        if(JumpPoint[1].type!= 'T')mid_choose_value++;
+//    }
+//    else {
+//        if(JumpPoint[0].type != 'T')mid_choose_value++;
+//    }
+//    if (JumpPoint[0].type =='W')                                                     //如果本行的左边线属于不正常跳变，即这10个点都是白点。
+//    {
+//      Sideline_status_array[Ysite].leftline =Sideline_status_array[Ysite + 1].leftline;                  //那么本行的左边线就采用上一行的边线。
+//    }
+//    else                                                                             //如果本行的左边线属于T或者是H类别
+//    {
+//      Sideline_status_array[Ysite].leftline = JumpPoint[0].point;                              //那么扫描到的边线是多少，我就记录下来是多少。
+//    }
+//
+//    if (JumpPoint[1].type == 'W')                                                    //如果本行的右边线属于不正常跳变，即这10个点都是白点。
+//    {
+//      Sideline_status_array[Ysite].rightline =Sideline_status_array[Ysite + 1].rightline;                //那么本行的右边线就采用上一行的边线。
+//    }
+//    else                                                                             //如果本行的右边线属于T或者是H类别
+//    {
+//      Sideline_status_array[Ysite].rightline = JumpPoint[1].point;                             //那么扫描到的边线是多少，我就记录下来是多少。
+//    }
+//    if(mid_choose_value>10)imageflag.mid_choose=1;
+////    if(Sideline_status_array[Ysite].wide< track_width)imageflag.mid_choose=1;
+//    Sideline_status_array[Ysite].IsLeftFind =JumpPoint[0].type;                                  //记录本行找到的左边线类型，是T？是W？还是H？这个类型后面是有用的，因为我还要进一步处理。
+//    Sideline_status_array[Ysite].IsRightFind = JumpPoint[1].type;                                //记录本行找到的右边线类型，是T？是W？还是H？这个类型后面是有用的，因为我还要进一步处理。
+//
+//
+//  /*
+//        下面就开始对W和H类型的边线分别进行处理， 为什么要处理？
+//        如果你看懂了GetJumpPointFromDet函数逻辑，明白了T W H三种类型分别对应什么情况，
+//        那你就应该知道W和H类型的边线都属于非正常类型，那我是不是要处理？
+//        这一部分的处理思路需要自己花大量时间好好的去琢磨，我在注释这里没法给你说清楚的。，
+//        实在想不通就来问我吧！
+//  */
+//
+//    /************************************重新确定大跳变(即H类)的边界*************************************/
+//
+//    if (( Sideline_status_array[Ysite].IsLeftFind == 'H' || Sideline_status_array[Ysite].IsRightFind == 'H'))
+//    {
+//      /**************************处理左边线的大跳变***************************/
+//      if (Sideline_status_array[Ysite].IsLeftFind == 'H')
+//      {
+//        for (Xsite = (Sideline_status_array[Ysite].leftline + 1);Xsite <= (Sideline_status_array[Ysite].rightline - 1);Xsite++)                                                           //左右边线之间重新扫描
+//        {
+//          if ((*(PicTemp + Xsite) == 0) && (*(PicTemp + Xsite + 1) != 0))
+//          {
+//            Sideline_status_array[Ysite].leftline =Xsite;
+//            Sideline_status_array[Ysite].IsLeftFind = 'T';
+//            break;
+//          }
+//          else if (*(PicTemp + Xsite) != 0)
+//            break;
+//          else if (Xsite ==(Sideline_status_array[Ysite].rightline - 1))
+//          {
+//            Sideline_status_array[Ysite].IsLeftFind = 'T';
+//            break;
+//          }
+//        }
+//      }
+//      /**************************处理左边线的大跳变***************************/
+//
+//
+//      /**************************处理右边线的大跳变***************************/
+//      if (Sideline_status_array[Ysite].IsRightFind == 'H')
+//      {
+//        for (Xsite = (Sideline_status_array[Ysite].rightline - 1);Xsite >= (Sideline_status_array[Ysite].leftline + 1); Xsite--)
+//        {
+//          if ((*(PicTemp + Xsite) == 0) && (*(PicTemp + Xsite - 1) != 0))
+//          {
+//            Sideline_status_array[Ysite].rightline =Xsite;
+//            Sideline_status_array[Ysite].IsRightFind = 'T';
+//            break;
+//          }
+//          else if (*(PicTemp + Xsite) != 0)
+//            break;
+//          else if (Xsite == (Sideline_status_array[Ysite].leftline + 1))
+//          {
+//            Sideline_status_array[Ysite].rightline = Xsite;
+//            Sideline_status_array[Ysite].IsRightFind = 'T';
+//            break;
+//          }
+//         }
+//       }
+//     }
+//    /**************************处理右边线的大跳变***************************/
+//
+//  /*****************************重新确定大跳变的边界******************************/
+//
+//
+//
+// /************************************重新确定无边行（即W类）的边界****************************************************************/
+//    int ysite = 0;
+//    uint8 L_found_point = 0;
+//    uint8 R_found_point = 0;
+//    /**************************处理右边线的无边行***************************/
+//    if (Sideline_status_array[Ysite].IsRightFind == 'W' && Ysite > 10 && Ysite < (image_side_width-10))
+//    {
+//      if (Get_R_line == 'F')
+//      {
+//        Get_R_line = 'T';
+//        ytemp_W_R = Ysite + 2;
+//        for (ysite = Ysite + 1; ysite < Ysite + 15; ysite++)
+//        {
+//          if (Sideline_status_array[ysite].IsRightFind =='T')
+//          {
+//              R_found_point++;
+//          }
+//        }
+//        if (R_found_point >8)
+//        {
+//          D_R = ((float)(Sideline_status_array[Ysite + R_found_point].rightline - Sideline_status_array[Ysite + 3].rightline)) /((float)(R_found_point - 3));
+//          if (D_R > 0)
+//          {
+//            R_Found_T ='T';
+//          }
+//          else
+//          {
+//            R_Found_T = 'F';
+////            if (D_R < 0)
+////            {
+////                ExtenRFlag = 'F';
+////            }
+//          }
+//        }
+//      }
+//      if (R_Found_T == 'T')
+//      {
+//        Sideline_status_array[Ysite].rightline =Sideline_status_array[ytemp_W_R].rightline -D_R * (ytemp_W_R - Ysite);  //如果找到了 那么以基准行做延长线
+//      }
+//      Sideline_status_array[Ysite].rightline=LimitL(Sideline_status_array[Ysite].rightline);  //限幅
+//
+//    }
+//
+//    /**************************处理右边线的无边行***************************/
+//
+//
+//    /**************************处理左边线的无边行***************************/
+//    if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite > 10 && Ysite < (image_side_width-10) )
+//    {
+//      if (Get_L_line == 'F')
+//      {
+//        Get_L_line = 'T';
+//        ytemp_W_L = Ysite + 2;
+//        for (ysite = Ysite + 1; ysite < Ysite + 15; ysite++)
+//        {
+//          if (Sideline_status_array[ysite].IsLeftFind == 'T')
+//            {
+//              L_found_point++;
+//            }
+//        }
+//        if (L_found_point > 8)              //找到基准斜率边  做延长线重新确定无边
+//        {
+//          D_L = ((float)(Sideline_status_array[Ysite + 3].leftline -Sideline_status_array[Ysite + L_found_point].leftline)) /((float)(L_found_point - 3));
+//          if (D_L > 0)
+//          {
+//            L_Found_T = 'T';
+//          }
+//          else
+//          {
+//            L_Found_T = 'F';
+////            if (D_L < 0)
+////            {
+////                ExtenLFlag = 'F';
+////            }
+//          }
+//        }
+//      }
+//
+//      if (L_Found_T == 'T')
+//      {
+//          Sideline_status_array[Ysite].leftline =Sideline_status_array[ytemp_W_L].leftline + D_L * (ytemp_W_L - Ysite);
+//      }
+//
+//      Sideline_status_array[Ysite].leftline=LimitL(Sideline_status_array[Ysite].leftline);  //限幅
+//
+//    }
+//
+//    /**************************处理左边线的无边行***************************/
+//    /************************************重新确定无边行（即W类）的边界****************************************************************/
+//
+//
+//    /************************************都处理完之后，其他的一些数据整定操作*************************************************/
+//      if (Sideline_status_array[Ysite].IsLeftFind == 'W'&&Sideline_status_array[Ysite].IsRightFind == 'W')
+//      {
+//          imagestatus.WhiteLine++;  //要是左右都无边，丢边数+1
+//      }
+//     if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite < (image_bottom_value-4) )
+//     {
+//          imagestatus.Miss_Left_lines++;
+//     }
+//     if (Sideline_status_array[Ysite].IsRightFind == 'W'&& Ysite < (image_bottom_value-4) )
+//     {
+//          imagestatus.Miss_Right_lines++;
+//     }
+//
+//     Sideline_status_array[Ysite].leftline=LimitL(Sideline_status_array[Ysite].leftline);   //限幅
+//
+//     Sideline_status_array[Ysite].rightline= LimitL(Sideline_status_array[Ysite].rightline);  //限幅
+//
+//
+//      Sideline_status_array[Ysite].wide =Sideline_status_array[Ysite].rightline - Sideline_status_array[Ysite].leftline;
+////      Sideline_status_array[Ysite].midline =(Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline) / 2;
+//
+////      if (Sideline_status_array[Ysite].wide <= 7 )
+////      {
+////          imagestatus.OFFLine = Ysite + 1;
+////          break;
+////      }
+////      else if (Sideline_status_array[Ysite].rightline <= 10||Sideline_status_array[Ysite].leftline >= (image_bottom_value-10))
+////      {
+////          imagestatus.OFFLine = Ysite + 1;
+////          break;
+////      }
+//      /************************************都处理完之后，其他的一些数据整定操作*************************************************/
+//  }
+//  for (Ysite = imagestatus.OFFLine ; Ysite <= (image_bottom_value-5); Ysite++){
+//      int ysite = 0;
+//      uint8 L_found_point = 0;
+//      uint8 R_found_point = 0;
+//      /*左边线无边行的标定*/
+//      if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite < 10)
+//      {
+//          ytemp_W_L = Ysite - 2;
+//                  for (ysite = Ysite - 1; ysite < Ysite - 15; ysite--)
+//                  {
+//                    if (Sideline_status_array[ysite].IsLeftFind == 'T')
+//                      {
+//                        L_found_point++;
+//                      }
+//                  }
+//                  if (L_found_point > 8)              //找到基准斜率边  做延长线重新确定无边
+//                  {
+//                    D_L = ((float)(Sideline_status_array[Ysite - 3].leftline -Sideline_status_array[Ysite - L_found_point].leftline)) /((float)(L_found_point - 3));
+//                    if (D_L > 0)
+//                    {
+//                      L_Found_T = 'T';
+//                    }
+//                    else
+//                    {
+//                      L_Found_T = 'F';
+//          //            if (D_L < 0)
+//          //            {
+//          //                ExtenLFlag = 'F';
+//          //            }
+//                    }
+//                  }
+//                  if (L_Found_T == 'T')
+//                       {
+//                           Sideline_status_array[Ysite].leftline =Sideline_status_array[ytemp_W_L].leftline + D_L * (ytemp_W_L - Ysite);
+//                       }
+//
+//                  Sideline_status_array[Ysite].leftline=LimitL(Sideline_status_array[Ysite].leftline);  //限幅
+//
+//      }
+//      /*右边线无边行的标定*/
+//      if (Sideline_status_array[Ysite].IsRightFind == 'W' &&  Ysite > (image_side_width-10))
+//         {
+//             ytemp_W_R = Ysite - 2;
+//             for (ysite = Ysite - 1; ysite < Ysite - 15; ysite--)
+//             {
+//               if (Sideline_status_array[ysite].IsRightFind =='T')
+//               {
+//                   R_found_point++;
+//               }
+//             }
+//             if (R_found_point >8)
+//             {
+//               D_R = ((float)(Sideline_status_array[Ysite - R_found_point].rightline - Sideline_status_array[Ysite - 3].rightline)) /((float)(R_found_point - 3));
+//               if (D_R > 0)
+//               {
+//                 R_Found_T ='T';
+//               }
+//               else
+//               {
+//                 R_Found_T = 'F';
+//     //            if (D_R < 0)
+//     //            {
+//     //                ExtenRFlag = 'F';
+//     //            }
+//               }
+//             }
+//
+//           if (R_Found_T == 'T')
+//           {
+//             Sideline_status_array[Ysite].rightline =Sideline_status_array[ytemp_W_R].rightline -D_R * (ytemp_W_R - Ysite);  //如果找到了 那么以基准行做延长线
+//           }
+//           Sideline_status_array[Ysite].rightline=LimitL(Sideline_status_array[Ysite].rightline);  //限幅
+//
+//         }
+//      /*中线的标定*/
+//      if(imageflag.mid_choose)
+//      {
+//          if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
+//          else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
+//      }
+//      else {
+//          if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
+//          else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
+//    }
+//  }
+//}
+
+
+
+/*上交大左右手法则扫线，作为处理圆环等判断元素的第二依据*/
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//  @name           Search_Bottom_Line_OTSU
+//  @brief          获取底层左右边线
+//  @param          imageInput[IMAGE_ROW][IMAGE_COL]        传入的图像数组
+//  @param          row                                     图像的Ysite
+//  @param          col                                     图像的Xsite
+//  @return         Bottonline                              底边行选择
+//  @time           2022年10月9日
+//  @Author         陈新云
+//  Sample usage:   Search_Bottom_Line_OTSU(imageInput, row, col, Bottonline);
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+void Search_Bottom_Line_OTSU(uint8 imageInput[image_h][image_w], uint8 row, uint8 col, uint8 Bottonline)
 {
 
+    //寻找左边边界
+    for (int Xsite = col / 2-2; Xsite > 1; Xsite--)
+    {
+        if (imageInput[Bottonline][Xsite] != 0 && imageInput[Bottonline][Xsite - 1] == 0)
+        {
+            Sideline_status_array[Bottonline].LeftBoundary = Xsite;//获取底边左边线
+            break;
+        }
+    }
+    for (int Xsite = col / 2+2; Xsite < image_side_width; Xsite++)
+    {
+        if (imageInput[Bottonline][Xsite] != 0 && imageInput[Bottonline][Xsite + 1] == 0)
+        {
+            Sideline_status_array[Bottonline].RightBoundary = Xsite;//获取底边右边线
+            break;
+        }
+    }
+
+
+}
+//void Search_Bottom_Line_OTSU(uint8 imageInput[LCDH][LCDW], uint8 row, uint8 col, uint8 Bottonline)
+//{
+//
+//    //寻找左边边界
+//    for (int Xsite = col / 2-2; Xsite > 1; Xsite--)
+//    {
+//        if (imageInput[Bottonline][Xsite] == 1 && imageInput[Bottonline][Xsite - 1] == 0)
+//        {
+//            Sideline_status_array[Bottonline].LeftBoundary = Xsite;//获取底边左边线
+//            break;
+//        }
+//    }
+//    for (int Xsite = col / 2+2; Xsite < LCDW-1; Xsite++)
+//    {
+//        if (imageInput[Bottonline][Xsite] == 1 && imageInput[Bottonline][Xsite + 1] == 0)
+//        {
+//            Sideline_status_array[Bottonline].RightBoundary = Xsite;//获取底边右边线
+//            break;
+//        }
+//    }
+
+
+//}
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//  @name           Search_Left_and_Right_Lines
+//  @brief          通过sobel提取左右边线
+//  @param          imageInput[IMAGE_ROW][IMAGE_COL]        传入的图像数组
+//  @param          row                                     图像的Ysite
+//  @param          col                                     图像的Xsite
+//  @param          Bottonline                              底边行选择
+//  @return         无
+//  @time           2022年10月7日
+//  @Author         陈新云
+//  Sample usage:   Search_Left_and_Right_Lines(imageInput, row, col, Bottonline);
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+void Search_Left_and_Right_Lines(uint8 imageInput[image_h][image_w], uint8 row, uint8 col, uint8 Bottonline)
+{
+    //定义小人的当前行走状态位置为 上 左 下 右 一次要求 上：左边为黑色 左：上边为褐色 下：右边为色  右：下面有黑色
+/*  前进方向定义：
+                *   0
+                * 3   1
+                *   2
+*/
+/*寻左线坐标规则*/
+    uint8 Left_Rule[2][8] = {
+                                  {0,-1,1,0,0,1,-1,0 },//{0,-1},{1,0},{0,1},{-1,0},  (x,y )
+                                  {-1,-1,1,-1,1,1,-1,1} //{-1,-1},{1,-1},{1,1},{-1,1}
+    };
+    /*寻右线坐标规则*/
+    int Right_Rule[2][8] = {
+                              {0,-1,1,0,0,1,-1,0 },//{0,-1},{1,0},{0,1},{-1,0},
+                              {1,-1,1,1,-1,1,-1,-1} //{1,-1},{1,1},{-1,1},{-1,-1}
+    };
+      int num=0;
+    uint8 Left_Ysite = Bottonline;
+    uint8 Left_Xsite = Sideline_status_array[Bottonline].LeftBoundary;
+    uint8 Left_Rirection = 0;//左边方向
+    uint8 Pixel_Left_Ysite = Bottonline;
+    uint8 Pixel_Left_Xsite = 0;
+
+    uint8 Right_Ysite = Bottonline;
+    uint8 Right_Xsite = Sideline_status_array[Bottonline].RightBoundary;
+    uint8 Right_Rirection = 0;//右边方向
+    uint8 Pixel_Right_Ysite = Bottonline;
+    uint8 Pixel_Right_Xsite = 0;
+    uint8 Ysite = Bottonline;
+    imagestatus.OFFLineBoundary = 5;
+    while (1)
+    {
+            num++;
+            if(num>400)
+            {
+                 imagestatus.OFFLineBoundary = Ysite;
+                break;
+            }
+        if (Ysite >= Pixel_Left_Ysite && Ysite >= Pixel_Right_Ysite)
+        {
+            if (Ysite < imagestatus.OFFLineBoundary)
+            {
+                imagestatus.OFFLineBoundary = Ysite;
+                break;
+            }
+            else
+            {
+                Ysite--;
+            }
+        }
+        /*********左边巡线*******/
+        if ((Pixel_Left_Ysite > Ysite) || Ysite == imagestatus.OFFLineBoundary)//右边扫线
+        {
+            /*计算前方坐标*/
+            Pixel_Left_Ysite = Left_Ysite + Left_Rule[0][2 * Left_Rirection + 1];
+            Pixel_Left_Xsite = Left_Xsite + Left_Rule[0][2 * Left_Rirection];
+
+            if (imageInput[Pixel_Left_Ysite][Pixel_Left_Xsite] == 0)//前方是黑色
+            {
+                //顺时针旋转90
+                if (Left_Rirection == 3)
+                    Left_Rirection = 0;
+                else
+                    Left_Rirection++;
+            }
+            else//前方是白色
+            {
+                /*计算左前方坐标*/
+                Pixel_Left_Ysite = Left_Ysite + Left_Rule[1][2 * Left_Rirection + 1];
+                Pixel_Left_Xsite = Left_Xsite + Left_Rule[1][2 * Left_Rirection];
+
+                if (imageInput[Pixel_Left_Ysite][Pixel_Left_Xsite] == 0)//左前方为黑色
+                {
+                    //方向不变  Left_Rirection
+                    Left_Ysite = Left_Ysite + Left_Rule[0][2 * Left_Rirection + 1];
+                    Left_Xsite = Left_Xsite + Left_Rule[0][2 * Left_Rirection];
+                    if (Sideline_status_array[Left_Ysite].LeftBoundary_First == 0)
+                        Sideline_status_array[Left_Ysite].LeftBoundary_First = Left_Xsite;
+                    Sideline_status_array[Left_Ysite].LeftBoundary = Left_Xsite;
+                }
+                else//左前方为白色
+                {
+                    // 方向发生改变 Left_Rirection  逆时针90度
+                    Left_Ysite = Left_Ysite + Left_Rule[1][2 * Left_Rirection + 1];
+                    Left_Xsite = Left_Xsite + Left_Rule[1][2 * Left_Rirection];
+                    if (Sideline_status_array[Left_Ysite].LeftBoundary_First == 0 )
+                        Sideline_status_array[Left_Ysite].LeftBoundary_First = Left_Xsite;
+                    Sideline_status_array[Left_Ysite].LeftBoundary = Left_Xsite;
+                    if (Left_Rirection == 0)
+                        Left_Rirection = 3;
+                    else
+                        Left_Rirection--;
+                }
+
+            }
+        }
+        /*********右边巡线*******/
+        if ((Pixel_Right_Ysite > Ysite) || Ysite == imagestatus.OFFLineBoundary)//右边扫线
+        {
+            /*计算前方坐标*/
+            Pixel_Right_Ysite = Right_Ysite + Right_Rule[0][2 * Right_Rirection + 1];
+            Pixel_Right_Xsite = Right_Xsite + Right_Rule[0][2 * Right_Rirection];
+
+            if (imageInput[Pixel_Right_Ysite][Pixel_Right_Xsite] == 0)//前方是黑色
+            {
+                //逆时针旋转90
+                if (Right_Rirection == 0)
+                    Right_Rirection = 3;
+                else
+                    Right_Rirection--;
+            }
+            else//前方是白色
+            {
+                /*计算右前方坐标*/
+                Pixel_Right_Ysite = Right_Ysite + Right_Rule[1][2 * Right_Rirection + 1];
+                Pixel_Right_Xsite = Right_Xsite + Right_Rule[1][2 * Right_Rirection];
+
+                if (imageInput[Pixel_Right_Ysite][Pixel_Right_Xsite] == 0)//左前方为黑色
+                {
+                    //方向不变  Right_Rirection
+                    Right_Ysite = Right_Ysite + Right_Rule[0][2 * Right_Rirection + 1];
+                    Right_Xsite = Right_Xsite + Right_Rule[0][2 * Right_Rirection];
+                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == image_side_width )
+                        Sideline_status_array[Right_Ysite].RightBoundary_First = Right_Xsite;
+                    Sideline_status_array[Right_Ysite].RightBoundary = Right_Xsite;
+                }
+                else//左前方为白色
+                {
+                    // 方向发生改变 Right_Rirection  逆时针90度
+                    Right_Ysite = Right_Ysite + Right_Rule[1][2 * Right_Rirection + 1];
+                    Right_Xsite = Right_Xsite + Right_Rule[1][2 * Right_Rirection];
+                    if (Sideline_status_array[Right_Ysite].RightBoundary_First == image_side_width)
+                        Sideline_status_array[Right_Ysite].RightBoundary_First = Right_Xsite;
+                    Sideline_status_array[Right_Ysite].RightBoundary = Right_Xsite;
+                    if (Right_Rirection == 3)
+                        Right_Rirection = 0;
+                    else
+                        Right_Rirection++;
+                }
+
+            }
+        }
+
+        if (abs(Pixel_Right_Xsite - Pixel_Left_Xsite) < 3)//Ysite<80是为了放在底部是斑马线扫描结束  3 && Ysite < 30
+        {
+
+            imagestatus.OFFLineBoundary = Ysite;
+            break;
+        }
+
+    }
+}
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//  @name           Search_Border_OTSU
+//  @brief          通过OTSU获取边线 和信息
+//  @param          imageInput[IMAGE_ROW][IMAGE_COL]        传入的图像数组
+//  @param          row                                     图像的Ysite
+//  @param          col                                     图像的Xsite
+//  @param          Bottonline                              底边行选择
+//  @return         无
+//  @time           2022年10月7日
+//  @Author         陈新云
+//  Sample usage:   Search_Border_OTSU(mt9v03x_image, IMAGE_ROW, IMAGE_COL, IMAGE_ROW-8);
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+void Search_Border_OTSU(uint8 imageInput[image_h][image_w], uint8 row, uint8 col, uint8 Bottonline)
+{
+    imagestatus.WhiteLine_L = 0;
+    imagestatus.WhiteLine_R = 0;
+    //imagestatus.OFFLine = 1;
+    /*封上下边界处理*/
+//    for (int Xsite = 0; Xsite < LCDW; Xsite++)
+//    {
+//        imageInput[0][Xsite] = 0;
+//        imageInput[Bottonline + 1][Xsite] = 0;
+//    }
+    /*封左右边界处理*/
+    for (int Ysite = 0; Ysite < image_bottom_value; Ysite++)
+    {
+            Sideline_status_array[Ysite].LeftBoundary_First = 0;
+            Sideline_status_array[Ysite].RightBoundary_First = image_side_width;
+
+//            imageInput[Ysite][0] = 0;
+//            imageInput[Ysite][LCDW - 1] = 0;
+    }
+    /********获取底部边线*********/
+    Search_Bottom_Line_OTSU(imageInput, row, col, Bottonline);
+    /********获取左右边线*********/
+    Search_Left_and_Right_Lines(imageInput, row, col, Bottonline);
+
+
+
+    for (int Ysite = Bottonline; Ysite > imagestatus.OFFLineBoundary + 1; Ysite--)
+    {
+        if (Sideline_status_array[Ysite].LeftBoundary < 3)
+        {
+            imagestatus.WhiteLine_L++;
+        }
+        if (Sideline_status_array[Ysite].RightBoundary > image_w - 3)
+        {
+            imagestatus.WhiteLine_R++;
+        }
+    }
 }
 
+//--------------------------------------------------------------
+//  @name           Element_Judgment_Left_Rings()
+//  @brief          整个图像判断的子函数，用来判断左圆环类型.
+//  @parameter      void
+//  @time
+//  Sample usage:   Element_Judgment_Left_Rings();
+//--------------------------------------------------------------
+void Element_Judgment_Left_Rings()
+{
+    if (   imagestatus.Miss_Right_lines > 5 || imagestatus.Miss_Left_lines < 10
+        || imagestatus.OFFLine > 20 || Straight_Judge(2, imagestatus.OFFLine, 55) > 1
+        || imageflag.image_element_rings == 2
+//        || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
+        || Sideline_status_array[52].IsLeftFind == 'W'
+        || Sideline_status_array[53].IsLeftFind == 'W'
+        || Sideline_status_array[54].IsLeftFind == 'W'
+        || Sideline_status_array[55].IsLeftFind == 'W'
+        || Sideline_status_array[56].IsLeftFind == 'W'
+        || Sideline_status_array[57].IsLeftFind == 'W'
+        || Sideline_status_array[58].IsLeftFind == 'W')
+        return;
+    int ring_ysite = 25;
+    uint8 Left_Less_Num = 0;
+    Left_RingsFlag_Point1_Ysite = 0;
+    Left_RingsFlag_Point2_Ysite = 0;
+    for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
+    {
+        if (Sideline_status_array[Ysite].LeftBoundary_First - Sideline_status_array[Ysite - 1].LeftBoundary_First > 4)
+        {
+            Left_RingsFlag_Point1_Ysite = Ysite;
+            break;
+        }
+    }
+    for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
+    {
+        if (Sideline_status_array[Ysite + 1].LeftBoundary - Sideline_status_array[Ysite].LeftBoundary > 4)
+        {
+            Left_RingsFlag_Point2_Ysite = Ysite;
+            break;
+        }
+    }
+    for (int Ysite = Left_RingsFlag_Point1_Ysite; Ysite > Left_RingsFlag_Point1_Ysite - 11; Ysite--)
+    {
+        if (Sideline_status_array[Ysite].IsLeftFind == 'W')
+            Left_Less_Num++;
+    }
+    for (int Ysite = Left_RingsFlag_Point1_Ysite; Ysite > imagestatus.OFFLine; Ysite--)
+    {
+//        if (Sideline_status_array[Ysite + 3].LeftBoundary_First < Sideline_status_array[Ysite].LeftBoundary_First
+//            && Sideline_status_array[Ysite + 2].LeftBoundary_First < Sideline_status_array[Ysite].LeftBoundary_First
+//            && Sideline_status_array[Ysite].LeftBoundary_First > Sideline_status_array[Ysite - 1].LeftBoundary_First
+//            && Sideline_status_array[Ysite].LeftBoundary_First > Sideline_status_array[Ysite - 1].LeftBoundary_First
+//            )
+//        uint8 up_point=0,down_point=0;
+//        for(uint8 Ysite_2=Ysite;Ysite_2 < (Ysite+4);Ysite_2++)
+//        {
+//            if(Sideline_status_array[Ysite_2].)
+//        }
+        if (   Sideline_status_array[Ysite + 6].LeftBoundary < Sideline_status_array[Ysite+3].LeftBoundary
+            && Sideline_status_array[Ysite + 5].LeftBoundary < Sideline_status_array[Ysite+3].LeftBoundary
+            && Sideline_status_array[Ysite + 3].LeftBoundary > Sideline_status_array[Ysite + 2].LeftBoundary
+            && Sideline_status_array[Ysite + 3].LeftBoundary > Sideline_status_array[Ysite + 1].LeftBoundary
+            )
+        {
+            Ring_Help_Flag = 1;
+            break;
+        }
+    }
+    if(Left_RingsFlag_Point2_Ysite > Left_RingsFlag_Point1_Ysite+1 && Ring_Help_Flag == 0 && Left_Less_Num>7)
+    {
+        if(imagestatus.Miss_Left_lines > 10)
+            Ring_Help_Flag = 1;
+    }
+    if (Left_RingsFlag_Point2_Ysite > Left_RingsFlag_Point1_Ysite+1 && Ring_Help_Flag == 1 && Left_Less_Num>7)
+    {
+        imageflag.image_element_rings = 1;
+        imageflag.image_element_rings_flag = 1;
+        imageflag.ring_big_small=1;
+//        Front_Wait_After_Enter_Ring_Flag = 0;
+//        gpio_set_level(B0, 1);
+    }
+    Ring_Help_Flag = 0;
+}
+
+//------------------------------------------------------------------------------------------------------
+// 函数简介     直线三段式检测/部分出线保护
+// 备注信息     通过midline判断当前赛道的直线情况，将结果返回到imageflag.straight_long[];
+//------------------------------------------------------------------------------------------------------
+void Straight_Judgment_Third(void)
+{
+    float a;
+    /*标志位清除*/
+    imageflag.straight_long[0]=0;
+    imageflag.straight_long[1]=0;
+    imageflag.straight_long[2]=0;
+
+    /*远段直线判断*/
+    if(imagestatus.OFFLine < 15)
+    {
+        a=Straight_Judge(3,(imagestatus.OFFLine+1),30);
+        if(a<1){imageflag.straight_long[0]=1;}
+    }
+    /*中段直线判断*/
+    if(imagestatus.OFFLine < 30)
+    {
+        a=Straight_Judge(3,31,60);
+        if(a<1){imageflag.straight_long[1]=1;}
+    }
+    else if(imagestatus.OFFLine < 45)
+    {
+        a=Straight_Judge(3,(imagestatus.OFFLine+1),60);
+        if(a<1){imageflag.straight_long[1]=1;}
+    }
+    /*近端直线判断*/
+    if(imagestatus.OFFLine < 60)
+    {
+        a=Straight_Judge(3,61,89);
+        if(a<1){imageflag.straight_long[2]=1;}
+    }
+
+//    if (imagestatus.OFFLine >= 70)
+//    {
+//        imageflag.Out_Road=1;
+//    }else {
+//        imageflag.Out_Road=0;
+//    }
+}
 //------------------------------------------------------------------------------------------------------
 // 函数简介     图像处理总函数
 //------------------------------------------------------------------------------------------------------
@@ -1019,5 +1919,10 @@ void Camera_tracking(void)
     image_draw();
     Get_BaseLine();
     Get_AllLine();
+    if(!imageflag.Out_Road  && !imageflag.RoadBlock_Flag)
+               Search_Border_OTSU(image, image_h, image_w, image_bottom_value - 1);//58行位底行
+           else
+               imagestatus.OFFLineBoundary = 5;
+    Straight_Judgment_Third();
     camera_tft180show();
 }

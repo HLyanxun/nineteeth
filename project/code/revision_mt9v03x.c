@@ -1225,10 +1225,10 @@ void Element_Judgment_Left_Rings()
         || imagestatus.OFFLine > 20 || Straight_Judge(2, imagestatus.OFFLine, 55) > 1
         || imageflag.image_element_rings == 2
 //        || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
-//        || Sideline_status_array[52].IsLeftFind == 'W'
-//        || Sideline_status_array[53].IsLeftFind == 'W'
-//        || Sideline_status_array[54].IsLeftFind == 'W'
-//        || Sideline_status_array[55].IsLeftFind == 'W'
+        || Sideline_status_array[52].IsLeftFind == 'W'
+        || Sideline_status_array[53].IsLeftFind == 'W'
+        || Sideline_status_array[54].IsLeftFind == 'W'
+        || Sideline_status_array[55].IsLeftFind == 'W'
         || Sideline_status_array[56].IsLeftFind == 'W'
         || Sideline_status_array[57].IsLeftFind == 'W'
         || Sideline_status_array[58].IsLeftFind == 'W')
