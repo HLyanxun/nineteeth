@@ -11,7 +11,7 @@
 uint8_t *PerImg_ip[RESULT_ROW][RESULT_COL]={{0}};//存储图像地址
 //二值化---------------------------------------------------------------------------------------------------------------
 uint8 My_Threshold;
-int My_Threshold_cha=20;  //二值化阈值补偿值
+uint8 My_Threshold_1;
 //处理用图像及处理相关------------------------------------------------------------------------------------------------------
 uint8 image[image_h][image_w]={{0}};  //使用的图像
 static uint8* PicTemp;                          //一个保存单行图像的指针变量
@@ -24,6 +24,8 @@ uint8 ExtenRFlag = 0;                           //右边线是否需要补线的标志变量
 int Right_RingsFlag_Point1_Ysite, Right_RingsFlag_Point2_Ysite; //右圆环判断的两点纵坐标
 int Left_RingsFlag_Point1_Ysite, Left_RingsFlag_Point2_Ysite;   //左圆环判断的两点纵坐标
 uint8 Ring_Help_Flag = 0;                       //进环辅助标志
+int Point_Xsite,Point_Ysite;                   //拐点横纵坐标
+int Repair_Point_Xsite,Repair_Point_Ysite;     //补线点横纵坐标
 
 //图像参数--------------------------------------------------------------------------------------------------------------
 Sideline_status Sideline_status_array[90];
@@ -129,6 +131,8 @@ void camera_tft180show(void)
         tft180_show_gray_image(0, 0, image[0], image_w, image_h, image_w, image_h, 0);
     }
     tft180_show_int(0,92, imagestatus.OFFLine, 3);
+    tft180_show_int(0,108, imageflag.image_element_rings, 3);
+    tft180_show_int(0,124, imageflag.image_element_rings_flag, 3);
     if(track_show)
     {
         for(uint8 i=imagestatus.OFFLine;i<=image_bottom_value;i++)
@@ -164,11 +168,7 @@ void camera_tft180show(void)
                 tft180_draw_point(Sideline_status_array[i].rightline, i, RGB565_RED);
                 tft180_draw_point(Sideline_status_array[i].midline, i, RGB565_RED);
 
-                /*八邻域巡线结果*/
-                tft180_draw_point(Sideline_status_array[i].LeftBoundary, i, RGB565_GREEN);
-                tft180_draw_point(Sideline_status_array[i].LeftBoundary_First, i, RGB565_BLUE);
-                tft180_draw_point(Sideline_status_array[i].RightBoundary, i, RGB565_GREEN);
-                tft180_draw_point(Sideline_status_array[i].RightBoundary_First, i, RGB565_BLUE);
+
 
                 if(track_width_debug)
                 {
@@ -176,6 +176,18 @@ void camera_tft180show(void)
                     tft180_draw_line((line_midpoint+track_width/2), 0, (line_midpoint+track_width/2), 90, RGB565_YELLOW);
                 }
             }
+        if(track_show_8)
+        {
+            for(uint8 i=imagestatus.OFFLineBoundary;i<=image_bottom_value;i++)
+            {
+                /*八邻域巡线结果*/
+                tft180_draw_point(Sideline_status_array[i].LeftBoundary, i, RGB565_GREEN);
+                tft180_draw_point(Sideline_status_array[i].LeftBoundary_First, i, RGB565_BLUE);
+                tft180_draw_point(Sideline_status_array[i].RightBoundary, i, RGB565_GREEN);
+                tft180_draw_point(Sideline_status_array[i].RightBoundary_First, i, RGB565_BLUE);
+            }
+        }
+
     }
 
 }
@@ -260,6 +272,160 @@ uint8 get_Threshold(void)
 
   return threshold;                             //把上面这么多行代码算出来的阈值给return出去。
 }
+
+
+//-------------------------------------------------------------------------------------------------------------------
+// 函数简介     my_adapt_threshold  初次二值化
+// 参数说明
+// 返回参数
+// 使用示例
+// 备注信息
+//-------------------------------------------------------------------------------------------------------------------
+uint8 my_adapt_threshold(uint8 *image, uint16 col, uint16 row)   //注意计算阈值的一定要是原图像
+{
+   #define GrayScale 256
+    uint16 width = col;
+    uint16 height = row;
+    int pixelCount[GrayScale];
+    float pixelPro[GrayScale];
+    int i, j, pixelSum = width * height/4;
+    uint8 threshold = 0;
+    uint8* data = image;  //指向像素数据的指针
+    for (i = 0; i < GrayScale; i++)
+    {
+        pixelCount[i] = 0;
+        pixelPro[i] = 0;
+    }
+
+    uint32 gray_sum=0;
+    //统计灰度级中每个像素在整幅图像中的个数
+    for (i = 0; i < height; i+=2)
+    {
+        for (j = 0; j < width; j+=2)
+        {
+            pixelCount[(int)data[i * width + j]]++;  //将当前的点的像素值作为计数数组的下标
+            gray_sum+=(int)data[i * width + j];       //灰度值总和
+        }
+    }
+
+    //计算每个像素值的点在整幅图像中的比例
+
+    for (i = 0; i < GrayScale; i++)
+    {
+        pixelPro[i] = (float)pixelCount[i] / pixelSum;
+    }
+
+    //遍历灰度级[0,255]
+    float w0, w1, u0tmp, u1tmp, u0, u1, u, deltaTmp, deltaMax = 0;
+
+
+        w0 = w1 = u0tmp = u1tmp = u0 = u1 = u = deltaTmp = 0;
+        for (j = 0; j < GrayScale; j++)
+        {
+
+                w0 += pixelPro[j];  //背景部分每个灰度值的像素点所占比例之和   即背景部分的比例
+                u0tmp += j * pixelPro[j];  //背景部分 每个灰度值的点的比例 *灰度值
+
+               w1=1-w0;
+               u1tmp=gray_sum/pixelSum-u0tmp;
+
+                u0 = u0tmp / w0;              //背景平均灰度
+                u1 = u1tmp / w1;              //前景平均灰度
+                u = u0tmp + u1tmp;            //全局平均灰度
+                deltaTmp = w0 * pow((u0 - u), 2) + w1 * pow((u1 - u), 2);
+                if (deltaTmp > deltaMax)
+                {
+                    deltaMax = deltaTmp;
+                    threshold = (uint8)j;
+                }
+                if (deltaTmp < deltaMax)
+                {
+                    break;
+                }
+        }
+
+    return threshold;
+}
+//-------------------------------------------------------------------------------------------------------------------
+// 函数简介
+// 参数说明
+// 返回参数
+// 使用示例
+// 备注信息
+//-------------------------------------------------------------------------------------------------------------------
+uint8 my_adapt_threshold_2(uint8 *image, uint16 col, uint16 row)   //注意计算阈值的一定要是原图像
+{
+   #define GrayScale 256
+    uint16 width = col;
+    uint16 height = row;
+    int pixelCount[GrayScale];
+    float pixelPro[GrayScale];
+    int i, j, pixelSum = width * height/4;
+    uint8 threshold = 0;
+    uint8* data = image;  //指向像素数据的指针
+    for (i = 0; i < GrayScale; i++)
+    {
+        pixelCount[i] = 0;
+        pixelPro[i] = 0;
+    }
+
+    uint32 gray_sum=0;
+    //统计灰度级中每个像素在整幅图像中的个数
+    for (i = 1; i < height; i+=2)
+    {
+        for (j = 1; j < width; j+=2)
+        {
+            if( data[i * width + j]  > My_Threshold_1 )
+            {
+                pixelCount[(int)data[i * width + j]]++ ;  //将当前的点的像素值作为计数数组的下标
+                gray_sum+=(int)data[i * width + j] ;       //灰度值总和
+            }
+            else
+            {
+                pixelCount[(int) My_Threshold_1]++ ;  //将当前的点的像素值作为计数数组的下标
+                gray_sum+= (int) My_Threshold_1 ;       //灰度值总和
+            }
+        }
+    }
+
+    //计算每个像素值的点在整幅图像中的比例
+
+    for (i = 0; i < GrayScale; i++)
+    {
+        pixelPro[i] = (float)pixelCount[i] / pixelSum;
+    }
+
+    //遍历灰度级[0,255]
+    float w0, w1, u0tmp, u1tmp, u0, u1, u, deltaTmp, deltaMax = 0;
+
+
+        w0 = w1 = u0tmp = u1tmp = u0 = u1 = u = deltaTmp = 0;
+        for (j = 0; j < GrayScale; j++)
+        {
+
+                w0 += pixelPro[j];  //背景部分每个灰度值的像素点所占比例之和   即背景部分的比例
+                u0tmp += j * pixelPro[j];  //背景部分 每个灰度值的点的比例 *灰度值
+
+               w1=1-w0;
+               u1tmp=gray_sum/pixelSum-u0tmp;
+
+                u0 = u0tmp / w0;              //背景平均灰度
+                u1 = u1tmp / w1;              //前景平均灰度
+                u = u0tmp + u1tmp;            //全局平均灰度
+                deltaTmp = w0 * pow((u0 - u), 2) + w1 * pow((u1 - u), 2);
+                if (deltaTmp > deltaMax)
+                {
+                    deltaMax = deltaTmp;
+                    threshold = (uint8)j;
+                }
+                if (deltaTmp < deltaMax)
+                {
+                    break;
+                }
+        }
+
+    return threshold;
+}
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介         二值化
 // 参数说明
@@ -269,7 +435,9 @@ uint8 get_Threshold(void)
 //-------------------------------------------------------------------------------------------------------------------
 void Binaryzation(void)
 {
-    My_Threshold   = (int)get_Threshold()    + My_Threshold_cha;  //1ms
+//    My_Threshold   = (int)get_Threshold()    + My_Threshold_cha;  //1ms
+    My_Threshold_1=(int)my_adapt_threshold(mt9v03x_image[0],MT9V03X_W,MT9V03X_H);
+    My_Threshold =(int)my_adapt_threshold_2(mt9v03x_image[0],MT9V03X_W,MT9V03X_H)+ My_Threshold_cha;
 }
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     image_draw  画黑框 加上 对图像进行二值化
@@ -1030,11 +1198,11 @@ void Get_AllLine(void)
       {
           imagestatus.WhiteLine++;  //要是左右都无边，丢边数+1
       }
-     if (Sideline_status_array[Ysite].IsLeftFind == 'W'&&Ysite<55)
+     if (Sideline_status_array[Ysite].IsLeftFind == 'W'&&Ysite<(image_bottom_value-4))
      {
           imagestatus.Miss_Left_lines++;
      }
-     if (Sideline_status_array[Ysite].IsRightFind == 'W'&&Ysite<55)
+     if (Sideline_status_array[Ysite].IsRightFind == 'W'&&Ysite<(image_bottom_value-4))
      {
           imagestatus.Miss_Right_lines++;
      }
@@ -1052,7 +1220,7 @@ void Get_AllLine(void)
           imagestatus.OFFLine = Ysite + 1;
           break;
       }
-      else if (Sideline_status_array[Ysite].rightline <= 10||Sideline_status_array[Ysite].leftline >= 80)
+      else if (Sideline_status_array[Ysite].rightline <= 10||Sideline_status_array[Ysite].leftline >= (image_side_width-9))
       {
           imagestatus.OFFLine = Ysite + 1;
           break;
@@ -1137,19 +1305,32 @@ void Get_AllLine(void)
 
                }
       /*中线的标定*/
-       if(imageflag.mid_choose)
-       {
-           if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
-           else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
-       }
-       else {
-           if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
-           else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
-  }
-       LimitH(Sideline_status_array[Ysite].midline);
-       LimitL(Sideline_status_array[Ysite].midline);
+
 }
 }
+//----------------------------------------------------------------------------------
+// 函数简介     中线的标定
+//----------------------------------------------------------------------------------
+void draw_midline(void)
+{
+    for(Ysite=image_bottom_value;Ysite>imagestatus.OFFLine;Ysite--)
+    {
+        if(imageflag.mid_choose)
+                 {
+                     if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
+                     else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
+                 }
+                 else {
+                     if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
+                     else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
+            }
+                 LimitH(Sideline_status_array[Ysite].midline);
+                 LimitL(Sideline_status_array[Ysite].midline);
+    }
+}
+
+
+
 
 //void Get_AllLine(void)
 //{
@@ -1793,22 +1974,22 @@ void Search_Border_OTSU(uint8 imageInput[image_h][image_w], uint8 row, uint8 col
 void Element_Judgment_Left_Rings()
 {
     if (   imagestatus.Miss_Right_lines > 5 || imagestatus.Miss_Left_lines < 10
-        || imagestatus.OFFLine > 20 || Straight_Judge(2, imagestatus.OFFLine, 55) > 1
+        || imagestatus.OFFLine > 20 || Straight_Judge(2, imagestatus.OFFLine, (image_bottom_value-4)) > 1
         || imageflag.image_element_rings == 2
 //        || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
-        || Sideline_status_array[52].IsLeftFind == 'W'
-        || Sideline_status_array[53].IsLeftFind == 'W'
-        || Sideline_status_array[54].IsLeftFind == 'W'
-        || Sideline_status_array[55].IsLeftFind == 'W'
-        || Sideline_status_array[56].IsLeftFind == 'W'
-        || Sideline_status_array[57].IsLeftFind == 'W'
-        || Sideline_status_array[58].IsLeftFind == 'W')
+        || Sideline_status_array[(image_bottom_value-7)].IsLeftFind == 'W'
+        || Sideline_status_array[(image_bottom_value-6)].IsLeftFind == 'W'
+        || Sideline_status_array[(image_bottom_value-5)].IsLeftFind == 'W'
+        || Sideline_status_array[(image_bottom_value-4)].IsLeftFind == 'W'
+        || Sideline_status_array[(image_bottom_value-3)].IsLeftFind == 'W'
+        || Sideline_status_array[(image_bottom_value-2)].IsLeftFind == 'W'
+        || Sideline_status_array[(image_bottom_value-1)].IsLeftFind == 'W')
         return;
     int ring_ysite = 25;
     uint8 Left_Less_Num = 0;
     Left_RingsFlag_Point1_Ysite = 0;
     Left_RingsFlag_Point2_Ysite = 0;
-    for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
+    for (int Ysite = (image_bottom_value-1); Ysite > ring_ysite; Ysite--)
     {
         if (Sideline_status_array[Ysite].LeftBoundary_First - Sideline_status_array[Ysite - 1].LeftBoundary_First > 4)
         {
@@ -1816,7 +1997,7 @@ void Element_Judgment_Left_Rings()
             break;
         }
     }
-    for (int Ysite = 58; Ysite > ring_ysite; Ysite--)
+    for (int Ysite = (image_bottom_value-1); Ysite > ring_ysite; Ysite--)
     {
         if (Sideline_status_array[Ysite + 1].LeftBoundary - Sideline_status_array[Ysite].LeftBoundary > 4)
         {
@@ -1866,7 +2047,234 @@ void Element_Judgment_Left_Rings()
     }
     Ring_Help_Flag = 0;
 }
+//--------------------------------------------------------------
+//  @name           Element_Judgment_Right_Rings()
+//  @brief          整个图像判断的子函数，用来判断右圆环类型.
+//  @parameter      void
+//  @time
+//  @Author         MRCHEN
+//  Sample usage:   Element_Judgment_Right_Rings();
+//--------------------------------------------------------------
+void Element_Judgment_Right_Rings()
+{
+    if (   imagestatus.Miss_Left_lines > 5 || imagestatus.Miss_Right_lines < 10
+        || imagestatus.OFFLine > 20 || Straight_Judge(1,imagestatus.OFFLine, (image_bottom_value-4)) > 1
+        || imageflag.image_element_rings == 1 || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
+        || Sideline_status_array[(image_bottom_value-7)].IsRightFind == 'W'
+        || Sideline_status_array[(image_bottom_value-6)].IsRightFind == 'W'
+        || Sideline_status_array[(image_bottom_value-5)].IsRightFind == 'W'
+        || Sideline_status_array[(image_bottom_value-4)].IsRightFind == 'W'
+        || Sideline_status_array[(image_bottom_value-3)].IsRightFind == 'W'
+        || Sideline_status_array[(image_bottom_value-2)].IsRightFind == 'W'
+        || Sideline_status_array[(image_bottom_value-1)].IsRightFind == 'W')
+        return;
 
+    int ring_ysite = 25;
+    uint8 Right_Less_Num = 0;
+    Right_RingsFlag_Point1_Ysite = 0;
+    Right_RingsFlag_Point2_Ysite = 0;
+    for (int Ysite = (image_bottom_value-1); Ysite > ring_ysite; Ysite--)
+    {
+        if (Sideline_status_array[Ysite - 2].RightBoundary_First - Sideline_status_array[Ysite].RightBoundary_First > 4)
+        {
+            Right_RingsFlag_Point1_Ysite = Ysite;
+            break;
+        }
+    }
+    for (int Ysite = (image_bottom_value-1); Ysite > ring_ysite; Ysite--)
+    {
+        if (Sideline_status_array[Ysite].RightBoundary - Sideline_status_array[Ysite + 2].RightBoundary > 4)
+        {
+            Right_RingsFlag_Point2_Ysite = Ysite;
+            break;
+        }
+    }
+    for (int Ysite = Right_RingsFlag_Point1_Ysite; Ysite > Right_RingsFlag_Point1_Ysite - 11; Ysite--)
+    {
+        if (Sideline_status_array[Ysite].IsRightFind == 'W')
+            Right_Less_Num++;
+    }
+    //ips114_show_int(60,40, Right_Less_Num,3);
+    for (int Ysite = Right_RingsFlag_Point1_Ysite; Ysite > imagestatus.OFFLine; Ysite--)
+    {
+        if (   Sideline_status_array[Ysite + 6].RightBoundary > Sideline_status_array[Ysite + 3].RightBoundary
+            && Sideline_status_array[Ysite + 5].RightBoundary > Sideline_status_array[Ysite + 3].RightBoundary
+            && Sideline_status_array[Ysite + 3].RightBoundary < Sideline_status_array[Ysite + 2].RightBoundary
+            && Sideline_status_array[Ysite + 3].RightBoundary < Sideline_status_array[Ysite + 1].RightBoundary
+           )
+        {
+            Ring_Help_Flag = 1;
+            break;
+        }
+    }
+    if(Right_RingsFlag_Point2_Ysite > Right_RingsFlag_Point1_Ysite+3 && Ring_Help_Flag == 0 && Right_Less_Num > 7)
+    {
+        if(imagestatus.Miss_Right_lines>10)
+            Ring_Help_Flag = 1;
+    }
+    if (Right_RingsFlag_Point2_Ysite > Right_RingsFlag_Point1_Ysite+3 && Ring_Help_Flag == 1 && Right_Less_Num > 7)
+    {
+        //Stop=1;
+        imageflag.image_element_rings = 2;
+        imageflag.image_element_rings_flag = 1;
+        imageflag.ring_big_small=1;
+//        Front_Wait_After_Enter_Ring_Flag = 0;
+//        gpio_set_level(B0, 1);
+    }
+
+        //ips200_show_uint(100,220,imageflag.image_element_rings,3);
+    Ring_Help_Flag = 0;
+}
+//--------------------------------------------------------------------
+// 函数简介     左圆环处理
+//--------------------------------------------------------------------
+void Element_Handle_Left_Rings()
+{
+
+ if(imageflag.ring_big_small !=0 && imageflag.image_element_rings==1)
+ {
+     uint8 num=0,ypoint=0;
+     /*环内状态判定*/
+     if(imageflag.image_element_rings_flag==1 || imageflag.image_element_rings_flag==2 || imageflag.image_element_rings_flag==3)
+     {
+         for(uint8 i=(image_bottom_value-4);i>(image_bottom_value+1)/2;i--)
+         {
+             if(Sideline_status_array[i].IsLeftFind=='W')
+             {
+                 num++;
+             }
+             if(    Sideline_status_array[Ysite+3].IsLeftFind == 'W' && Sideline_status_array[Ysite+2].IsLeftFind == 'W'
+                     && Sideline_status_array[Ysite+1].IsLeftFind == 'W' && Sideline_status_array[Ysite].IsLeftFind == 'T')
+             {
+                 ypoint=Ysite;
+                 break;
+             }
+         }
+     }
+     if(imageflag.image_element_rings_flag==1 && num>=15)imageflag.image_element_rings_flag=2;
+     if(imageflag.image_element_rings_flag==2 && num<=5)imageflag.image_element_rings_flag=3;//此时即将入环
+     if(imageflag.image_element_rings_flag==3 && num>=15 && ypoint>30)imageflag.image_element_rings_flag=4;
+     if(imageflag.image_element_rings_flag==4 && imagestatus.Miss_Right_lines>=15)imageflag.image_element_rings_flag=5;
+     if(imageflag.image_element_rings_flag==5 && imagestatus.Miss_Right_lines < 5 )imageflag.image_element_rings_flag=6;
+     if(imageflag.image_element_rings_flag==6 && imagestatus.Miss_Right_lines>=10 && imagestatus.Miss_Left_lines>=10 && imagestatus.OFFLine<20)imageflag.image_element_rings_flag=7;
+     if(imageflag.image_element_rings_flag==7 && imagestatus.OFFLine >20 )imageflag.image_element_rings_flag=8;
+     if(imageflag.image_element_rings_flag==8 && (imagestatus.OFFLine+2)>(image_bottom_value-4) &&Sideline_status_array[(image_bottom_value-4)].rightline-Sideline_status_array[(imagestatus.OFFLine+2)].rightline > 10)imageflag.image_element_rings_flag=9;//如果车头向反方向偏移过度
+     if(imageflag.image_element_rings_flag==9 && imagestatus.OFFLine>=25)imageflag.image_element_rings_flag=8;
+     if((imageflag.image_element_rings_flag==9 || imageflag.image_element_rings_flag==8) && imagestatus.WhiteLine<5)imageflag.image_element_rings_flag=10;
+     /*环处理*/
+     if(imageflag.image_element_rings_flag==4 )
+     {
+         uint8 x=0,y=0;
+         Point_Ysite = 0;
+         Point_Xsite = 0;
+         for (Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLine + 7; Ysite--)
+         {
+             if (
+                     Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 2].leftline
+
+                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 1].leftline
+
+                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 4].leftline
+
+                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 6].leftline
+
+                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 5].leftline
+             )
+             {
+                 Point_Xsite = Sideline_status_array[Ysite].rightline;
+                 Point_Ysite = Ysite;
+                 break;
+             }
+         }
+         for(Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLineBoundary + 7; Ysite--)
+         {
+             if(Sideline_status_array[Ysite].LeftBoundary-Sideline_status_array[Ysite].LeftBoundary_First>5)
+             {
+                 x=Sideline_status_array[Ysite].LeftBoundary;
+                 y=Ysite;
+                 break;
+             }
+             if(Sideline_status_array[Ysite].RightBoundary_First-Sideline_status_array[Ysite].RightBoundary>5)
+             {
+                 x=Sideline_status_array[Ysite].RightBoundary;
+                 y=Ysite;
+                 break;
+             }
+         }
+         connect_line_subsidiary(y,Point_Ysite,x,Point_Xsite,1);
+     }
+     if(imageflag.image_element_rings_flag==5)
+     {
+         Point_Ysite=0;
+         Point_Xsite=0;
+         for(Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLineBoundary + 7; Ysite--)
+                 {
+                     if(Sideline_status_array[Ysite].LeftBoundary-Sideline_status_array[Ysite].LeftBoundary_First>5)
+                     {
+                         Point_Xsite=Sideline_status_array[Ysite].LeftBoundary;
+                         Point_Ysite=Ysite;
+                         break;
+                     }
+                     if(Sideline_status_array[Ysite].RightBoundary_First-Sideline_status_array[Ysite].RightBoundary>5)
+                     {
+                         Point_Xsite=Sideline_status_array[Ysite].RightBoundary;
+                         Point_Ysite=Ysite;
+                         break;
+                     }
+                 }
+                 connect_line_subsidiary(Point_Ysite,image_bottom_value,Point_Xsite,image_side_width,1);
+     }
+     if(imageflag.image_element_rings_flag==8)
+     {
+         for(Ysite = (image_bottom_value-4);Ysite>imagestatus.OFFLine;Ysite--)
+         {
+             if(Sideline_status_array[Ysite].IsRightFind!='T')
+             {
+                 if(Sideline_status_array[Ysite].IsLeftFind=='T')
+                 {
+//                     Sideline_status_array
+                 }
+             }
+         }
+     }
+     if(imageflag.image_element_rings_flag==9)
+     {
+         for(Ysite = (image_bottom_value-1); Ysite > (imagestatus.OFFLine+2); Ysite--)
+         {
+             Sideline_status_array[Ysite].rightline=Sideline_status_array[Ysite+1].rightline-1;
+             LimitL(Sideline_status_array[Ysite].rightline);
+         }
+     }
+ }
+}
+
+//--------------------------------------------------------------------
+// 函数简介     补线辅助函数
+// 参数说明     y_up        补线上点
+// 参数说明     y_down      补线下点
+// 参数说明     x_up        补线上点
+// 参数说明     x_down      补线下点
+// 参数说明     mode        0补左边线，1补右边线
+//---------------------------------------------------------------------
+void connect_line_subsidiary(uint8 y_up,uint8 y_down,uint8 x_up,uint8 x_down,uint8 mode)
+{
+
+   float DetL =((float)(x_up-x_down)) /((float)(y_up - y_down));  //计算左边线的补线斜率
+        if(mode==0)
+        {
+            for (uint8 ytemp = y_down; ytemp >= y_up; ytemp--)               //那么我就从第一次扫到的左边界的下面第二行的位置开始往上一直补线，补到FTSite行。
+                   {
+                       Sideline_status_array[ytemp].leftline =(int)(DetL * ((float)(ytemp - y_down))) +Sideline_status_array[y_down].leftline;     //这里就是具体的补线操作了
+                   }
+        }
+        else
+        {
+            for (uint8 ytemp = y_down; ytemp >= y_up; ytemp--)               //那么我就从第一次扫到的左边界的下面第二行的位置开始往上一直补线，补到FTSite行。
+            {
+                Sideline_status_array[ytemp].rightline =(int)(DetL * ((float)(ytemp - y_down))) +Sideline_status_array[y_down].rightline;     //这里就是具体的补线操作了
+            }
+        }
+}
 //------------------------------------------------------------------------------------------------------
 // 函数简介     直线三段式检测/部分出线保护
 // 备注信息     通过midline判断当前赛道的直线情况，将结果返回到imageflag.straight_long[];
@@ -1910,6 +2318,43 @@ void Straight_Judgment_Third(void)
 //        imageflag.Out_Road=0;
 //    }
 }
+//-------------------------------------------------------------------------------------------------------------------
+// 函数简介     中线数据记录与返回车身角度调整
+// 参数说明     mode 返回数据的类型  0-船体与中线偏差，正车在道路左侧，负数车在道路右侧 1-车身角度偏移
+// 返回参数     巡线角度及车身角度修正
+// 使用示例     int angle = midline_and_anglereturn();
+// 备注信息
+//-------------------------------------------------------------------------------------------------------------------
+
+float midline_and_anglereturn(uint8 mode)
+{
+    uint8 OFFLine=70;
+    int point1,point2,point3;
+    float angle;
+    if(OFFLine<imagestatus.OFFLine)OFFLine=imagestatus.OFFLine;
+
+    if(mode==0){point2=Sideline_status_array[(uint8)(80+OFFLine)/2].midline-45 ;return point2;}
+    if(mode==1){
+
+        point1=Sideline_status_array[(uint8)(80+OFFLine)/2].midline;
+        point3=Sideline_status_array[80].midline;
+        angle=angle_compute(point1,((uint8)(80+OFFLine)/2),point3,80);
+        return angle;}
+
+    return 0;
+
+}
+float angle_compute(uint x1,uint y1,uint x2,uint y2)
+{
+    double c,a;
+    float angle;
+    if(x1==x2)return 0;
+    a=abs(x1-x2);
+    c=PI/180;
+    angle=atan2(a,(y2-y1))/c;
+    if(x2>x1){angle=-angle;}
+    return angle;
+}
 //------------------------------------------------------------------------------------------------------
 // 函数简介     图像处理总函数
 //------------------------------------------------------------------------------------------------------
@@ -1919,10 +2364,16 @@ void Camera_tracking(void)
     image_draw();
     Get_BaseLine();
     Get_AllLine();
+    draw_midline();
     if(!imageflag.Out_Road  && !imageflag.RoadBlock_Flag)
                Search_Border_OTSU(image, image_h, image_w, image_bottom_value - 1);//58行位底行
            else
                imagestatus.OFFLineBoundary = 5;
+    Element_Judgment_Left_Rings();
+    Element_Judgment_Right_Rings();
     Straight_Judgment_Third();
+
+    draw_midline();
+
     camera_tft180show();
 }

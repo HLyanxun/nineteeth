@@ -12,14 +12,18 @@
 //检测选项开关
 #define track_width_debug  (0)          //赛道宽度标定工具显示
 #define default_side_choose (0)         //0默认选择左边线巡线，1默认选择右边线巡线
-#define track_show  (1)                 //是否显示巡线结果
-//#define straight_accept_value  (10)
+#define track_show          (1)          //是否显示巡线结果
 #define image_type          (0)         //0二值化图像，1灰度图像
+#define track_show_8        (1)         //是否显示八邻域巡线结果
 
 //算法定义
 #define LimitL(L) (L = ((L < 1) ? 1 : L))    //限幅限幅
 #define LimitH(H) (H = ((H > 89) ? 89 : H))  //限幅限幅
+
 //int LimitL(uint8 x);
+
+//二值化
+#define My_Threshold_cha     (12)        //二值化阈值补偿值
 
 //逆透视
 #define RESULT_ROW 90//结果图行列
@@ -104,6 +108,7 @@ typedef struct {
 /*直接用这俩函数就行*//*直接用这俩函数就行*//*直接用这俩函数就行*/
 void ALL_init(void);                                                //初始化摄像头，逆透视，tft屏幕
 void Camera_tracking(void);                                         //图像处理总函数
+float midline_and_anglereturn(uint8 mode);
 /*直接用这俩函数就行*//*直接用这俩函数就行*//*直接用这俩函数就行*/
 /*直接用这俩函数就行*//*直接用这俩函数就行*//*直接用这俩函数就行*/
 /*直接用这俩函数就行*//*直接用这俩函数就行*//*直接用这俩函数就行*/
@@ -117,7 +122,8 @@ void image_draw(void);             //二值化
 void Get_BaseLine(void);          //基础图像巡线处理
 void Get_AllLine(void);           //全图像巡线
 void camera_tft180show(void);     //显示巡线结果
-
+float angle_compute(uint x1,uint y1,uint x2,uint y2);
+void connect_line_subsidiary(uint8 y_up,uint8 y_down,uint8 x_up,uint8 x_down,uint8 mode);
 
 
 
