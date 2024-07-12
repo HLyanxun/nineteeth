@@ -14,7 +14,7 @@
 #define default_side_choose (0)         //0默认选择左边线巡线，1默认选择右边线巡线
 #define track_show          (1)          //是否显示巡线结果
 #define image_type          (0)         //0二值化图像，1灰度图像
-#define track_show_8        (1)         //是否显示八邻域巡线结果
+#define track_show_8        (0)         //是否显示八邻域巡线结果
 
 //算法定义
 #define LimitL(L) (L = ((L < 1) ? 1 : L))    //限幅限幅
@@ -23,7 +23,7 @@
 //int LimitL(uint8 x);
 
 //二值化
-#define My_Threshold_cha     (12)        //二值化阈值补偿值
+#define My_Threshold_cha     (7)        //二值化阈值补偿值
 
 //逆透视
 #define RESULT_ROW 90//结果图行列

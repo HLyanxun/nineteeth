@@ -18,7 +18,7 @@ static uint8* PicTemp;                          //Ò»¸ö±£´æµ¥ĞĞÍ¼ÏñµÄÖ¸Õë±äÁ¿
 static int Ysite = 0, Xsite = 0;                //Ysite¾ÍÊÇÍ¼ÏñµÄĞĞ£¬Xsite¾ÍÊÇÍ¼ÏñµÄÁĞ¡£
 static int BottomBorderRight = image_side_width,              //89ĞĞµÄÓÒ±ß½ç
 BottomBorderLeft = 0,                           //89ĞĞµÄ×ó±ß½ç
-BottomCenter = 0;                               //89ĞĞµÄÖĞµã
+Bottommidline = 0;                               //89ĞĞµÄÖĞµã
 uint8 ExtenLFlag = 0;                           //×ó±ßÏßÊÇ·ñĞèÒª²¹ÏßµÄ±êÖ¾±äÁ¿
 uint8 ExtenRFlag = 0;                           //ÓÒ±ßÏßÊÇ·ñĞèÒª²¹ÏßµÄ±êÖ¾±äÁ¿
 int Right_RingsFlag_Point1_Ysite, Right_RingsFlag_Point2_Ysite; //ÓÒÔ²»·ÅĞ¶ÏµÄÁ½µã×İ×ø±ê
@@ -130,6 +130,11 @@ void camera_tft180show(void)
     }else {
         tft180_show_gray_image(0, 0, image[0], image_w, image_h, image_w, image_h, 0);
     }
+    float a;
+//    a=Straight_Judge(2, 50, 70);
+    a=abs(angle_compute(Sideline_status_array[(imagestatus.OFFLine+10)].rightline,(imagestatus.OFFLine+10),Sideline_status_array[70].rightline,70));
+    tft180_show_float(0, 140, a, 3, 3);
+
     tft180_show_int(0,92, imagestatus.OFFLine, 3);
     tft180_show_int(0,108, imageflag.image_element_rings, 3);
     tft180_show_int(0,124, imageflag.image_element_rings_flag, 3);
@@ -164,6 +169,7 @@ void camera_tft180show(void)
 //            LimitH(Sideline_status_array[Ysite].RightBoundary_First);  //ÏŞ·ù
 
                 /*±ßÏßÑ²Ïß½á¹û*/
+//            if(Sideline_status_array[i].IsLeftFind =='W')tft180_draw_line(Sideline_status_array[i].leftline,i,90,i,RGB565_PURPLE);
                 tft180_draw_point(Sideline_status_array[i].leftline, i, RGB565_RED);
                 tft180_draw_point(Sideline_status_array[i].rightline, i, RGB565_RED);
                 tft180_draw_point(Sideline_status_array[i].midline, i, RGB565_RED);
@@ -435,9 +441,9 @@ uint8 my_adapt_threshold_2(uint8 *image, uint16 col, uint16 row)   //×¢Òâ¼ÆËããĞÖ
 //-------------------------------------------------------------------------------------------------------------------
 void Binaryzation(void)
 {
-//    My_Threshold   = (int)get_Threshold()    + My_Threshold_cha;  //1ms
-    My_Threshold_1=(int)my_adapt_threshold(mt9v03x_image[0],MT9V03X_W,MT9V03X_H);
-    My_Threshold =(int)my_adapt_threshold_2(mt9v03x_image[0],MT9V03X_W,MT9V03X_H)+ My_Threshold_cha;
+    My_Threshold   = (int)get_Threshold()    + My_Threshold_cha;  //1ms
+//    My_Threshold_1=(int)my_adapt_threshold(mt9v03x_image[0],MT9V03X_W,MT9V03X_H);
+//    My_Threshold =(int)my_adapt_threshold_2(mt9v03x_image[0],MT9V03X_W,MT9V03X_H)+ My_Threshold_cha;
 }
 //-------------------------------------------------------------------------------------------------------------------
 // º¯Êı¼ò½é     image_draw  »­ºÚ¿ò ¼ÓÉÏ ¶ÔÍ¼Ïñ½øĞĞ¶şÖµ»¯
@@ -579,7 +585,7 @@ void Get_BaseLine(void)
     /**************************************±éÀúËÑË÷Í¼Ïñ×îµ×ĞĞ£¨59ĞĞ£©×óÓÒ±ßÏß´Ó¶øÈ·¶¨ÖĞÏßµÄ¹ı³Ì ********************************************************************/
     /****************************************************Begin*****************************************************************************/
 
-    PicTemp = image[image_bottom_value];                                                //ÈÃPicTempÕâ¸öÖ¸Õë±äÁ¿Ö¸ÏòÍ¼ÏñÊı×éµÄPixle[59]
+    PicTemp = image[image_bottom_value];                                                //ÈÃPicTempÕâ¸öÖ¸Õë±äÁ¿Ö¸ÏòÍ¼ÏñÊı×éµÄimage[59]
     for (Xsite = line_midpoint; Xsite < image_side_width; Xsite++)                   //¼ÙÉè39ÊÇÖĞĞÄÁĞ£¬´ÓÖĞĞÄÁĞ¿ªÊ¼Ò»ÁĞÒ»ÁĞµÄÍùÓÒ±ßËÑË÷ÓÒ±ßÏß
     {
       if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)       //Èç¹ûÁ¬Ğø³öÏÖÁËÁ½¸öºÚµã£¬ËµÃ»ÕÒµ½ÁË±ßÏß¡£
@@ -608,11 +614,11 @@ void Get_BaseLine(void)
       }
     }
 
-    BottomCenter =(BottomBorderLeft + BottomBorderRight) / 2;           //¸ù¾İ×óÓÒ±ß½ç¼ÆËã³öµÚ59ĞĞµÄÖĞÏß
-    Sideline_status_array[image_bottom_value].leftline = BottomBorderLeft;                          //°ÑµÚ59ĞĞµÄ×ó±ß½ç´æ´¢½øÊı×é£¬×¢Òâ¿´ImageDealÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦59¡£
-    Sideline_status_array[image_bottom_value].rightline = BottomBorderRight;                      //°ÑµÚ59ĞĞµÄÓÒ±ß½ç´æ´¢½øÊı×é£¬×¢Òâ¿´ImageDealÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦59¡£
-    Sideline_status_array[image_bottom_value].midline = BottomCenter;                                //°ÑµÚ59ĞĞµÄÖĞÏß´æ´¢½øÊı×é£¬    ×¢Òâ¿´ImageDealÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦59¡£
-    Sideline_status_array[image_bottom_value].wide = BottomBorderRight - BottomBorderLeft;          //°ÑµÚ59ĞĞµÄÈüµÀ¿í¶È´æ´¢Êı×é£¬×¢Òâ¿´ImageDealÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦59¡£
+    Bottommidline =(BottomBorderLeft + BottomBorderRight) / 2;           //¸ù¾İ×óÓÒ±ß½ç¼ÆËã³öµÚ59ĞĞµÄÖĞÏß
+    Sideline_status_array[image_bottom_value].leftline = BottomBorderLeft;                          //°ÑµÚ59ĞĞµÄ×ó±ß½ç´æ´¢½øÊı×é£¬×¢Òâ¿´Sideline_status_arrayÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦59¡£
+    Sideline_status_array[image_bottom_value].rightline = BottomBorderRight;                      //°ÑµÚ59ĞĞµÄÓÒ±ß½ç´æ´¢½øÊı×é£¬×¢Òâ¿´Sideline_status_arrayÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦59¡£
+    Sideline_status_array[image_bottom_value].midline = Bottommidline;                                //°ÑµÚ59ĞĞµÄÖĞÏß´æ´¢½øÊı×é£¬    ×¢Òâ¿´Sideline_status_arrayÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦59¡£
+    Sideline_status_array[image_bottom_value].wide = BottomBorderRight - BottomBorderLeft;          //°ÑµÚ59ĞĞµÄÈüµÀ¿í¶È´æ´¢Êı×é£¬×¢Òâ¿´Sideline_status_arrayÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦59¡£
     Sideline_status_array[image_bottom_value].IsLeftFind = 'T';                                     //¼ÇÂ¼µÚ59ĞĞµÄ×ó±ßÏßÀàĞÍÎªT£¬¼´Õı³£ÕÒµ½×ó±ßÏß¡£
     Sideline_status_array[image_bottom_value].IsRightFind = 'T';                                    //¼ÇÂ¼µÚ59ĞĞµÄÓÒ±ßÏßÀàĞÍÎªT£¬¼´Õı³£ÕÒµ½ÓÒ±ßÏß¡£
 
@@ -673,7 +679,7 @@ void Get_BaseLine(void)
 //    /**************************************±éÀúËÑË÷Í¼Ïñ×îµ×ĞĞ£¨59ĞĞ£©×óÓÒ±ßÏß´Ó¶øÈ·¶¨ÖĞÏßµÄ¹ı³Ì ********************************************************************/
 //    /****************************************************Begin*****************************************************************************/
 //
-//    PicTemp = image[image_bottom_value];                                                //ÈÃPicTempÕâ¸öÖ¸Õë±äÁ¿Ö¸ÏòÍ¼ÏñÊı×éµÄPixle[image_bottom_value]
+//    PicTemp = image[image_bottom_value];                                                //ÈÃPicTempÕâ¸öÖ¸Õë±äÁ¿Ö¸ÏòÍ¼ÏñÊı×éµÄimage[image_bottom_value]
 ////    for (Xsite = line_midpoint; Xsite < image_side_width; Xsite++)                   //¼ÙÉèline_midpointÊÇÖĞĞÄÁĞ£¬´ÓÖĞĞÄÁĞ¿ªÊ¼Ò»ÁĞÒ»ÁĞµÄÍùÓÒ±ßËÑË÷ÓÒ±ßÏß
 ////    {
 ////      if (*(PicTemp + Xsite) == 0 && *(PicTemp + Xsite + 1) == 0)       //Èç¹ûÁ¬Ğø³öÏÖÁËÁ½¸öºÚµã£¬ËµÃ»ÕÒµ½ÁË±ßÏß¡£
@@ -796,11 +802,11 @@ void Get_BaseLine(void)
 //            }
 //          }
 //
-//    BottomCenter =(BottomBorderLeft + BottomBorderRight) / 2;           //¸ù¾İ×óÓÒ±ß½ç¼ÆËã³öµÚ89ĞĞµÄÖĞÏß
-//    Sideline_status_array[image_bottom_value].leftline = BottomBorderLeft;                        //°ÑµÚ89ĞĞµÄ×ó±ß½ç´æ´¢½øÊı×é£¬×¢Òâ¿´ImageDealÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦89¡£
-//    Sideline_status_array[image_bottom_value].rightline = BottomBorderRight;                      //°ÑµÚ89ĞĞµÄÓÒ±ß½ç´æ´¢½øÊı×é£¬×¢Òâ¿´ImageDealÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦89¡£
-//    Sideline_status_array[image_bottom_value].midline = BottomCenter;                                //°ÑµÚ89ĞĞµÄÖĞÏß´æ´¢½øÊı×é£¬    ×¢Òâ¿´ImageDealÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦89¡£
-//    Sideline_status_array[image_bottom_value].wide = BottomBorderRight - BottomBorderLeft;          //°ÑµÚ89ĞĞµÄÈüµÀ¿í¶È´æ´¢Êı×é£¬×¢Òâ¿´ImageDealÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦89¡£
+//    Bottommidline =(BottomBorderLeft + BottomBorderRight) / 2;           //¸ù¾İ×óÓÒ±ß½ç¼ÆËã³öµÚ89ĞĞµÄÖĞÏß
+//    Sideline_status_array[image_bottom_value].leftline = BottomBorderLeft;                        //°ÑµÚ89ĞĞµÄ×ó±ß½ç´æ´¢½øÊı×é£¬×¢Òâ¿´Sideline_status_arrayÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦89¡£
+//    Sideline_status_array[image_bottom_value].rightline = BottomBorderRight;                      //°ÑµÚ89ĞĞµÄÓÒ±ß½ç´æ´¢½øÊı×é£¬×¢Òâ¿´Sideline_status_arrayÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦89¡£
+//    Sideline_status_array[image_bottom_value].midline = Bottommidline;                                //°ÑµÚ89ĞĞµÄÖĞÏß´æ´¢½øÊı×é£¬    ×¢Òâ¿´Sideline_status_arrayÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦89¡£
+//    Sideline_status_array[image_bottom_value].wide = BottomBorderRight - BottomBorderLeft;          //°ÑµÚ89ĞĞµÄÈüµÀ¿í¶È´æ´¢Êı×é£¬×¢Òâ¿´Sideline_status_arrayÕâ¸öÊı×ÖµÄÏÂ±ê£¬ÊÇ²»ÊÇÕıºÃ¶ÔÓ¦89¡£
 //    Sideline_status_array[image_bottom_value].IsLeftFind = 'T';                                     //¼ÇÂ¼µÚ89ĞĞµÄ×ó±ßÏßÀàĞÍÎªT£¬¼´Õı³£ÕÒµ½×ó±ßÏß¡£
 //    Sideline_status_array[image_bottom_value].IsRightFind = 'T';                                    //¼ÇÂ¼µÚ89ĞĞµÄÓÒ±ßÏßÀàĞÍÎªT£¬¼´Õı³£ÕÒµ½ÓÒ±ßÏß¡£
 //
@@ -974,7 +980,7 @@ void Get_AllLine(void)
   int ytemp_W_R;             //¼Ç×¡Ê×´ÎÓÒ¶ª±ßĞĞ
   ExtenRFlag = 0;            //±êÖ¾Î»Çå0
   ExtenLFlag = 0;            //±êÖ¾Î»Çå0
-  imagestatus.OFFLine=2;     //Õâ¸ö½á¹¹Ìå³ÉÔ±ÎÒÖ®ËùÒÔÔÚÕâÀï¸³Öµ£¬ÊÇÒòÎªÎÒImageStatus½á¹¹ÌåÀïÃæµÄ³ÉÔ±Ì«¶àÁË£¬µ«ÊÇÔİÊ±ÓÖÖ»ÓÃµ½ÁËOFFLine£¬ËùÒÔÎÒÔÚÄÄÓÃµ½Ëü¾ÍÔÚÄÄ¸³Öµ¡£
+  imagestatus.OFFLine=2;     //Õâ¸ö½á¹¹Ìå³ÉÔ±ÎÒÖ®ËùÒÔÔÚÕâÀï¸³Öµ£¬ÊÇÒòÎªÎÒimagestatus½á¹¹ÌåÀïÃæµÄ³ÉÔ±Ì«¶àÁË£¬µ«ÊÇÔİÊ±ÓÖÖ»ÓÃµ½ÁËOFFLine£¬ËùÒÔÎÒÔÚÄÄÓÃµ½Ëü¾ÍÔÚÄÄ¸³Öµ¡£
   imagestatus.Miss_Right_lines = 0;
   imagestatus.WhiteLine = 0;
   imagestatus.Miss_Left_lines = 0;
@@ -1344,7 +1350,7 @@ void draw_midline(void)
 //  int ytemp_W_R;             //¼Ç×¡Ê×´ÎÓÒ¶ª±ßĞĞ
 //  ExtenRFlag = 0;            //±êÖ¾Î»Çå0
 //  ExtenLFlag = 0;            //±êÖ¾Î»Çå0
-//  imagestatus.OFFLine=2;     //Õâ¸ö½á¹¹Ìå³ÉÔ±ÎÒÖ®ËùÒÔÔÚÕâÀï¸³Öµ£¬ÊÇÒòÎªÎÒImageStatus½á¹¹ÌåÀïÃæµÄ³ÉÔ±Ì«¶àÁË£¬µ«ÊÇÔİÊ±ÓÖÖ»ÓÃµ½ÁËOFFLine£¬ËùÒÔÎÒÔÚÄÄÓÃµ½Ëü¾ÍÔÚÄÄ¸³Öµ¡£
+//  imagestatus.OFFLine=2;     //Õâ¸ö½á¹¹Ìå³ÉÔ±ÎÒÖ®ËùÒÔÔÚÕâÀï¸³Öµ£¬ÊÇÒòÎªÎÒimagestatus½á¹¹ÌåÀïÃæµÄ³ÉÔ±Ì«¶àÁË£¬µ«ÊÇÔİÊ±ÓÖÖ»ÓÃµ½ÁËOFFLine£¬ËùÒÔÎÒÔÚÄÄÓÃµ½Ëü¾ÍÔÚÄÄ¸³Öµ¡£
 //  imagestatus.Miss_Right_lines = 0;
 //  imagestatus.WhiteLine = 0;
 //  imagestatus.Miss_Left_lines = 0;
@@ -1974,8 +1980,8 @@ void Search_Border_OTSU(uint8 imageInput[image_h][image_w], uint8 row, uint8 col
 void Element_Judgment_Left_Rings()
 {
     if (   imagestatus.Miss_Right_lines > 5 || imagestatus.Miss_Left_lines < 10
-        || imagestatus.OFFLine > 20 || Straight_Judge(2, imagestatus.OFFLine, (image_bottom_value-4)) > 1
-        || imageflag.image_element_rings == 2
+        || imagestatus.OFFLine > 20
+        || imageflag.image_element_rings !=0
 //        || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
         || Sideline_status_array[(image_bottom_value-7)].IsLeftFind == 'W'
         || Sideline_status_array[(image_bottom_value-6)].IsLeftFind == 'W'
@@ -2058,8 +2064,8 @@ void Element_Judgment_Left_Rings()
 void Element_Judgment_Right_Rings()
 {
     if (   imagestatus.Miss_Left_lines > 5 || imagestatus.Miss_Right_lines < 10
-        || imagestatus.OFFLine > 20 || Straight_Judge(1,imagestatus.OFFLine, (image_bottom_value-4)) > 1
-        || imageflag.image_element_rings == 1 || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
+        || imagestatus.OFFLine > 20
+        || imageflag.image_element_rings != 0 || imageflag.Out_Road == 1 || imageflag.RoadBlock_Flag == 1
         || Sideline_status_array[(image_bottom_value-7)].IsRightFind == 'W'
         || Sideline_status_array[(image_bottom_value-6)].IsRightFind == 'W'
         || Sideline_status_array[(image_bottom_value-5)].IsRightFind == 'W'
@@ -2125,6 +2131,7 @@ void Element_Judgment_Right_Rings()
         //ips200_show_uint(100,220,imageflag.image_element_rings,3);
     Ring_Help_Flag = 0;
 }
+
 //--------------------------------------------------------------------
 // º¯Êı¼ò½é     ×óÔ²»·´¦Àí
 //--------------------------------------------------------------------
@@ -2135,119 +2142,296 @@ void Element_Handle_Left_Rings()
  {
      uint8 num=0,ypoint=0;
      /*»·ÄÚ×´Ì¬ÅĞ¶¨*/
-     if(imageflag.image_element_rings_flag==1 || imageflag.image_element_rings_flag==2 || imageflag.image_element_rings_flag==3)
+     if(imageflag.image_element_rings_flag==3)
      {
-         for(uint8 i=(image_bottom_value-4);i>(image_bottom_value+1)/2;i--)
+         for(uint8 i=(image_bottom_value-2);i>imagestatus.OFFLine;i--)
          {
-             if(Sideline_status_array[i].IsLeftFind=='W')
+             if((Sideline_status_array[i-1].IsLeftFind=='W'||Sideline_status_array[i-1].leftline<=10)&& (Sideline_status_array[i-2].IsLeftFind=='W'||Sideline_status_array[i-2].leftline)
+                     && (Sideline_status_array[i+1].IsLeftFind=='T'&& Sideline_status_array[i].leftline>=10)&&(Sideline_status_array[i+2].IsRightFind=='T'&&Sideline_status_array[i].leftline>=10))
              {
-                 num++;
-             }
-             if(    Sideline_status_array[Ysite+3].IsLeftFind == 'W' && Sideline_status_array[Ysite+2].IsLeftFind == 'W'
-                     && Sideline_status_array[Ysite+1].IsLeftFind == 'W' && Sideline_status_array[Ysite].IsLeftFind == 'T')
-             {
-                 ypoint=Ysite;
+                 ypoint=i;
                  break;
              }
+             if(imageflag.image_element_rings_flag==7 || imageflag.image_element_rings_flag==8 ||  imageflag.image_element_rings_flag==9)
+             {
+                 if(Sideline_status_array[i].midline-Sideline_status_array[i+2].midline>5)num++;
+             }
+//             for (Ysite = image_bottom_value; Ysite > imagestatus.OFFLine + 3; Ysite--)
+//                    {
+//                        if (    Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite + 2].leftline
+//                             && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 2].leftline
+//                             && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite + 1].leftline
+//                             && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 1].leftline
+//                             && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite + 4].leftline
+//                             && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 4].leftline
+//                           )
+//                        {
+////                            Point_Xsite = ImageDeal[Ysite].RightBorder;
+////                            Point_Ysite = Ysite;
+//                            ypoint=Ysite;
+//                            break;
+//                        }
+//                    }
          }
      }
-     if(imageflag.image_element_rings_flag==1 && num>=15)imageflag.image_element_rings_flag=2;
-     if(imageflag.image_element_rings_flag==2 && num<=5)imageflag.image_element_rings_flag=3;//´ËÊ±¼´½«Èë»·
-     if(imageflag.image_element_rings_flag==3 && num>=15 && ypoint>30)imageflag.image_element_rings_flag=4;
+     if(imageflag.image_element_rings_flag==1 && imagestatus.Miss_Left_lines>=15)imageflag.image_element_rings_flag=2;
+     if(imageflag.image_element_rings_flag==2 && imagestatus.Miss_Left_lines<=5)imageflag.image_element_rings_flag=3;//´ËÊ±¼´½«Èë»·
+     if(imageflag.image_element_rings_flag==3 && imagestatus.Miss_Left_lines>=15 && ypoint>60)imageflag.image_element_rings_flag=4;
      if(imageflag.image_element_rings_flag==4 && imagestatus.Miss_Right_lines>=15)imageflag.image_element_rings_flag=5;
+//     if(imageflag.image_element_rings_flag==3 && imagestatus.Miss_Right_lines < 5 )imageflag.image_element_rings_flag=6;
      if(imageflag.image_element_rings_flag==5 && imagestatus.Miss_Right_lines < 5 )imageflag.image_element_rings_flag=6;
-     if(imageflag.image_element_rings_flag==6 && imagestatus.Miss_Right_lines>=10 && imagestatus.Miss_Left_lines>=10 && imagestatus.OFFLine<20)imageflag.image_element_rings_flag=7;
-     if(imageflag.image_element_rings_flag==7 && imagestatus.OFFLine >20 )imageflag.image_element_rings_flag=8;
-     if(imageflag.image_element_rings_flag==8 && (imagestatus.OFFLine+2)>(image_bottom_value-4) &&Sideline_status_array[(image_bottom_value-4)].rightline-Sideline_status_array[(imagestatus.OFFLine+2)].rightline > 10)imageflag.image_element_rings_flag=9;//Èç¹û³µÍ·Ïò·´·½ÏòÆ«ÒÆ¹ı¶È
-     if(imageflag.image_element_rings_flag==9 && imagestatus.OFFLine>=25)imageflag.image_element_rings_flag=8;
-     if((imageflag.image_element_rings_flag==9 || imageflag.image_element_rings_flag==8) && imagestatus.WhiteLine<5)imageflag.image_element_rings_flag=10;
+     if(imageflag.image_element_rings_flag==6 && imagestatus.Miss_Right_lines>=10 && imagestatus.Miss_Left_lines>=10 && imagestatus.OFFLine<15)imageflag.image_element_rings_flag=7;
+     if(imageflag.image_element_rings_flag==7 && imagestatus.OFFLine >15 )imageflag.image_element_rings_flag=8;
+     if((imageflag.image_element_rings_flag==7 || imageflag.image_element_rings_flag==8) && num>10)imageflag.image_element_rings_flag=9;//Èç¹û³µÍ·Ïò·´·½ÏòÆ«ÒÆ¹ı¶È
+     if(imageflag.image_element_rings_flag==9 && imagestatus.OFFLine>=25 && num<5)imageflag.image_element_rings_flag=8;
+     if((imageflag.image_element_rings_flag==9 || imageflag.image_element_rings_flag==8) && imagestatus.Miss_Right_lines<5 && Straight_Judge(2,(imagestatus.OFFLine+10),70)<1 && abs(angle_compute(Sideline_status_array[(imagestatus.OFFLine+10)].rightline,(imagestatus.OFFLine+10),Sideline_status_array[70].rightline,70))<45 )imageflag.image_element_rings_flag=10;
+     if(imageflag.image_element_rings_flag==10 && imagestatus.Miss_Left_lines<5)
+     {
+         imageflag.image_element_rings=0;
+         imageflag.image_element_rings_flag=0;
+         imageflag.ring_big_small=0;
+     }
      /*»·´¦Àí*/
-     if(imageflag.image_element_rings_flag==4 )
+     if(imageflag.image_element_rings_flag==4 || imageflag.image_element_rings_flag==5 )
      {
-         uint8 x=0,y=0;
-         Point_Ysite = 0;
-         Point_Xsite = 0;
-         for (Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLine + 7; Ysite--)
-         {
-             if (
-                     Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 2].leftline
+         int  flag_Xsite_1=0;
+                int flag_Ysite_1=0;
+                float Slope_Rings=0;
+                for(Ysite=(image_bottom_value-4);Ysite>imagestatus.OFFLine;Ysite--)//ÏÂÃæ»¡µã
+                {
+                    for(Xsite=Sideline_status_array[Ysite].leftline + 1;Xsite<Sideline_status_array[Ysite].rightline - 1;Xsite++)
+                    {
+                        if(  image[Ysite][Xsite] != 0 && image[Ysite][Xsite + 1] == 0)
+                         {
+                           flag_Ysite_1 = Ysite;
+                           flag_Xsite_1 = Xsite;
+                           Slope_Rings=(float)(Sideline_status_array[(image_bottom_value-5)].rightline-flag_Xsite_1)/(float)((image_bottom_value-5)-flag_Ysite_1);
+                           break;
+                         }
+                    }
+                    if(flag_Ysite_1 != 0)
+                    {
+                        break;
+                    }
+                }
 
-                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 1].leftline
+                if(flag_Ysite_1 == 0)
+                {
 
-                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 4].leftline
+                    for(Ysite=imagestatus.OFFLine+1;Ysite<60;Ysite++)
+                    {
+                        if(Sideline_status_array[Ysite].IsLeftFind=='T'&&Sideline_status_array[Ysite+1].IsLeftFind=='T'&&Sideline_status_array[Ysite+2].IsLeftFind=='W'
+                            &&abs(Sideline_status_array[Ysite].leftline-Sideline_status_array[Ysite+2].leftline)>10
+                          )
+                        {
+                            flag_Ysite_1=Ysite;
+                            flag_Xsite_1=Sideline_status_array[flag_Ysite_1].leftline;
+                            imagestatus.OFFLine=Ysite;
+                            Slope_Rings=(float)(image_bottom_value-flag_Xsite_1)/(float)(image_side_width-flag_Ysite_1);
+                            break;
+                        }
 
-                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 6].leftline
+                    }
+                }
+                //²¹Ïß
+                if(flag_Ysite_1 != 0)
+                {
+                    for(Ysite=flag_Ysite_1;Ysite<image_bottom_value;Ysite++)
+                    {
+                        Sideline_status_array[Ysite].rightline=flag_Xsite_1+Slope_Rings*(Ysite-flag_Ysite_1);
+        //                if(ImageFlag.ring_big_small==1)//´óÔ²»·²»¼õ°ë¿í
+//                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
+        //                else//Ğ¡Ô²»·¼õ°ë¿í
+        //                    Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Bend_Wide[Ysite];
+//                        if(Sideline_status_array[Ysite].midline<0)
+//                            Sideline_status_array[Ysite].midline = 0;
+                            LimitL(Sideline_status_array[Ysite].rightline);
+                            LimitH(Sideline_status_array[Ysite].rightline);
+                    }
+                    Sideline_status_array[flag_Ysite_1].rightline=flag_Xsite_1;
+                    for(Ysite=flag_Ysite_1-1;Ysite>10;Ysite--) //AµãÉÏ·½½øĞĞÉ¨Ïß
+                    {
+                        for(Xsite=Sideline_status_array[Ysite+1].rightline-10;Xsite<Sideline_status_array[Ysite+1].rightline+2;Xsite++)
+                        {
+                            if(image[Ysite][Xsite]!=0 && image[Ysite][Xsite+1]==0)
+                            {
+                                Sideline_status_array[Ysite].rightline=Xsite;
+        //                        if(ImageFlag.ring_big_small==1)//´óÔ²»·²»¼õ°ë¿í
+//                                    Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
+        //                        else//Ğ¡Ô²»·¼õ°ë¿í
+        //                            Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Bend_Wide[Ysite];
+//                                if(Sideline_status_array[Ysite].midline<0)
+//                                    Sideline_status_array[Ysite].midline = 0;
+                                Sideline_status_array[Ysite].wide=Sideline_status_array[Ysite].rightline-Sideline_status_array[Ysite].leftline;
+                                break;
+                            }
+                        }
 
-                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 5].leftline
-             )
-             {
-                 Point_Xsite = Sideline_status_array[Ysite].rightline;
-                 Point_Ysite = Ysite;
-                 break;
-             }
-         }
-         for(Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLineBoundary + 7; Ysite--)
-         {
-             if(Sideline_status_array[Ysite].LeftBoundary-Sideline_status_array[Ysite].LeftBoundary_First>5)
-             {
-                 x=Sideline_status_array[Ysite].LeftBoundary;
-                 y=Ysite;
-                 break;
-             }
-             if(Sideline_status_array[Ysite].RightBoundary_First-Sideline_status_array[Ysite].RightBoundary>5)
-             {
-                 x=Sideline_status_array[Ysite].RightBoundary;
-                 y=Ysite;
-                 break;
-             }
-         }
-         connect_line_subsidiary(y,Point_Ysite,x,Point_Xsite,1);
+                        if(Sideline_status_array[Ysite].wide>8 &&Sideline_status_array[Ysite].rightline< Sideline_status_array[Ysite+2].rightline)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            imagestatus.OFFLine=Ysite+2;
+                            break;
+                        }
+                    }
+                }
      }
-     if(imageflag.image_element_rings_flag==5)
-     {
-         Point_Ysite=0;
-         Point_Xsite=0;
-         for(Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLineBoundary + 7; Ysite--)
-                 {
-                     if(Sideline_status_array[Ysite].LeftBoundary-Sideline_status_array[Ysite].LeftBoundary_First>5)
-                     {
-                         Point_Xsite=Sideline_status_array[Ysite].LeftBoundary;
-                         Point_Ysite=Ysite;
-                         break;
-                     }
-                     if(Sideline_status_array[Ysite].RightBoundary_First-Sideline_status_array[Ysite].RightBoundary>5)
-                     {
-                         Point_Xsite=Sideline_status_array[Ysite].RightBoundary;
-                         Point_Ysite=Ysite;
-                         break;
-                     }
-                 }
-                 connect_line_subsidiary(Point_Ysite,image_bottom_value,Point_Xsite,image_side_width,1);
-     }
+//     {
+//         uint8 x=0,y=0;
+//         Point_Ysite = 0;
+//         Point_Xsite = 0;
+//         for (Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLine + 7; Ysite--)
+//         {
+//             if (
+//                     Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 2].leftline
+//
+//                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 1].leftline
+//
+//                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 4].leftline
+//
+//                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 6].leftline
+//
+//                     && Sideline_status_array[Ysite].leftline >= Sideline_status_array[Ysite - 5].leftline
+//             )
+//             {
+//                 Point_Xsite = Sideline_status_array[Ysite].rightline;
+//                 Point_Ysite = Ysite;
+//                 break;
+//             }
+//         }
+//         for(Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLineBoundary + 7; Ysite--)
+//         {
+//             if(Sideline_status_array[Ysite].LeftBoundary-Sideline_status_array[Ysite].LeftBoundary_First>5)
+//             {
+//                 x=Sideline_status_array[Ysite].LeftBoundary;
+//                 y=Ysite;
+//                 break;
+//             }
+//             if(Sideline_status_array[Ysite].RightBoundary_First-Sideline_status_array[Ysite].RightBoundary>5)
+//             {
+//                 x=Sideline_status_array[Ysite].RightBoundary;
+//                 y=Ysite;
+//                 break;
+//             }
+//         }
+//         imagestatus.OFFLine=y+5;
+//         connect_line_subsidiary(y,Point_Ysite,x,Point_Xsite,1);
+//     }
+//     if(imageflag.image_element_rings_flag==5)
+//     {
+//         Point_Ysite=0;
+//         Point_Xsite=0;
+//         for(Ysite = (image_bottom_value-4); Ysite > imagestatus.OFFLineBoundary + 7; Ysite--)
+//                 {
+//                     if(Sideline_status_array[Ysite].LeftBoundary-Sideline_status_array[Ysite].LeftBoundary_First>5)
+//                     {
+//                         Point_Xsite=Sideline_status_array[Ysite].LeftBoundary;
+//                         Point_Ysite=Ysite;
+//                         break;
+//                     }
+//                     if(Sideline_status_array[Ysite].RightBoundary_First-Sideline_status_array[Ysite].RightBoundary>5)
+//                     {
+//                         Point_Xsite=Sideline_status_array[Ysite].RightBoundary;
+//                         Point_Ysite=Ysite;
+//                         break;
+//                     }
+//                 }
+//                 connect_line_subsidiary(Point_Ysite,image_bottom_value,Point_Xsite,image_side_width,1);
+//     }
+//     if(imageflag.image_element_rings_flag==8)
+//     {
+//         for(Ysite = (image_bottom_value-4);Ysite>imagestatus.OFFLine;Ysite--)
+//         {
+//             if(Sideline_status_array[Ysite].IsRightFind!='T')
+//             {
+//                 if(Sideline_status_array[Ysite].IsLeftFind=='T')
+//                 {
+//                     Sideline_status_array[Ysite].rightline=Sideline_status_array[Ysite].leftline+track_width;
+//
+//                     LimitL(Sideline_status_array[Ysite].rightline);  //ÏŞ·ù
+//                     LimitH(Sideline_status_array[Ysite].rightline);  //ÏŞ·ù
+//
+//                     Sideline_status_array[Ysite].IsRightFind='T';
+//
+//                 }
+//                 else {
+////                     uint8 L_found_point = 0;
+//                     uint8 R_found_point = 0;
+//                     for (uint8 ysite = Ysite + 1; ysite < Ysite + 15; ysite++)
+//                             {
+//                               if (Sideline_status_array[ysite].IsRightFind == 'T')
+//                                 {
+//                                   R_found_point++;
+//                                 }
+//                             }
+//                     if(R_found_point>=8)
+//                     {
+//                         float D_R = ((float)(Sideline_status_array[Ysite + R_found_point].rightline - Sideline_status_array[Ysite + 3].rightline)) /((float)(R_found_point - 3));
+//
+//                         Sideline_status_array[Ysite].rightline =Sideline_status_array[Ysite+2].rightline -D_R * 2;  //Èç¹ûÕÒµ½ÁË ÄÇÃ´ÒÔ»ù×¼ĞĞ×öÑÓ³¤Ïß
+////                         (Sideline_status_array[Ysite].rightline = (((Sideline_status_array[Ysite].rightline) < (Sideline_status_array[Ysite].leftline+track_width/3)) ? (Sideline_status_array[Ysite].leftline+track_width/3) : (Sideline_status_array[Ysite].rightline)));
+//                         LimitL(Sideline_status_array[Ysite].rightline);  //ÏŞ·ù
+//                         LimitH(Sideline_status_array[Ysite].rightline);  //ÏŞ·ù
+//                         Sideline_status_array[Ysite].IsRightFind='T';
+//                     }
+//
+//                }
+//             }
+//     }
+
+//     }
      if(imageflag.image_element_rings_flag==8)
      {
-         for(Ysite = (image_bottom_value-4);Ysite>imagestatus.OFFLine;Ysite--)
-         {
-             if(Sideline_status_array[Ysite].IsRightFind!='T')
-             {
-                 if(Sideline_status_array[Ysite].IsLeftFind=='T')
-                 {
-//                     Sideline_status_array
-                 }
-             }
-         }
+//         uint8 bit_x=image_side_width-5,bit_y=image_bottom_value-4;
+//         for(Ysite=(image_bottom_value-4);Ysite>imagestatus.OFFLine;Ysite--)
+//         {
+//             if((Sideline_status_array[Ysite-1].IsRightFind=='W'||Sideline_status_array[Ysite-1].rightline>(image_side_width-5))&&(Sideline_status_array[Ysite-2].IsRightFind=='W'||Sideline_status_array[Ysite-2].rightline>(image_side_width-5))&&(Sideline_status_array[Ysite-3].IsRightFind=='W'||Sideline_status_array[Ysite-3].rightline>(image_side_width-5)))
+//             {
+//                 bit_x=Sideline_status_array[Ysite].rightline;
+//                 bit_y=Ysite;
+//                 break;
+//             }
+//         }
+         for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
+                             {
+                                 Sideline_status_array[Ysite].rightline=Sideline_status_array[(image_bottom_value-4)].rightline+1.2*(Ysite-(image_bottom_value-4));
+                 //                if(ImageFlag.ring_big_small==1)//´óÔ²»·²»¼õ°ë¿í
+         //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
+                 //                else//Ğ¡Ô²»·¼õ°ë¿í
+                 //                    Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Bend_Wide[Ysite];
+         //                        if(Sideline_status_array[Ysite].midline<0)
+         //                            Sideline_status_array[Ysite].midline = 0;
+                                     LimitL(Sideline_status_array[Ysite].rightline);
+                                     LimitH(Sideline_status_array[Ysite].rightline);
+                             }
      }
      if(imageflag.image_element_rings_flag==9)
      {
+         uint8 bit=0;
          for(Ysite = (image_bottom_value-1); Ysite > (imagestatus.OFFLine+2); Ysite--)
          {
-             Sideline_status_array[Ysite].rightline=Sideline_status_array[Ysite+1].rightline-1;
-             LimitL(Sideline_status_array[Ysite].rightline);
+//             Sideline_status_array[Ysite].rightline=Sideline_status_array[Ysite+1].rightline-1;
+//             LimitL(Sideline_status_array[Ysite].rightline);
+             if(Sideline_status_array[Ysite-1].IsRightFind=='W'&&Sideline_status_array[Ysite].IsRightFind=='T'&& Sideline_status_array[Ysite+1].IsRightFind=='T'&& Sideline_status_array[Ysite+2].IsRightFind=='T')
+                 bit=Ysite;
+             if(Ysite==imagestatus.OFFLine+4)
+                 bit=Ysite;
          }
+         connect_line_subsidiary((imagestatus.OFFLine+2), bit, Sideline_status_array[(imagestatus.OFFLine+2)].leftline,Sideline_status_array[bit].rightline, 2);
      }
  }
 }
+//--------------------------------------------------------------------
+// º¯Êı¼ò½é     Ê®×Ö´¦Àí
+//--------------------------------------------------------------------
+void Cross_road_Handle(void)
+{
+    if(imagestatus.Miss_Left_lines<5||imagestatus.Miss_Right_lines<5||imageflag.CrossRoad_Flag==0||imageflag.image_element_rings!=0||imageflag.Zebra_Flag!=0) return;
 
+}
 //--------------------------------------------------------------------
 // º¯Êı¼ò½é     ²¹Ïß¸¨Öúº¯Êı
 // ²ÎÊıËµÃ÷     y_up        ²¹ÏßÉÏµã
@@ -2372,8 +2556,8 @@ void Camera_tracking(void)
     Element_Judgment_Left_Rings();
     Element_Judgment_Right_Rings();
     Straight_Judgment_Third();
-
+    if(imageflag.image_element_rings==1)
+    Element_Handle_Left_Rings();
     draw_midline();
-
     camera_tft180show();
 }
