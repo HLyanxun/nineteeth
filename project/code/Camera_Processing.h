@@ -117,7 +117,7 @@ extern attitude_t angle;  //环岛使用
 extern uint8 midline[92];//巡线外接使用
 
 uint8 get_Threshold(void);
-float midline_and_anglereturn(uint8 mode);
+float ALL_initALL_init(uint8 mode);
 float angle_compute(uint x1,uint y1,uint x2,uint y2);
 
 void ImagePerspective_Init(void);

@@ -14,7 +14,7 @@
 #define default_side_choose (0)         //0默认选择左边线巡线，1默认选择右边线巡线
 #define track_show          (1)          //是否显示巡线结果
 #define image_type          (0)         //0二值化图像，1灰度图像
-#define track_show_8        (0)         //是否显示八邻域巡线结果
+#define track_show_8        (1)         //是否显示八邻域巡线结果
 
 //算法定义
 #define LimitL(L) (L = ((L < 1) ? 1 : L))    //限幅限幅
@@ -83,6 +83,7 @@ typedef struct {
      int16 straight_long[3];                        /*长直道标志位,1远端，2中段，3近端，标志置1代表存在*/
 //     int16 Garage_Location;                      /*0 :无车库          1 :左车库       2 :右车库*/
      int16 Zebra_Flag;                           /*0 :无斑马线       1 左车库       2 :右车库*/
+     int16 Zebra_Flag_count;
 //     int16 Ramp;                                  /*0 :无坡道          1：坡道*/
      int16 RoadBlock_Flag;                        /*0 :无路障            1 :路障*/
      int16 Out_Road;                               /*0 :无断路      其他 :出界*/
@@ -124,6 +125,7 @@ void Get_AllLine(void);           //全图像巡线
 void camera_tft180show(void);     //显示巡线结果
 float angle_compute(uint x1,uint y1,uint x2,uint y2);
 void connect_line_subsidiary(uint8 y_up,uint8 y_down,uint8 x_up,uint8 x_down,uint8 mode);
+
 
 
 
