@@ -2324,7 +2324,7 @@ void Element_Handle_Left_Rings()
                  {
                  bit_34++;
                  }
-                 if(Sideline_status_array[i].RightBoundary>(image_side_width-5))
+                 if(Sideline_status_array[i].LeftBoundary<5)
                  {
                      bit_56++;
                  }
@@ -2648,7 +2648,7 @@ void Element_Handle_right_Rings()
                       {
                       bit_34++;
                       }
-                      if(Sideline_status_array[i].LeftBoundary<5)
+                      if(Sideline_status_array[i].RightBoundary<5)
                       {
                           bit_56++;
                       }
@@ -3197,17 +3197,17 @@ void Straight_Judgment_Third(void)
 
 float midline_and_anglereturn(uint8 mode)
 {
-    uint8 OFFLine=70;
+    uint8 OFFLine=75;
     int point1,point2,point3;
     float angle;
     if(OFFLine<imagestatus.OFFLine)OFFLine=imagestatus.OFFLine;
 
-    if(mode==0){point2=Sideline_status_array[(uint8)(80+OFFLine)/2].midline-45 ;return point2;}
+    if(mode==0){point2=Sideline_status_array[(uint8)(85+OFFLine)/2].midline-45 ;return point2;}
     if(mode==1){
 
-        point1=Sideline_status_array[(uint8)(80+OFFLine)/2].midline;
+        point1=Sideline_status_array[(uint8)(85+OFFLine)/2].midline;
         point3=Sideline_status_array[80].midline;
-        angle=angle_compute(point1,((uint8)(80+OFFLine)/2),point3,80);
+        angle=angle_compute(point1,((uint8)(85+OFFLine)/2),point3,80);
         return angle;}
 
     return 0;
@@ -3283,7 +3283,7 @@ void Camera_tracking(void)
     Element_Handle();
 
     draw_midline();
-    camera_tft180show();
+//    camera_tft180show();
     mt9v03x_finish_flag=0;
            }
 }
