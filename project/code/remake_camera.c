@@ -161,7 +161,7 @@ void camera_tft180show(void)
 //    tft180_show_int(0, 140, imageflag.Zebra_Flag, 3);
 //
 //    tft180_show_int(0,92, Zeber_count, 3);
-    tft180_show_int(0,108, imageflag.image_element_rings, 3);
+    tft180_show_int(0,108, imageflag.CrossRoad_Flag, 3);
     tft180_show_int(0,124, imageflag.image_element_rings_flag, 3);
     if(track_show)
     {
@@ -1143,10 +1143,12 @@ void Get_AllLine(void)
     if(default_side_choose)
        {
            if(JumpPoint[1].type!= 'T' || JumpPoint[1].point > (image_side_width-5))mid_choose_value++;
+           else if((JumpPoint[1].point-(track_width/2))-JumpPoint[0].point<(track_width/4))mid_choose_value++;
 //           if(JumpPoint[1].type!= 'T' )mid_choose_value++;
        }
        else {
            if(JumpPoint[0].type != 'T' || JumpPoint[0].point < 5)mid_choose_value++;
+           else if(JumpPoint[1].point-(JumpPoint[0].point+(track_width/2))<(track_width/4))mid_choose_value++;
 //           if(JumpPoint[0].type != 'T')mid_choose_value++;
        }
 
@@ -2926,7 +2928,7 @@ void Element_Handle_right_Rings()
 void Cross_road_Judgment(void)
 {
 //    imageflag.CrossRoad_Flag=0;
-    if(imagestatus.Miss_Left_lines<5||imagestatus.Miss_Right_lines<5||imagestatus.WhiteLine<5||imageflag.CrossRoad_Flag!=0||imageflag.image_element_rings!=0||imageflag.Zebra_Flag!=0) return;
+    if(imagestatus.Miss_Left_lines<5||imagestatus.Miss_Right_lines<5||imageflag.CrossRoad_Flag!=0||imageflag.image_element_rings!=0||imageflag.Zebra_Flag!=0) return;
     imageflag.CrossRoad_Flag=1;
 }
 //--------------------------------------------------------------------
@@ -2936,7 +2938,7 @@ void Cross_road_Handle(void)
 {
     uint8 Cross_Xsite_L=0,Cross_Ysite_L=0,Cross_Xsite_R=0,Cross_Ysite_R=0,num_L=0,num_R=0,num=0;
     float slope_L=0,slope_R=0;
-    for(Ysite=image_bottom_value;Ysite>(image_bottom_value-11);Ysite--)
+    for(Ysite=image_bottom_value;Ysite>(image_bottom_value-15);Ysite--)
     {
         if(Sideline_status_array[Ysite].LeftBoundary<10 && Sideline_status_array[Ysite].RightBoundary>(image_side_width-10))
             num++;

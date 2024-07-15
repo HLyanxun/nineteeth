@@ -10,11 +10,11 @@
 #include "zf_common_headfile.h"
 
 //检测选项开关
-#define track_width_debug  (0)          //赛道宽度标定工具显示
+#define track_width_debug   (0)          //赛道宽度标定工具显示
 #define default_side_choose (0)         //0默认选择左边线巡线，1默认选择右边线巡线
 #define track_show          (1)          //是否显示巡线结果
 #define image_type          (0)         //0二值化图像，1灰度图像
-#define track_show_8        (1)         //是否显示八邻域巡线结果
+#define track_show_8        (0)         //是否显示八邻域巡线结果
 
 //算法定义
 #define LimitL(L) (L = ((L < 1) ? 1 : L))    //限幅限幅
@@ -36,7 +36,7 @@
 //处理用图像
 #define image_w  (92)
 #define image_h  (92)
-#define track_width  (42)        //赛道宽度
+#define track_width  (40)        //赛道宽度
 #define ImageScanInterval   (5)                        //扫边的范围
 extern uint8 image[image_h][image_w];  //使用的图像
 
