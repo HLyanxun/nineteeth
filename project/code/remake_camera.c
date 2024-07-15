@@ -2571,9 +2571,12 @@ void Element_Handle_Left_Rings()
 //                 break;
 //             }
 //         }
+         uint8 slope=0;
+         slope=Sideline_status_array[(image_bottom_value-4)].leftline/((image_bottom_value-4)-imagestatus.OFFLine);
          for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
                              {
-                                 Sideline_status_array[Ysite].rightline=Sideline_status_array[(image_bottom_value-4)].rightline+0.8*(Ysite-(image_bottom_value-4));
+                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-4)].leftline+slope*(Ysite-(image_bottom_value-4));
+                                 Sideline_status_array[Ysite].rightline=Sideline_status_array[Ysite].leftline+track_width;
                  //                if(ImageFlag.ring_big_small==1)//大圆环不减半宽
          //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
                  //                else//小圆环减半宽
@@ -2582,6 +2585,8 @@ void Element_Handle_Left_Rings()
          //                            Sideline_status_array[Ysite].midline = 0;
                                      LimitL(Sideline_status_array[Ysite].rightline);
                                      LimitH(Sideline_status_array[Ysite].rightline);
+                                     LimitL(Sideline_status_array[Ysite].leftline);
+                                     LimitH(Sideline_status_array[Ysite].leftline);
                              }
      }
      if(imageflag.image_element_rings_flag==9)
@@ -2945,17 +2950,17 @@ void Cross_road_Handle(void)
     }
     if(num>7)imageflag.CrossRoad_Flag=2;
     if(imageflag.CrossRoad_Flag==2 && num<5)imageflag.CrossRoad_Flag=0;
-    if(imageflag.CrossRoad_Flag==2)
+    if(imageflag.CrossRoad_Flag==1 || imageflag.CrossRoad_Flag==2)
     {
 //        Get_ExtensionLine();
         for(Ysite=image_bottom_value;Ysite>(imagestatus.OFFLine+2);Ysite--)
         {
-            if(Sideline_status_array[Ysite-1].leftline-Sideline_status_array[Ysite].leftline>5 && Cross_Ysite_L==0)
+            if(Sideline_status_array[Ysite].leftline-Sideline_status_array[Ysite+1].leftline>5 && Cross_Ysite_L==0)
             {
                 Cross_Ysite_L=Ysite-1;
                 Cross_Xsite_L=Sideline_status_array[(Ysite-1)].leftline;
             }
-            if(Sideline_status_array[Ysite].rightline-Sideline_status_array[Ysite-1].rightline>5 && Cross_Ysite_R==0)
+            if(Sideline_status_array[Ysite+1].rightline-Sideline_status_array[Ysite].rightline>5 && Cross_Ysite_R==0)
             {
                 Cross_Ysite_R=Ysite-1;
                 Cross_Xsite_R=Sideline_status_array[(Ysite-1)].rightline;
@@ -3248,9 +3253,10 @@ void Scan_Element()
     {
 //        Element_Judgment_RoadBlock();       //路障
 //        Element_Judgment_OutRoad();         //断路
+        Cross_road_Judgment();
         Element_Judgment_Left_Rings();
         Element_Judgment_Right_Rings();
-        Cross_road_Judgment();
+
     }
     Element_Judgment_Zebra();
     Straight_Judgment_Third();
