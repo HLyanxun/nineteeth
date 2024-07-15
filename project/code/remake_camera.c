@@ -114,7 +114,7 @@ void ALL_init(void)
 void ImagePerspective_Init(void)
 {
     static uint8_t BlackColor = 0;
-    double change_un_Mat[3][3] ={{0.430435,-0.459130,40.776522},{0.000000,0.078913,6.162391},{0.000000,-0.004783,0.626522}};
+    double change_un_Mat[3][3] ={{0.563636,-0.528483,47.190307},{0.000000,0.146113,5.703136},{0.000000,-0.005695,0.777700}};
     for (int i = 0; i < RESULT_COL ;i++) {
         for (int j = 0; j < RESULT_ROW ;j++) {
             int local_x = (int) ((change_un_Mat[0][0] * i
@@ -161,8 +161,8 @@ void camera_tft180show(void)
 //    tft180_show_int(0, 140, imageflag.Zebra_Flag, 3);
 //
 //    tft180_show_int(0,92, Zeber_count, 3);
-//    tft180_show_int(0,108, imageflag.CrossRoad_Flag, 3);
-//    tft180_show_int(0,124, imageflag.image_element_rings_flag, 3);
+    tft180_show_int(0,108, imageflag.image_element_rings, 3);
+    tft180_show_int(0,124, imageflag.image_element_rings_flag, 3);
     if(track_show)
     {
         for(uint8 i=imagestatus.OFFLine;i<=image_bottom_value;i++)
@@ -1461,8 +1461,18 @@ void draw_midline(void)
                  LimitL(Sideline_status_array[Ysite].midline);
     }
 }
+//----------------------------------------------------------------------------------
+//  函数简介       中线标定修复
+//----------------------------------------------------------------------------------
+void draw_midline_fix(void)
+{
+    uint8 num=0,slope=0;
+    for(Ysite=(image_bottom_value-1);Ysite>imagestatus.OFFLine;Ysite--)
+    {
 
+    }
 
+}
 
 
 //void Get_AllLine(void)
@@ -2561,7 +2571,7 @@ void Element_Handle_Left_Rings()
 //         }
          for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
                              {
-                                 Sideline_status_array[Ysite].rightline=Sideline_status_array[(image_bottom_value-4)].rightline+1*(Ysite-(image_bottom_value-4));
+                                 Sideline_status_array[Ysite].rightline=Sideline_status_array[(image_bottom_value-4)].rightline+0.8*(Ysite-(image_bottom_value-4));
                  //                if(ImageFlag.ring_big_small==1)//大圆环不减半宽
          //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
                  //                else//小圆环减半宽
@@ -2883,7 +2893,7 @@ void Element_Handle_right_Rings()
 //         }
          for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
                              {
-                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-4)].leftline-1*(Ysite-(image_bottom_value-4));
+                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-4)].leftline-0.8*(Ysite-(image_bottom_value-4));
                  //                if(ImageFlag.ring_big_small==1)//大圆环不减半宽
          //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
                  //                else//小圆环减半宽
@@ -3213,7 +3223,7 @@ float midline_and_anglereturn(uint8 mode)
     return 0;
 
 }
-float angle_compute(uint x1,uint y1,uint x2,uint y2)
+float angle_compute(uint8 x1,uint8 y1,uint8 x2,uint8 y2)
 {
     double c,a;
     float angle;
@@ -3283,7 +3293,7 @@ void Camera_tracking(void)
     Element_Handle();
 
     draw_midline();
-//    camera_tft180show();
+    camera_tft180show();
     mt9v03x_finish_flag=0;
            }
 }

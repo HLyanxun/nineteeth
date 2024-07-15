@@ -55,8 +55,8 @@ int main (void)
 //         if(mt9v03x_finish_flag==1)
 //         {
 //             tft180_show_gray_image(0, 0, mt9v03x_image[0], MT9V03X_W, MT9V03X_H, MT9V03X_W/2, MT9V03X_H/2, 0);
-//             sendimg(mt9v03x_image[0],MT9V03X_W,MT9V03X_H);
-             Camera_tracking();
+             sendimg(mt9v03x_image[0],MT9V03X_W,MT9V03X_H);
+//             Camera_tracking();
 //         Binaryzation();
 //         image_draw();
 //             for(uint8 i=0;i<30;i++)
@@ -65,8 +65,8 @@ int main (void)
 //             }
 
 
-             tft180_show_gray_image(0, 0, image[0], image_w, image_h, image_w, image_h, 0);
-             test_show_midline();
+//             tft180_show_gray_image(0, 0, image[0], image_w, image_h, image_w, image_h, 0);
+//             test_show_midline();
 //             tft180_draw_line(Test_L, 0, Test_L, 90, RGB565_RED);
 //             tft180_draw_line(Test_R, 0, Test_R, 90, RGB565_RED);
 

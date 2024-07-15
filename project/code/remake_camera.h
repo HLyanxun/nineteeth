@@ -123,7 +123,7 @@ void image_draw(void);             //二值化
 void Get_BaseLine(void);          //基础图像巡线处理
 void Get_AllLine(void);           //全图像巡线
 void camera_tft180show(void);     //显示巡线结果
-float angle_compute(uint x1,uint y1,uint x2,uint y2);
+float angle_compute(uint8 x1,uint8 y1,uint8 x2,uint8 y2);
 void connect_line_subsidiary(uint8 y_up,uint8 y_down,uint8 x_up,uint8 x_down,uint8 mode);
 
 
