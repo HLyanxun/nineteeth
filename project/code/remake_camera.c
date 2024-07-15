@@ -2575,7 +2575,7 @@ void Element_Handle_Left_Rings()
          slope=Sideline_status_array[(image_bottom_value-4)].leftline/((image_bottom_value-4)-imagestatus.OFFLine);
          for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
                              {
-                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-4)].leftline+slope*(Ysite-(image_bottom_value-4));
+                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-4)].leftline-slope*(Ysite-(image_bottom_value-4));
                                  Sideline_status_array[Ysite].rightline=Sideline_status_array[Ysite].leftline+track_width;
                  //                if(ImageFlag.ring_big_small==1)//´óÔ²»·²»¼õ°ë¿í
          //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
@@ -2898,18 +2898,23 @@ void Element_Handle_right_Rings()
 //                 break;
 //             }
 //         }
-         for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
-                             {
-                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-4)].leftline-0.8*(Ysite-(image_bottom_value-4));
-                 //                if(ImageFlag.ring_big_small==1)//´óÔ²»·²»¼õ°ë¿í
-         //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
-                 //                else//Ğ¡Ô²»·¼õ°ë¿í
-                 //                    Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Bend_Wide[Ysite];
-         //                        if(Sideline_status_array[Ysite].midline<0)
-         //                            Sideline_status_array[Ysite].midline = 0;
-                                     LimitL(Sideline_status_array[Ysite].leftline);
-                                     LimitH(Sideline_status_array[Ysite].leftline);
-                             }
+         uint8 slope=0;
+                  slope=(image_side_width-Sideline_status_array[(image_bottom_value-4)].rightline)/((image_bottom_value-4)-imagestatus.OFFLine);
+                  for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
+                                      {
+                                          Sideline_status_array[Ysite].rightline=Sideline_status_array[(image_bottom_value-4)].leftline-slope*(Ysite-(image_bottom_value-4));
+                                          Sideline_status_array[Ysite].leftline=Sideline_status_array[Ysite].rightline+track_width;
+                          //                if(ImageFlag.ring_big_small==1)//´óÔ²»·²»¼õ°ë¿í
+                  //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
+                          //                else//Ğ¡Ô²»·¼õ°ë¿í
+                          //                    Sideline_status_array[Ysite].midline = Sideline_status_array[Ysite].rightline - Half_Bend_Wide[Ysite];
+                  //                        if(Sideline_status_array[Ysite].midline<0)
+                  //                            Sideline_status_array[Ysite].midline = 0;
+                                              LimitL(Sideline_status_array[Ysite].rightline);
+                                              LimitH(Sideline_status_array[Ysite].rightline);
+                                              LimitL(Sideline_status_array[Ysite].leftline);
+                                              LimitH(Sideline_status_array[Ysite].leftline);
+                                      }
      }
      if(imageflag.image_element_rings_flag==9)
      {
