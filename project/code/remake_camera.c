@@ -160,7 +160,7 @@ void camera_tft180show(void)
 //    a=abs(angle_compute(Sideline_status_array[30].rightline,30,Sideline_status_array[60].rightline,60));
 //    tft180_show_int(0, 140, imageflag.Zebra_Flag, 3);
 //
-//    tft180_show_int(0,92, Zeber_count, 3);
+    tft180_show_int(0,92, abs(angle_compute(Sideline_status_array[70].RightBoundary,70,Sideline_status_array[80].RightBoundary,80)), 3);
     tft180_show_int(0,108, imageflag.CrossRoad_Flag, 3);
     tft180_show_int(0,124, imageflag.image_element_rings_flag, 3);
     if(track_show)
@@ -1463,370 +1463,6 @@ void draw_midline(void)
                  LimitL(Sideline_status_array[Ysite].midline);
     }
 }
-//----------------------------------------------------------------------------------
-//  函数简介       中线标定修复
-//----------------------------------------------------------------------------------
-void draw_midline_fix(void)
-{
-    uint8 num=0,slope=0;
-    for(Ysite=(image_bottom_value-1);Ysite>imagestatus.OFFLine;Ysite--)
-    {
-
-    }
-
-}
-
-
-//void Get_AllLine(void)
-//{
-//  uint8 L_Found_T  = 'F';    //确定无边斜率的基准有边行是否被找到的标志
-//  uint8 Get_L_line = 'F';    //找到这一帧图像的基准左斜率，为什么这里要置为F，看了下面的代码就知道了。
-//  uint8 R_Found_T  = 'F';    //确定无边斜率的基准有边行是否被找到的标志
-//  uint8 Get_R_line = 'F';    //找到这一帧图像的基准右斜率，为什么这里要置为F，看了下面的代码就知道了。
-//  float D_L = 0;             //左边线延长线的斜率
-//  float D_R = 0;             //右边线延长线的斜率
-//  int ytemp_W_L;             //记住首次左丢边行
-//  int ytemp_W_R;             //记住首次右丢边行
-//  ExtenRFlag = 0;            //标志位清0
-//  ExtenLFlag = 0;            //标志位清0
-//  imagestatus.OFFLine=2;     //这个结构体成员我之所以在这里赋值，是因为我imagestatus结构体里面的成员太多了，但是暂时又只用到了OFFLine，所以我在哪用到它就在哪赋值。
-//  imagestatus.Miss_Right_lines = 0;
-//  imagestatus.WhiteLine = 0;
-//  imagestatus.Miss_Left_lines = 0;
-//  imageflag.mid_choose=0;
-//  uint8 mid_choose_value=0;
-//  for (Ysite = (image_bottom_value-5) ; Ysite > imagestatus.OFFLine; Ysite--)                            //前5行在Get_BaseLine()中已经处理过了，现在从55行处理到自己设定的不处理行OFFLine。
-//  {                                                                                  //因为太前面的图像可靠性不搞，所以OFFLine的设置很有必要，没必要一直往上扫到第0行。
-//    PicTemp = image[Ysite];
-//    JumpPointtypedef JumpPoint[2];                                                   // JumpPoint[0]代表左边线，JumpPoint[1]代表右边线。
-//
-//  /******************************扫描本行的右边线******************************/
-//    int IntervalLow  = Sideline_status_array[Ysite + 1].rightline  - ImageScanInterval;               //从上一行的右边线加减Interval对应的列开始扫描本行，Interval一般取5，当然你为了保险起见可以把这个值改的大一点。
-//    int IntervalHigh = Sideline_status_array[Ysite + 1].rightline + ImageScanInterval;              //正常情况下只需要在上行边线左右5的基础上（差不多10列的这个区间）去扫线，一般就能找到本行的边线了，所以这个值其实不用太大。
-//    IntervalLow= (IntervalLow);                                                             //这里就是对传给GetJumpPointFromDet()函数的扫描区间进行一个限幅操作。
-//    IntervalHigh=LimitL(IntervalHigh);                                                            //假如上一行的边线是第2列，那你2-5=-3，-3是不是就没有实际意义了？怎么会有-3列呢？
-//    Get_Border_And_SideType(PicTemp, 'R', IntervalLow, IntervalHigh,&JumpPoint[1]);  //扫线用的一个子函数，自己跳进去看明白逻辑。
-//  /******************************扫描本行的右边线******************************/
-//
-//  /******************************扫描本行的左边线******************************/
-//    IntervalLow =Sideline_status_array[Ysite + 1].leftline  -ImageScanInterval;                //从上一行的左边线加减Interval对应的列开始扫描本行，Interval一般取5，当然你为了保险起见可以把这个值改的大一点。
-//    IntervalHigh =Sideline_status_array[Ysite + 1].leftline +ImageScanInterval;                //正常情况下只需要在上行边线左右5的基础上（差不多10列的这个区间）去扫线，一般就能找到本行的边线了，所以这个值其实不用太大。
-//    IntervalLow=LimitL(IntervalLow);                                                             //这里就是对传给GetJumpPointFromDet()函数的扫描区间进行一个限幅操作。
-//    IntervalHigh= LimitL(IntervalHigh);                                                            //假如上一行的边线是第2列，那你2-5=-3，-3是不是就没有实际意义了？怎么会有-3列呢？
-//    Get_Border_And_SideType(PicTemp, 'L', IntervalLow, IntervalHigh,&JumpPoint[0]);  //扫线用的一个子函数，自己跳进去看明白逻辑。
-//  /******************************扫描本行的左边线******************************/
-//
-//  /*
-//       下面的代码要是想看懂，想搞清楚我到底在赣神魔的话，
-//        请务必把GetJumpPointFromDet()这个函数的逻辑看懂，
-//        尤其是在这个函数里面，“T”、“W”、“H”三个标志代表什么，
-//        一定要搞懂!!!不然的话，建议不要往下看了，不要折磨自己!!!
-//  */
-//
-//    if(default_side_choose)
-//    {
-//        if(JumpPoint[1].type!= 'T')mid_choose_value++;
-//    }
-//    else {
-//        if(JumpPoint[0].type != 'T')mid_choose_value++;
-//    }
-//    if (JumpPoint[0].type =='W')                                                     //如果本行的左边线属于不正常跳变，即这10个点都是白点。
-//    {
-//      Sideline_status_array[Ysite].leftline =Sideline_status_array[Ysite + 1].leftline;                  //那么本行的左边线就采用上一行的边线。
-//    }
-//    else                                                                             //如果本行的左边线属于T或者是H类别
-//    {
-//      Sideline_status_array[Ysite].leftline = JumpPoint[0].point;                              //那么扫描到的边线是多少，我就记录下来是多少。
-//    }
-//
-//    if (JumpPoint[1].type == 'W')                                                    //如果本行的右边线属于不正常跳变，即这10个点都是白点。
-//    {
-//      Sideline_status_array[Ysite].rightline =Sideline_status_array[Ysite + 1].rightline;                //那么本行的右边线就采用上一行的边线。
-//    }
-//    else                                                                             //如果本行的右边线属于T或者是H类别
-//    {
-//      Sideline_status_array[Ysite].rightline = JumpPoint[1].point;                             //那么扫描到的边线是多少，我就记录下来是多少。
-//    }
-//    if(mid_choose_value>10)imageflag.mid_choose=1;
-////    if(Sideline_status_array[Ysite].wide< track_width)imageflag.mid_choose=1;
-//    Sideline_status_array[Ysite].IsLeftFind =JumpPoint[0].type;                                  //记录本行找到的左边线类型，是T？是W？还是H？这个类型后面是有用的，因为我还要进一步处理。
-//    Sideline_status_array[Ysite].IsRightFind = JumpPoint[1].type;                                //记录本行找到的右边线类型，是T？是W？还是H？这个类型后面是有用的，因为我还要进一步处理。
-//
-//
-//  /*
-//        下面就开始对W和H类型的边线分别进行处理， 为什么要处理？
-//        如果你看懂了GetJumpPointFromDet函数逻辑，明白了T W H三种类型分别对应什么情况，
-//        那你就应该知道W和H类型的边线都属于非正常类型，那我是不是要处理？
-//        这一部分的处理思路需要自己花大量时间好好的去琢磨，我在注释这里没法给你说清楚的。，
-//        实在想不通就来问我吧！
-//  */
-//
-//    /************************************重新确定大跳变(即H类)的边界*************************************/
-//
-//    if (( Sideline_status_array[Ysite].IsLeftFind == 'H' || Sideline_status_array[Ysite].IsRightFind == 'H'))
-//    {
-//      /**************************处理左边线的大跳变***************************/
-//      if (Sideline_status_array[Ysite].IsLeftFind == 'H')
-//      {
-//        for (Xsite = (Sideline_status_array[Ysite].leftline + 1);Xsite <= (Sideline_status_array[Ysite].rightline - 1);Xsite++)                                                           //左右边线之间重新扫描
-//        {
-//          if ((*(PicTemp + Xsite) == 0) && (*(PicTemp + Xsite + 1) != 0))
-//          {
-//            Sideline_status_array[Ysite].leftline =Xsite;
-//            Sideline_status_array[Ysite].IsLeftFind = 'T';
-//            break;
-//          }
-//          else if (*(PicTemp + Xsite) != 0)
-//            break;
-//          else if (Xsite ==(Sideline_status_array[Ysite].rightline - 1))
-//          {
-//            Sideline_status_array[Ysite].IsLeftFind = 'T';
-//            break;
-//          }
-//        }
-//      }
-//      /**************************处理左边线的大跳变***************************/
-//
-//
-//      /**************************处理右边线的大跳变***************************/
-//      if (Sideline_status_array[Ysite].IsRightFind == 'H')
-//      {
-//        for (Xsite = (Sideline_status_array[Ysite].rightline - 1);Xsite >= (Sideline_status_array[Ysite].leftline + 1); Xsite--)
-//        {
-//          if ((*(PicTemp + Xsite) == 0) && (*(PicTemp + Xsite - 1) != 0))
-//          {
-//            Sideline_status_array[Ysite].rightline =Xsite;
-//            Sideline_status_array[Ysite].IsRightFind = 'T';
-//            break;
-//          }
-//          else if (*(PicTemp + Xsite) != 0)
-//            break;
-//          else if (Xsite == (Sideline_status_array[Ysite].leftline + 1))
-//          {
-//            Sideline_status_array[Ysite].rightline = Xsite;
-//            Sideline_status_array[Ysite].IsRightFind = 'T';
-//            break;
-//          }
-//         }
-//       }
-//     }
-//    /**************************处理右边线的大跳变***************************/
-//
-//  /*****************************重新确定大跳变的边界******************************/
-//
-//
-//
-// /************************************重新确定无边行（即W类）的边界****************************************************************/
-//    int ysite = 0;
-//    uint8 L_found_point = 0;
-//    uint8 R_found_point = 0;
-//    /**************************处理右边线的无边行***************************/
-//    if (Sideline_status_array[Ysite].IsRightFind == 'W' && Ysite > 10 && Ysite < (image_side_width-10))
-//    {
-//      if (Get_R_line == 'F')
-//      {
-//        Get_R_line = 'T';
-//        ytemp_W_R = Ysite + 2;
-//        for (ysite = Ysite + 1; ysite < Ysite + 15; ysite++)
-//        {
-//          if (Sideline_status_array[ysite].IsRightFind =='T')
-//          {
-//              R_found_point++;
-//          }
-//        }
-//        if (R_found_point >8)
-//        {
-//          D_R = ((float)(Sideline_status_array[Ysite + R_found_point].rightline - Sideline_status_array[Ysite + 3].rightline)) /((float)(R_found_point - 3));
-//          if (D_R > 0)
-//          {
-//            R_Found_T ='T';
-//          }
-//          else
-//          {
-//            R_Found_T = 'F';
-////            if (D_R < 0)
-////            {
-////                ExtenRFlag = 'F';
-////            }
-//          }
-//        }
-//      }
-//      if (R_Found_T == 'T')
-//      {
-//        Sideline_status_array[Ysite].rightline =Sideline_status_array[ytemp_W_R].rightline -D_R * (ytemp_W_R - Ysite);  //如果找到了 那么以基准行做延长线
-//      }
-//      Sideline_status_array[Ysite].rightline=LimitL(Sideline_status_array[Ysite].rightline);  //限幅
-//
-//    }
-//
-//    /**************************处理右边线的无边行***************************/
-//
-//
-//    /**************************处理左边线的无边行***************************/
-//    if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite > 10 && Ysite < (image_side_width-10) )
-//    {
-//      if (Get_L_line == 'F')
-//      {
-//        Get_L_line = 'T';
-//        ytemp_W_L = Ysite + 2;
-//        for (ysite = Ysite + 1; ysite < Ysite + 15; ysite++)
-//        {
-//          if (Sideline_status_array[ysite].IsLeftFind == 'T')
-//            {
-//              L_found_point++;
-//            }
-//        }
-//        if (L_found_point > 8)              //找到基准斜率边  做延长线重新确定无边
-//        {
-//          D_L = ((float)(Sideline_status_array[Ysite + 3].leftline -Sideline_status_array[Ysite + L_found_point].leftline)) /((float)(L_found_point - 3));
-//          if (D_L > 0)
-//          {
-//            L_Found_T = 'T';
-//          }
-//          else
-//          {
-//            L_Found_T = 'F';
-////            if (D_L < 0)
-////            {
-////                ExtenLFlag = 'F';
-////            }
-//          }
-//        }
-//      }
-//
-//      if (L_Found_T == 'T')
-//      {
-//          Sideline_status_array[Ysite].leftline =Sideline_status_array[ytemp_W_L].leftline + D_L * (ytemp_W_L - Ysite);
-//      }
-//
-//      Sideline_status_array[Ysite].leftline=LimitL(Sideline_status_array[Ysite].leftline);  //限幅
-//
-//    }
-//
-//    /**************************处理左边线的无边行***************************/
-//    /************************************重新确定无边行（即W类）的边界****************************************************************/
-//
-//
-//    /************************************都处理完之后，其他的一些数据整定操作*************************************************/
-//      if (Sideline_status_array[Ysite].IsLeftFind == 'W'&&Sideline_status_array[Ysite].IsRightFind == 'W')
-//      {
-//          imagestatus.WhiteLine++;  //要是左右都无边，丢边数+1
-//      }
-//     if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite < (image_bottom_value-4) )
-//     {
-//          imagestatus.Miss_Left_lines++;
-//     }
-//     if (Sideline_status_array[Ysite].IsRightFind == 'W'&& Ysite < (image_bottom_value-4) )
-//     {
-//          imagestatus.Miss_Right_lines++;
-//     }
-//
-//     Sideline_status_array[Ysite].leftline=LimitL(Sideline_status_array[Ysite].leftline);   //限幅
-//
-//     Sideline_status_array[Ysite].rightline= LimitL(Sideline_status_array[Ysite].rightline);  //限幅
-//
-//
-//      Sideline_status_array[Ysite].wide =Sideline_status_array[Ysite].rightline - Sideline_status_array[Ysite].leftline;
-////      Sideline_status_array[Ysite].midline =(Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline) / 2;
-//
-////      if (Sideline_status_array[Ysite].wide <= 7 )
-////      {
-////          imagestatus.OFFLine = Ysite + 1;
-////          break;
-////      }
-////      else if (Sideline_status_array[Ysite].rightline <= 10||Sideline_status_array[Ysite].leftline >= (image_bottom_value-10))
-////      {
-////          imagestatus.OFFLine = Ysite + 1;
-////          break;
-////      }
-//      /************************************都处理完之后，其他的一些数据整定操作*************************************************/
-//  }
-//  for (Ysite = imagestatus.OFFLine ; Ysite <= (image_bottom_value-5); Ysite++){
-//      int ysite = 0;
-//      uint8 L_found_point = 0;
-//      uint8 R_found_point = 0;
-//      /*左边线无边行的标定*/
-//      if (Sideline_status_array[Ysite].IsLeftFind == 'W' && Ysite < 10)
-//      {
-//          ytemp_W_L = Ysite - 2;
-//                  for (ysite = Ysite - 1; ysite < Ysite - 15; ysite--)
-//                  {
-//                    if (Sideline_status_array[ysite].IsLeftFind == 'T')
-//                      {
-//                        L_found_point++;
-//                      }
-//                  }
-//                  if (L_found_point > 8)              //找到基准斜率边  做延长线重新确定无边
-//                  {
-//                    D_L = ((float)(Sideline_status_array[Ysite - 3].leftline -Sideline_status_array[Ysite - L_found_point].leftline)) /((float)(L_found_point - 3));
-//                    if (D_L > 0)
-//                    {
-//                      L_Found_T = 'T';
-//                    }
-//                    else
-//                    {
-//                      L_Found_T = 'F';
-//          //            if (D_L < 0)
-//          //            {
-//          //                ExtenLFlag = 'F';
-//          //            }
-//                    }
-//                  }
-//                  if (L_Found_T == 'T')
-//                       {
-//                           Sideline_status_array[Ysite].leftline =Sideline_status_array[ytemp_W_L].leftline + D_L * (ytemp_W_L - Ysite);
-//                       }
-//
-//                  Sideline_status_array[Ysite].leftline=LimitL(Sideline_status_array[Ysite].leftline);  //限幅
-//
-//      }
-//      /*右边线无边行的标定*/
-//      if (Sideline_status_array[Ysite].IsRightFind == 'W' &&  Ysite > (image_side_width-10))
-//         {
-//             ytemp_W_R = Ysite - 2;
-//             for (ysite = Ysite - 1; ysite < Ysite - 15; ysite--)
-//             {
-//               if (Sideline_status_array[ysite].IsRightFind =='T')
-//               {
-//                   R_found_point++;
-//               }
-//             }
-//             if (R_found_point >8)
-//             {
-//               D_R = ((float)(Sideline_status_array[Ysite - R_found_point].rightline - Sideline_status_array[Ysite - 3].rightline)) /((float)(R_found_point - 3));
-//               if (D_R > 0)
-//               {
-//                 R_Found_T ='T';
-//               }
-//               else
-//               {
-//                 R_Found_T = 'F';
-//     //            if (D_R < 0)
-//     //            {
-//     //                ExtenRFlag = 'F';
-//     //            }
-//               }
-//             }
-//
-//           if (R_Found_T == 'T')
-//           {
-//             Sideline_status_array[Ysite].rightline =Sideline_status_array[ytemp_W_R].rightline -D_R * (ytemp_W_R - Ysite);  //如果找到了 那么以基准行做延长线
-//           }
-//           Sideline_status_array[Ysite].rightline=LimitL(Sideline_status_array[Ysite].rightline);  //限幅
-//
-//         }
-//      /*中线的标定*/
-//      if(imageflag.mid_choose)
-//      {
-//          if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
-//          else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
-//      }
-//      else {
-//          if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
-//          else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
-//    }
-//  }
-//}
 
 
 
@@ -2336,7 +1972,7 @@ void Element_Handle_Left_Rings()
                  {
                  bit_34++;
                  }
-                 if(Sideline_status_array[i].LeftBoundary<5)
+                 if(Sideline_status_array[i].RightBoundary>(image_side_width-5))
                  {
                      bit_56++;
                  }
@@ -2348,9 +1984,10 @@ void Element_Handle_Left_Rings()
      if(imageflag.image_element_rings_flag==1 && bit>=15)imageflag.image_element_rings_flag=2;
      if(imageflag.image_element_rings_flag==2 && bit<=5)imageflag.image_element_rings_flag=3;//此时即将入环
      if(imageflag.image_element_rings_flag==3 && imagestatus.Miss_Left_lines>=15 && ypoint>60&& ypoint<80 && bit_34>=15)imageflag.image_element_rings_flag=4;
-     if(imageflag.image_element_rings_flag==4 && bit_34>=15 && bit_56>=15)imageflag.image_element_rings_flag=5;
+     if(imageflag.image_element_rings_flag==4 && bit_34>=15 &&   abs(angle_compute(Sideline_status_array[70].RightBoundary,70,Sideline_status_array[80].RightBoundary,80))>25)imageflag.image_element_rings_flag=5;
+//     if(imageflag.image_element_rings_flag==4  && bit_34<7)imageflag.image_element_rings_flag=5;
 //     if(imageflag.image_element_rings_flag==3 && imagestatus.Miss_Right_lines < 5 )imageflag.image_element_rings_flag=6;
-     if(imageflag.image_element_rings_flag==5 && bit_56<5)imageflag.image_element_rings_flag=6;
+     if(imageflag.image_element_rings_flag==5 && bit_34>=15 && bit_56<5)imageflag.image_element_rings_flag=6;
      if(imageflag.image_element_rings_flag==6 && imagestatus.Miss_Right_lines>=10 && imagestatus.Miss_Left_lines>=10 && imagestatus.OFFLine<15)imageflag.image_element_rings_flag=7;
      if(imageflag.image_element_rings_flag==7 && imagestatus.OFFLine >15 )imageflag.image_element_rings_flag=8;
      if((imageflag.image_element_rings_flag==7 || imageflag.image_element_rings_flag==8) && num>10)imageflag.image_element_rings_flag=9;//如果车头向反方向偏移过度
@@ -2571,12 +2208,27 @@ void Element_Handle_Left_Rings()
 //                 break;
 //             }
 //         }
-         uint8 slope=0;
-         slope=Sideline_status_array[(image_bottom_value-4)].leftline/((image_bottom_value-4)-imagestatus.OFFLine);
+//         uint8 slope=0;
+         Repair_Point_Xsite = 20;
+         Repair_Point_Ysite = 0;
+                 for (int Ysite = image_bottom_value; Ysite > 5; Ysite--)
+                 {
+                     if (image[Ysite][28] != 0 && image[Ysite-1][28] == 0)//30
+                     {
+                         Repair_Point_Xsite = 28;
+                         Repair_Point_Ysite = Ysite-1;
+                         imagestatus.OFFLine = Ysite + 1;  //截止行重新规划
+                         break;
+                     }
+                 }
+
+
+//         slope=Sideline_status_array[(image_bottom_value-4)].LeftBoundary/((image_bottom_value-4)-imagestatus.OFFLine);
          for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
                              {
-                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-4)].leftline-slope*(Ysite-(image_bottom_value-4));
-                                 Sideline_status_array[Ysite].rightline=Sideline_status_array[Ysite].leftline+track_width;
+//                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-4)].leftline-slope*(Ysite-(image_bottom_value-4));
+                                 Sideline_status_array[Ysite].rightline=(Sideline_status_array[(image_bottom_value-4)].rightline - Repair_Point_Xsite) * (Ysite - (image_bottom_value-4)) / ((image_bottom_value-4) - Repair_Point_Ysite)  + Sideline_status_array[(image_bottom_value-4)].rightline;
+                                 Sideline_status_array[Ysite].leftline=Sideline_status_array[Ysite].rightline-track_width;
                  //                if(ImageFlag.ring_big_small==1)//大圆环不减半宽
          //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
                  //                else//小圆环减半宽
@@ -2665,7 +2317,7 @@ void Element_Handle_right_Rings()
                       {
                       bit_34++;
                       }
-                      if(Sideline_status_array[i].RightBoundary<5)
+                      if(Sideline_status_array[i].LeftBoundary<5)
                       {
                           bit_56++;
                       }
@@ -2675,9 +2327,9 @@ void Element_Handle_right_Rings()
      if(imageflag.image_element_rings_flag==1 && bit>=15)imageflag.image_element_rings_flag=2;
      if(imageflag.image_element_rings_flag==2 && bit<=5)imageflag.image_element_rings_flag=3;//此时即将入环
      if(imageflag.image_element_rings_flag==3 && imagestatus.Miss_Right_lines>=15 && ypoint>60&& ypoint<80 && bit_34>=15)imageflag.image_element_rings_flag=4;
-     if(imageflag.image_element_rings_flag==4 && bit_34>=15 && bit_56>=15)imageflag.image_element_rings_flag=5;
+     if(imageflag.image_element_rings_flag==4 && bit_34>=15 &&  abs(angle_compute(Sideline_status_array[70].LeftBoundary,70,Sideline_status_array[80].LeftBoundary,80))>25)imageflag.image_element_rings_flag=5;
      //     if(imageflag.image_element_rings_flag==3 && imagestatus.Miss_Right_lines < 5 )imageflag.image_element_rings_flag=6;
-     if(imageflag.image_element_rings_flag==5 && bit_56<5)imageflag.image_element_rings_flag=6;
+     if(imageflag.image_element_rings_flag==5 && bit_56<5 && bit_34>=15 )imageflag.image_element_rings_flag=6;
      if(imageflag.image_element_rings_flag==6 && imagestatus.Miss_Left_lines>=10 && imagestatus.Miss_Right_lines>=10 && imagestatus.OFFLine<15)imageflag.image_element_rings_flag=7;////
      if(imageflag.image_element_rings_flag==7 && imagestatus.OFFLine >15 )imageflag.image_element_rings_flag=8;////
      if((imageflag.image_element_rings_flag==7 || imageflag.image_element_rings_flag==8) && num>10)imageflag.image_element_rings_flag=9;//如果车头向反方向偏移过度////
@@ -2898,12 +2550,26 @@ void Element_Handle_right_Rings()
 //                 break;
 //             }
 //         }
-         uint8 slope=0;
-                  slope=(image_side_width-Sideline_status_array[(image_bottom_value-4)].rightline)/((image_bottom_value-4)-imagestatus.OFFLine);
+         Repair_Point_Xsite = 60;
+                 Repair_Point_Ysite = 0;
+                 for (int Ysite = image_bottom_value-4; Ysite > 5; Ysite--)
+                 {
+                     if (image[Ysite][58] !=0 && image[Ysite-1][58] == 0)
+                     {
+                         Repair_Point_Xsite = 58;
+                         Repair_Point_Ysite = Ysite-1;
+                         imagestatus.OFFLine = Ysite + 1;  //截止行重新规划
+                                 //  ips200_show_uint(200,200,Repair_Point_Ysite,2);
+                         break;
+                     }
+                 }
+
+//         uint8 slope=0;
+//                  slope=(image_side_width-Sideline_status_array[(image_bottom_value-4)].rightline)/((image_bottom_value-4)-imagestatus.OFFLine);
                   for(Ysite=image_bottom_value-4;Ysite> imagestatus.OFFLine;Ysite--)
                                       {
-                                          Sideline_status_array[Ysite].rightline=Sideline_status_array[(image_bottom_value-4)].leftline-slope*(Ysite-(image_bottom_value-4));
-                                          Sideline_status_array[Ysite].leftline=Sideline_status_array[Ysite].rightline+track_width;
+                                          Sideline_status_array[Ysite].leftline=(Sideline_status_array[(image_bottom_value-1)].leftline - Repair_Point_Xsite) * (Ysite - (image_bottom_value-1)) / ((image_bottom_value-1) - Repair_Point_Ysite)  + Sideline_status_array[(image_bottom_value-1)].leftline;
+                                          Sideline_status_array[Ysite].rightline=Sideline_status_array[Ysite].leftline+track_width;
                           //                if(ImageFlag.ring_big_small==1)//大圆环不减半宽
                   //                            Sideline_status_array[Ysite].midline = (Sideline_status_array[Ysite].rightline + Sideline_status_array[Ysite].leftline)/2;
                           //                else//小圆环减半宽
@@ -2946,8 +2612,10 @@ void Cross_road_Judgment(void)
 //--------------------------------------------------------------------
 void Cross_road_Handle(void)
 {
-    uint8 Cross_Xsite_L=0,Cross_Ysite_L=0,Cross_Xsite_R=0,Cross_Ysite_R=0,num_L=0,num_R=0,num=0;
-    float slope_L=0,slope_R=0;
+//    uint8 Cross_Ysite_L=0,Cross_Ysite_R=0;
+    uint8 num=0;
+    float slope=0;
+//    float slope_L=0,slope_R=0;
     for(Ysite=image_bottom_value;Ysite>(image_bottom_value-15);Ysite--)
     {
         if(Sideline_status_array[Ysite].LeftBoundary<10 && Sideline_status_array[Ysite].RightBoundary>(image_side_width-10))
@@ -2955,56 +2623,62 @@ void Cross_road_Handle(void)
     }
     if(num>7)imageflag.CrossRoad_Flag=2;
     if(imageflag.CrossRoad_Flag==2 && num<5)imageflag.CrossRoad_Flag=0;
-    if(imageflag.CrossRoad_Flag==1 || imageflag.CrossRoad_Flag==2)
+    if(imageflag.CrossRoad_Flag==1)Get_ExtensionLine();
+    if(imageflag.CrossRoad_Flag==2)
     {
-//        Get_ExtensionLine();
-        for(Ysite=image_bottom_value;Ysite>(imagestatus.OFFLine+2);Ysite--)
-        {
-            if(Sideline_status_array[Ysite].leftline-Sideline_status_array[Ysite+1].leftline>5 && Cross_Ysite_L==0)
-            {
-                Cross_Ysite_L=Ysite-1;
-                Cross_Xsite_L=Sideline_status_array[(Ysite-1)].leftline;
-            }
-            if(Sideline_status_array[Ysite+1].rightline-Sideline_status_array[Ysite].rightline>5 && Cross_Ysite_R==0)
-            {
-                Cross_Ysite_R=Ysite-1;
-                Cross_Xsite_R=Sideline_status_array[(Ysite-1)].rightline;
-            }
-            if(Cross_Ysite_R!=0&&Cross_Ysite_L!=0)
-            {
-                break;
-            }
-        }
-        for(Ysite=Cross_Ysite_L;Ysite>(Cross_Ysite_L-11);Ysite--)
-        {
-            if(Sideline_status_array[Ysite].IsLeftFind=='T')
-            {
-                num_L++;
-            }
-        }
-        for(Ysite=Cross_Ysite_R;Ysite>(Cross_Ysite_R-7);Ysite--)
-        {
-            if(Sideline_status_array[Ysite].IsRightFind=='T')
-            {
-                num_R++;
-            }
-        }
-        slope_L=((float)Sideline_status_array[(Cross_Ysite_L-num_L)].leftline-Sideline_status_array[Cross_Ysite_L].leftline)/(float)num_L;
-        slope_R=((float)Sideline_status_array[(Cross_Ysite_R-num_R)].rightline-Sideline_status_array[Cross_Ysite_R].rightline)/(float)num_R;
-        for(Ysite=Cross_Ysite_L;Ysite<(image_bottom_value-1);Ysite++)
-        {
-            Sideline_status_array[Ysite].leftline=Cross_Xsite_L-slope_L*(Ysite-Cross_Ysite_L);
-            LimitH(Sideline_status_array[Ysite].leftline);
-            LimitL(Sideline_status_array[Ysite].leftline);
-        }
-        for(Ysite=Cross_Ysite_R;Ysite<(image_bottom_value-1);Ysite++)
-        {
-            Sideline_status_array[Ysite].rightline=Cross_Xsite_R-slope_R*(Ysite-Cross_Ysite_R);
-            LimitH(Sideline_status_array[Ysite].rightline);
-            LimitL(Sideline_status_array[Ysite].rightline);
-        }
-//        connect_line_subsidiary(Cross_Ysite_L, (image_bottom_value-1), Cross_Xsite_L, (line_midpoint-(track_width/2)), 0);
-//        connect_line_subsidiary(Cross_Ysite_R, (image_bottom_value-1), Cross_Xsite_R, (line_midpoint+(track_width/2)), 1);
+       slope=(Sideline_status_array[(image_bottom_value-track_width-5)].RightBoundary-Sideline_status_array[(image_bottom_value-track_width-10)].RightBoundary)/5;
+       for(Ysite=(image_bottom_value-track_width-5);Ysite<(image_bottom_value-1);Ysite++)
+       {
+           Sideline_status_array[Ysite].rightline=Sideline_status_array[(image_bottom_value-track_width-5)].RightBoundary+slope*(Ysite-(image_bottom_value-track_width-5));
+           Sideline_status_array[Ysite].leftline=Sideline_status_array[(image_bottom_value-track_width-5)].LeftBoundary+slope*(Ysite-(image_bottom_value-track_width-5));
+           LimitH(Sideline_status_array[Ysite].rightline);
+           LimitL(Sideline_status_array[Ysite].rightline);
+           LimitH(Sideline_status_array[Ysite].leftline);
+           LimitL(Sideline_status_array[Ysite].leftline);
+       }
+//        for(Ysite=(image_bottom_value-num);Ysite>imagestatus.OFFLine;Ysite--)
+//        {
+//            if(Sideline_status_array[Ysite].LeftBoundary>10 && Sideline_status_array[Ysite+1].LeftBoundary<10 && Sideline_status_array[Ysite+2].LeftBoundary<10 && Sideline_status_array[Ysite+3].LeftBoundary<10)
+//            {
+//                Cross_Ysite_L=Ysite;
+//
+//                break;
+//            }
+//        }
+//        for(Ysite=(image_bottom_value-num);Ysite>imagestatus.OFFLine;Ysite--)
+//                {
+//                    if(Sideline_status_array[Ysite].RightBoundary<(image_side_width-10) && Sideline_status_array[Ysite+1].RightBoundary>(image_side_width-10) && Sideline_status_array[Ysite+2].RightBoundary>(image_side_width-10) && Sideline_status_array[Ysite+3].RightBoundary>(image_side_width-10))
+//                    {
+//                        Cross_Ysite_R=Ysite;
+//                        break;
+//                    }
+//                }
+//        connect_line_subsidiary((Cross_Ysite_L-1), (image_bottom_value-2), Sideline_status_array[(Cross_Ysite_L-1)].LeftBoundary, (line_midpoint-(track_width/2)), 0);
+//        connect_line_subsidiary((Cross_Ysite_R-1), (image_bottom_value-2), Sideline_status_array[(Cross_Ysite_R-1)].RightBoundary, (line_midpoint+(track_width/2)), 1);
+//        for(Ysite=Cross_Ysite_L;Ysite>(Cross_Ysite_L-11);Ysite--)
+//        {
+//            if(Sideline_status_array[Ysite].LeftBoundary>10 && Sideline_status_array[Ysite].LeftBoundary<(image_side_width-10))
+//                num_L++;
+//        }
+//        for(Ysite=Cross_Ysite_R;Ysite>(Cross_Ysite_R-11);Ysite--)
+//        {
+//            if(Sideline_status_array[Ysite].RightBoundary<(image_side_width-10)&&Sideline_status_array[Ysite].RightBoundary>10)
+//            num_R++;
+//        }
+//        slope_L=(float)(Sideline_status_array[Cross_Ysite_L].leftline-Sideline_status_array[(Cross_Ysite_L-num_L)].leftline)/(float)num_L;
+//        slope_R=(float)(Sideline_status_array[Cross_Ysite_R].rightline-Sideline_status_array[(Cross_Ysite_R-num_R)].rightline)/(float)num_R;
+//        for(Ysite=(image_bottom_value-1);Ysite>Cross_Ysite_L;Ysite--)
+//        {
+//            Sideline_status_array[Ysite].leftline=Sideline_status_array[Cross_Ysite_L].leftline+slope_L*(Ysite-Cross_Ysite_L);
+//            LimitH(Sideline_status_array[Ysite].leftline);
+//            LimitL(Sideline_status_array[Ysite].leftline);
+//        }
+//        for(Ysite=(image_bottom_value-1);Ysite>Cross_Ysite_R;Ysite--)
+//                {
+//                    Sideline_status_array[Ysite].rightline=Sideline_status_array[Cross_Ysite_R].leftline+slope_R*(Ysite-Cross_Ysite_R);
+//                    LimitH(Sideline_status_array[Ysite].rightline);
+//                    LimitL(Sideline_status_array[Ysite].rightline);
+//                }
     }
 }
 
