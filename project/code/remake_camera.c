@@ -103,7 +103,9 @@ float Straight_Judge(uint8 dir, uint8 start, uint8 end)     //·µ»Ø½á¹ûĞ¡ÓÚ1¼´ÎªÖ
 void ALL_init(void)
 {
     ImagePerspective_Init();
-    mt9v03x_init();
+    while(mt9v03x_init())
+    {
+    }
     tft180_init();
     Flag_init();
 }
@@ -114,7 +116,7 @@ void ALL_init(void)
 void ImagePerspective_Init(void)
 {
     static uint8_t BlackColor = 0;
-    double change_un_Mat[3][3] ={{0.563636,-0.528483,47.190307},{0.000000,0.146113,5.703136},{0.000000,-0.005695,0.777700}};
+    double change_un_Mat[3][3] ={{0.592732,-0.471368,44.767877},{0.000000,0.154939,8.323468},{0.000000,-0.004913,0.736042}};
     for (int i = 0; i < RESULT_COL ;i++) {
         for (int j = 0; j < RESULT_ROW ;j++) {
             int local_x = (int) ((change_un_Mat[0][0] * i
@@ -573,6 +575,32 @@ void Binaryzation(void)
 //    My_Threshold =(int)my_adapt_threshold_2(mt9v03x_image[0],MT9V03X_W,MT9V03X_H)+ My_Threshold_cha;
 }
 //-------------------------------------------------------------------------------------------------------------------
+// @brief       Í¼Ïñ½µÔë
+// @param       im       Í¼ÏñÖ¸Õë
+// @return      ÎŞ
+// @notice   »áÔö¼ÓĞí¶à¼ÆËãÁ¿£¨f5277´óÔ¼Ôö¼Ó3ms£©
+//-------------------------------------------------------------------------------------------------------------------
+void Bin_Image_Filter(void)
+{
+    for(uint8 a=1;a<image_bottom_value-1;a++)
+    {
+        for(uint8 b=1;b<image_side_width-1;b++)
+        {
+           if((image[a][b]==0)
+             &&((image[a-1][b]+image[a+1][b]+image[a][b-1]+image[a][b+1])>510))
+         {
+               image[a][b]=255;
+         }
+         else if((image[a][b]==255)
+             &&((image[a-1][b]+image[a+1][b]+image[a][b-1]+image[a][b+1])<510))
+         {
+             image[a][b]=0;
+         }
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------------------------------------
 // º¯Êı¼ò½é     image_draw  »­ºÚ¿ò ¼ÓÉÏ ¶ÔÍ¼Ïñ½øĞĞ¶şÖµ»¯
 // ²ÎÊıËµÃ÷
 // ·µ»Ø²ÎÊı
@@ -581,6 +609,14 @@ void Binaryzation(void)
 //-------------------------------------------------------------------------------------------------------------------
 void image_draw(void)
 {
+//    uint8_t i,j;
+//       for(i=0;i<image_bottom_value;i++)
+//       {
+//           for(j=0;j<Weight;j++)
+//           {
+//               image[i][j] = ImageUsed[i * Weight + j]<threshold?0:255;
+//           }
+//       }
 
     for(int i = image_h-3; i >= 0 ; i-- )//´ÓÄæÍ¸ÊÓÍ¼ÏñÊı×éÀïÃæÌá³ö,ÔÚ½øĞĞÒ»´ÎãĞÖµÌİ¶Èµİ¼õµÄ¶şÖµ»¯
     {
@@ -597,33 +633,33 @@ void image_draw(void)
 
 
     }
-
-    uint16 N_zaoddian=0;
-    for(int i=0;i<90;i++)       //°×Ôëµã È¥³ı
-        for(int j=1;j<90;j++)
-        {
-            if( image[90-i][j] == 255 )
-            {
-                N_zaoddian =                 image[90-i-1][j]
-                           + image[90-i][j-1]               + image[90-i]  [j+1]
-                                            +image[90-i+1][j] ;
-                if( N_zaoddian <  255 * 2 )
-                {
-                    image[90-i][j] = 0 ;
-                }
-            }
-            else
-            {
-                N_zaoddian =                 image[90-i-1][j]
-                           + image[90-i][j-1]               + image[90-i]  [j+1]
-                                            +image[90-i+1][j] ;
-                if( N_zaoddian >  255 * 2 )
-                {
-                    image[90-i][j] = 255 ;
-                }
-            }
-
-        }
+    Bin_Image_Filter();
+//    uint16 N_zaoddian=0;
+//    for(int i=0;i<90;i++)       //°×Ôëµã È¥³ı
+//        for(int j=1;j<90;j++)
+//        {
+//            if( image[90-i][j] == 255 )
+//            {
+//                N_zaoddian =                 image[90-i-1][j]
+//                           + image[90-i][j-1]               + image[90-i]  [j+1]
+//                                            +image[90-i+1][j] ;
+//                if( N_zaoddian <  255 * 2 )
+//                {
+//                    image[90-i][j] = 0 ;
+//                }
+//            }
+//            else
+//            {
+//                N_zaoddian =                 image[90-i-1][j]
+//                           + image[90-i][j-1]               + image[90-i]  [j+1]
+//                                            +image[90-i+1][j] ;
+//                if( N_zaoddian >  255 * 2 )
+//                {
+//                    image[90-i][j] = 255 ;
+//                }
+//            }
+//
+//        }
 }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
 //  @name           Get_Border_And_SideType
