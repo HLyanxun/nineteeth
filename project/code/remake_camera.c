@@ -1452,11 +1452,11 @@ void draw_midline(void)
     {
         if(imageflag.mid_choose)
                  {
-                     if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
+                     if(default_side_choose && imagestatus.Miss_Left_lines<5){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
                      else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
                  }
                  else {
-                     if(default_side_choose){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
+                     if(default_side_choose && imagestatus.Miss_Right_lines<5){Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].rightline -(track_width / 2);}
                      else {Sideline_status_array[Ysite].midline =Sideline_status_array[Ysite].leftline + (track_width / 2);}
             }
                  LimitH(Sideline_status_array[Ysite].midline);
@@ -2604,7 +2604,7 @@ void Element_Handle_right_Rings()
 void Cross_road_Judgment(void)
 {
 //    imageflag.CrossRoad_Flag=0;
-    if(imagestatus.Miss_Left_lines<5||imagestatus.Miss_Right_lines<5||imageflag.CrossRoad_Flag!=0||imageflag.image_element_rings!=0||imageflag.Zebra_Flag!=0) return;
+    if(imagestatus.Miss_Left_lines<5||imagestatus.Miss_Right_lines<5||Straight_Judge(1, 60, 80)>1||imageflag.CrossRoad_Flag!=0||imageflag.image_element_rings!=0||imageflag.Zebra_Flag!=0) return;
     imageflag.CrossRoad_Flag=1;
 }
 //--------------------------------------------------------------------
@@ -2932,9 +2932,10 @@ void Scan_Element()
     {
 //        Element_Judgment_RoadBlock();       //Â·ÕÏ
 //        Element_Judgment_OutRoad();         //¶ÏÂ·
-        Cross_road_Judgment();
+
         Element_Judgment_Left_Rings();
         Element_Judgment_Right_Rings();
+        Cross_road_Judgment();
 
     }
     Element_Judgment_Zebra();
