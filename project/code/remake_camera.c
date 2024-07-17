@@ -2649,12 +2649,13 @@ void Cross_road_Judgment(void)
 void Cross_road_Handle(void)
 {
 //    uint8 Cross_Ysite_L=0,Cross_Ysite_R=0;
+    if(imageflag.CrossRoad_Flag==0)return;
     uint8 num=0;
     float slope=0;
 //    float slope_L=0,slope_R=0;
     for(Ysite=image_bottom_value;Ysite>(image_bottom_value-15);Ysite--)
     {
-        if(Sideline_status_array[Ysite].LeftBoundary<10 && Sideline_status_array[Ysite].RightBoundary>(image_side_width-10))
+        if(Sideline_status_array[Ysite].LeftBoundary<10 || Sideline_status_array[Ysite].RightBoundary>(image_side_width-10))
             num++;
     }
     if(num>7)imageflag.CrossRoad_Flag=2;
@@ -2724,7 +2725,7 @@ void Cross_road_Handle(void)
 void Element_Judgment_Zebra(void)//°ßÂíÏßÅÐ¶Ï
 {
     if( imageflag.image_element_rings == 1 || imageflag.image_element_rings == 2
-            || imageflag.Out_Road == 1 ) return;
+            || imageflag.Out_Road == 1 || imageflag.CrossRoad_Flag!=0 || abs(angle_compute(Sideline_status_array[50].leftline,50,Sideline_status_array[60].leftline,60))>25) return;
     int NUM = 0, net = 0;
     if(imageflag.Zebra_Flag == 0)
     {
@@ -3017,7 +3018,7 @@ void Camera_tracking(void)
     Element_Handle();
 
     draw_midline();
-    camera_tft180show();
+//    camera_tft180show();
     mt9v03x_finish_flag=0;
            }
 }

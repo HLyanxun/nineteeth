@@ -23,7 +23,7 @@
 //int LimitL(uint8 x);
 
 //二值化
-#define My_Threshold_cha     (7)        //二值化阈值补偿值
+#define My_Threshold_cha     (10)        //二值化阈值补偿值
 
 //逆透视
 #define RESULT_ROW 90//结果图行列
