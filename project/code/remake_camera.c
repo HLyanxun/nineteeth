@@ -2772,13 +2772,15 @@ void Element_Judgment_Zebra(void)//°ßÂíÏßÅĞ¶Ï
 
         }
         if(Zeber_count==0)Zeber_count++;
-        if(imageflag.Zebra_Flag_count==0)imageflag.Zebra_Flag_count=1;
-        if(Zeber_count==1 && imageflag.Zebra_Flag_count==2)Zeber_count++;
+//        if(Zeber_count==1 && imageflag.Zebra_Flag_count==2)Zeber_count++;
     }
     if(NUM<=1)
     {
+//        if(imageflag.Zebra_Flag_count==0 && imageflag.Zebra_Flag!=0)imageflag.Zebra_Flag_count=1;
+//        if(imageflag.Zebra_Flag_count==1 && imageflag.Zebra_Flag!=0)imageflag.Zebra_Flag_count=2;
+        if(imageflag.Zebra_Flag!=0)imageflag.Zebra_Flag_count++;
         imageflag.Zebra_Flag = 0;
-        if(imageflag.Zebra_Flag_count==1)imageflag.Zebra_Flag_count=2;
+
     }
 
 }
