@@ -1373,7 +1373,7 @@ void Get_AllLine(void)
      {
           imagestatus.Miss_Left_lines++;
      }
-     if ((Sideline_status_array[Ysite].IsRightFind == 'W' || Sideline_status_array[Ysite].rightline)&&Ysite<(image_bottom_value-4))
+     if ((Sideline_status_array[Ysite].IsRightFind == 'W' || Sideline_status_array[Ysite].rightline>(image_side_width-5))&&Ysite<(image_bottom_value-4))
      {
           imagestatus.Miss_Right_lines++;
      }
