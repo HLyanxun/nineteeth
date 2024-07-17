@@ -116,7 +116,7 @@ void ALL_init(void)
 void ImagePerspective_Init(void)
 {
     static uint8_t BlackColor = 0;
-    double change_un_Mat[3][3] ={{0.592732,-0.471368,44.767877},{0.000000,0.154939,8.323468},{0.000000,-0.004913,0.736042}};
+    double change_un_Mat[3][3] ={{0.201429,-0.188576,16.686918},{-0.000000,0.018033,6.094653},{-0.000000,-0.002110,0.286796}};
     for (int i = 0; i < RESULT_COL ;i++) {
         for (int j = 0; j < RESULT_ROW ;j++) {
             int local_x = (int) ((change_un_Mat[0][0] * i
@@ -160,9 +160,9 @@ void camera_tft180show(void)
 //    a=Straight_Judge(2, 50, 70);
 //    a=abs(angle_compute(Sideline_status_array[(imagestatus.OFFLine+10)].rightline,(imagestatus.OFFLine+10),Sideline_status_array[70].rightline,70));
 //    a=abs(angle_compute(Sideline_status_array[30].rightline,30,Sideline_status_array[60].rightline,60));
-//    tft180_show_int(0, 140, imageflag.Zebra_Flag, 3);
+    tft180_show_int(0, 92, imageflag.Zebra_Flag_count, 3);
 //
-    tft180_show_int(0,92, abs(angle_compute(Sideline_status_array[70].RightBoundary,70,Sideline_status_array[80].RightBoundary,80)), 3);
+//    tft180_show_int(0,92, abs(angle_compute(Sideline_status_array[70].RightBoundary,70,Sideline_status_array[80].RightBoundary,80)), 3);
     tft180_show_int(0,108, imageflag.CrossRoad_Flag, 3);
     tft180_show_int(0,124, imageflag.image_element_rings_flag, 3);
     if(track_show)
@@ -1369,11 +1369,11 @@ void Get_AllLine(void)
       {
           imagestatus.WhiteLine++;  //要是左右都无边，丢边数+1
       }
-     if (Sideline_status_array[Ysite].IsLeftFind == 'W'&&Ysite<(image_bottom_value-4))
+     if ((Sideline_status_array[Ysite].IsLeftFind == 'W'|| Sideline_status_array[Ysite].leftline<5)&&Ysite<(image_bottom_value-4))
      {
           imagestatus.Miss_Left_lines++;
      }
-     if (Sideline_status_array[Ysite].IsRightFind == 'W'&&Ysite<(image_bottom_value-4))
+     if ((Sideline_status_array[Ysite].IsRightFind == 'W' || Sideline_status_array[Ysite].rightline)&&Ysite<(image_bottom_value-4))
      {
           imagestatus.Miss_Right_lines++;
      }
